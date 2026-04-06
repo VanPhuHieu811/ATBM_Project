@@ -9,7 +9,7 @@ namespace ATBM_Project.Data
         // 1. Khai báo các thông số kết nối
         private static string host = "localhost";
         private static string port = "1521";
-        private static string sid = "orcl";
+        private static string sid = "xe";
         private static string user = "ADMIN_YTE"; 
         private static string pass = "12345678";
 

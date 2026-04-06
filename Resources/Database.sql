@@ -1,14 +1,29 @@
-ALTER SESSION SET "_ORACLE_SCRIPT" = TRUE;
+ALTER SESSION SET "_ORACLE_SCRIPT" = true;
 
+-- 1. Đuổi tất cả kết nối của ADMIN_YTE (nếu có) để có thể xóa sạch
+BEGIN
+   FOR r IN (SELECT sid, serial# FROM v$session WHERE username = 'ADMIN_YTE') LOOP
+      EXECUTE IMMEDIATE 'ALTER SYSTEM KILL SESSION ''' || r.sid || ',' || r.serial# || '''';
+   END LOOP;
+END;
+/
+
+-- 2. Xóa User (Lúc này chắc chắn sẽ thành công vì không còn ai kết nối)
+BEGIN
+   EXECUTE IMMEDIATE 'DROP USER ADMIN_YTE CASCADE';
+EXCEPTION WHEN OTHERS THEN 
+   -- Chỉ lờ đi nếu lỗi "User không tồn tại" (ORA-01918)
+   IF SQLCODE != -1918 THEN 
+      RAISE; 
+   END IF;
+END;
+/
+
+-- 3. Bây giờ mới tạo lại thì 100% không bị báo lỗi Conflict
 CREATE USER ADMIN_YTE IDENTIFIED BY 12345678;
-
-GRANT CONNECT, RESOURCE TO ADMIN_YTE;
-
--- Cấp quyền DBA để User này có thể quản trị các User khác (phục vụ Phân hệ 1)
-GRANT DBA TO ADMIN_YTE;
-
--- Cấp hạn mức lưu trữ (Quota) trên Tablespace cho User này
+GRANT CONNECT, RESOURCE, DBA TO ADMIN_YTE;
 ALTER USER ADMIN_YTE QUOTA UNLIMITED ON USERS;
+ALTER SESSION SET CURRENT_SCHEMA = ADMIN_YTE;
 
 -- 1. Bảng NHÂN VIÊN
 CREATE TABLE NHANVIEN (
@@ -193,3 +208,6 @@ INSERT ALL
   INTO DONTHUOC VALUES ('BA020', TO_DATE('2024-01-20','YYYY-MM-DD'), N'Otinum', N'Nhỏ tai 3 lần/ngày')
 SELECT * FROM dual;
 
+commit;
+
+SELECT * FROM ROLE_TAB_PRIVS;
