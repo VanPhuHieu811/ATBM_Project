@@ -10,7 +10,7 @@ namespace ATBM_Project.Data
         private static string host = "localhost";
         private static string port = "1521";
         private static string sid = "xe";
-        private static string user = "ADMIN_YTE"; 
+        private static string user = "ADMIN_YTE";
         private static string pass = "12345678";
 
         // 2. Chuỗi kết nối (Connection String) chuẩn Oracle

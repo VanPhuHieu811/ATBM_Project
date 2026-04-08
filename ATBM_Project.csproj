@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DBConfig.cs" />
+    <Compile Include="Data\OracleHelper.cs" />
     <Compile Include="Models\BenhNhan.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Presenters\BenhNhanPresenter.cs" />
@@ -91,6 +92,15 @@
     <Compile Include="Program.cs" />
     <Compile Include="Views\Form1.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmEditUser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmUserRole.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\frmUserRole.Designer.cs">
+      <DependentUpon>frmUserRole.cs</DependentUpon>
     </Compile>
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
@@ -111,12 +121,19 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Database.sql" />
+    <Content Include="Resources\Screen1_SQL.sql" />
     <Content Include="Services\keep.txt" />
     <Content Include="Utilities\keep.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmEditUser.resx">
+      <DependentUpon>frmEditUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\frmUserRole.resx">
+      <DependentUpon>frmUserRole.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

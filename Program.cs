@@ -17,7 +17,14 @@ namespace ATBM_Project
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            using (var login = new frmLogin())
+            {
+                if (login.ShowDialog() == DialogResult.OK)
+                {
+                    Application.Run(new frmUserRole(login.ConnectionString));
+                }
+            }
+            //Application.Run(new Form1());
         }
     }
 }
