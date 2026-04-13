@@ -108,10 +108,9 @@ namespace ATBM_Project.Views
             string grantee = txtGrantee.Text.Trim();
             DataGridViewRow row = dgvPrivileges.SelectedRows[0];
 
-            // Sử dụng thuộc tính Model hoặc Index cột (cột 0: PrivilegeName, 1: Type, 2: TableName)
-            string privName = row.Cells["PrivilegeName"].Value?.ToString();
-            string privType = row.Cells["Type"].Value?.ToString();
-            string tableName = row.Cells["TableName"].Value?.ToString();
+            string privName = row.Cells["PrivilegeName"].Value?.ToString().Trim();
+            string privType = row.Cells["Type"].Value?.ToString().Trim();
+            string tableName = row.Cells["TableName"].Value?.ToString().Trim();
 
             if (string.IsNullOrEmpty(grantee) || string.IsNullOrEmpty(privName))
             {
@@ -119,27 +118,22 @@ namespace ATBM_Project.Views
                 return;
             }
 
-            string fullPrivilege = privName;
-            if (privType == "OBJECT" && !string.IsNullOrEmpty(tableName)) 
-            {
-                fullPrivilege = $"{privName} ON {tableName}";
-            }
-
-            DialogResult confirm = MessageBox.Show($"Bạn có chắc muốn thu hồi quyền '{fullPrivilege}' từ '{grantee}'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult confirm = MessageBox.Show($"Bạn có chắc muốn thu hồi quyền '{privName}' từ '{grantee}'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (confirm == DialogResult.Yes)
             {
                 try
                 {
-                    PrivilegePresenter presenter = new PrivilegePresenter();
-                    if (presenter.RevokePrivilege(fullPrivilege, grantee))
+                    RevokePresenter presenter = new RevokePresenter();
+                    if (presenter.RevokePrivilege(privName, privType, tableName, grantee))
                     {
                         MessageBox.Show("Thu hồi quyền thành công!");
-                        LoadPrivileges(grantee); // Tải lại danh sách sau khi thu hồi
+                        LoadPrivileges(grantee);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Lỗi: " + ex.Message);
+                    // Hiển thị nguyên chuỗi lệnh gặp lỗi từ Presenter
+                    MessageBox.Show(ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

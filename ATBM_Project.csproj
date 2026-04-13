@@ -86,6 +86,7 @@
     <Compile Include="Config\DBConfig.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Presenters\PrivilegePresenter.cs" />
+    <Compile Include="Presenters\RevokePresenter.cs" />
     <Compile Include="Presenters\RolePresenter.cs" />
     <Compile Include="Presenters\UserPresenter.cs" />
     <Compile Include="Program.cs" />

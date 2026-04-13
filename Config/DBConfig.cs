@@ -1,37 +1,63 @@
 ﻿using System;
-using System.Data;
 using Oracle.ManagedDataAccess.Client;
 
 namespace ATBM_Project.Data
 {
     public class DBConfig
     {
-        // 1. Khai báo các thông số kết nối
-        private static string host = "";
-        private static string port = "";
-        private static string sid = "";
-        public static string user = ""; 
-        private static string pass = "";
+        private const string DefaultHost = "localhost";
+        private const string DefaultPort = "1521";
+        private const string DefaultServiceName = "xe";
 
-        // 2. Chuỗi kết nối (Connection String) chuẩn Oracle
-        public static string ConnectionString => $"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={port}))(CONNECT_DATA=(SERVICE_NAME={sid})));User Id={user};Password={pass};";
+        private static string host = DefaultHost;
+        private static string port = DefaultPort;
+        private static string sid = DefaultServiceName;
+        private static string user = string.Empty;
+        private static string pass = string.Empty;
+
+        public static string User => user;
+
+        public static string ConnectionString
+        {
+            get
+            {
+                string connStr =
+                    $"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={port}))(CONNECT_DATA=(SERVICE_NAME={sid})));User Id={user};Password={pass};";
+                if (!string.IsNullOrEmpty(user) && user.Equals("sys", StringComparison.OrdinalIgnoreCase))
+                {
+                    connStr += "DBA Privilege=SYSDBA;";
+                }
+                return connStr;
+            }
+        }
+
+        public static string ExpectedContainerName
+        {
+            get
+            {
+                return (sid ?? string.Empty).Trim().ToUpperInvariant();
+            }
+        }
 
         public static void UpdateConfig(string pHost, string pPort, string pSid, string pUser, string pPass)
         {
-            host = string.IsNullOrWhiteSpace(pHost) ? "localhost" : pHost;
-            port = string.IsNullOrWhiteSpace(pPort) ? "1521" : pPort;
-            sid = string.IsNullOrWhiteSpace(pSid) ? "xe" : pSid;
-            user = pUser;
-            pass = pPass;
+            host = NormalizeOrDefault(pHost, DefaultHost);
+            port = NormalizeOrDefault(pPort, DefaultPort);
+            sid = NormalizeOrDefault(pSid, DefaultServiceName);
+            user = (pUser ?? string.Empty).Trim();
+            pass = pPass ?? string.Empty;
         }
 
-        // 3. Hàm lấy đối tượng kết nối
+        private static string NormalizeOrDefault(string value, string fallback)
+        {
+            return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+        }
+
         public static OracleConnection GetConnection()
         {
             return new OracleConnection(ConnectionString);
         }
 
-        // 4. Hàm kiểm tra kết nối (Dùng để test lúc đầu)
         public static bool TestConnection()
         {
             using (OracleConnection conn = GetConnection())

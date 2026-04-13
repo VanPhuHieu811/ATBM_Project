@@ -18,7 +18,7 @@ namespace ATBM_Project.Views
         public FormMain()
         {
             InitializeComponent();
-            lblUsername.Text = DBConfig.user?.ToUpper();
+            lblUsername.Text = DBConfig.User?.ToUpper();
         }
 
         private void InitializeComponent()

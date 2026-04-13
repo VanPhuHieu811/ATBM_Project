@@ -24,8 +24,8 @@ namespace ATBM_Project.Views
             this.lblPort = new Label() { Text = "Port:", Location = new Point(30, 70), AutoSize = true };
             this.txtPort = new TextBox() { Text = "1521", Location = new Point(120, 67), Width = 150, ReadOnly = true };
 
-            this.lblSid = new Label() { Text = "SID:", Location = new Point(30, 110), AutoSize = true };
-            this.txtSid = new TextBox() { Text = "xe", Location = new Point(120, 107), Width = 150, ReadOnly = true };
+            this.lblSid = new Label() { Text = "Service/PDB:", Location = new Point(30, 110), AutoSize = true };
+            this.txtSid = new TextBox() { Text = "xepdb1", Location = new Point(120, 107), Width = 150 };
 
             this.lblUser = new Label() { Text = "Username:", Location = new Point(30, 150), AutoSize = true };
             this.txtUser = new TextBox() { Location = new Point(120, 147), Width = 150 };
@@ -58,9 +58,17 @@ namespace ATBM_Project.Views
             string user = txtUser.Text.Trim();
             string pass = txtPass.Text;
 
-            if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
+            if (string.IsNullOrEmpty(sid) || string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
             {
-                MessageBox.Show("Vui lòng nhập Username và Password!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập Service/PDB, Username và Password!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Chặn connect root service mặc định vì sẽ gây lỗi scope khi revoke.
+            if (sid.Equals("xe", StringComparison.OrdinalIgnoreCase) ||
+                sid.Equals("cdb$root", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Vui lòng dùng service của PDB (ví dụ: xepdb1), không dùng root service 'xe'.", "Sai Service/PDB", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 

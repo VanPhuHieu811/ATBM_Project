@@ -11,49 +11,50 @@ namespace ATBM_Project.Presenters
         public List<PrivilegeInfo> GetPrivileges(string grantee)
         {
             List<PrivilegeInfo> list = new List<PrivilegeInfo>();
+
             using (OracleConnection conn = DBConfig.GetConnection())
             {
                 conn.Open();
+
                 string sql = @"
                     SELECT PRIVILEGE AS PrivilegeName, 'SYSTEM' AS Type, NULL AS TableName 
-                    FROM DBA_SYS_PRIVS WHERE GRANTEE = :grantee
+                    FROM DBA_SYS_PRIVS 
+                    WHERE GRANTEE = :grantee
+                      AND NVL(COMMON, 'NO') = 'NO'
+                      AND NVL(INHERITED, 'NO') = 'NO'
                     UNION ALL
-                    SELECT PRIVILEGE AS PrivilegeName, 'OBJECT' AS Type, TABLE_NAME AS TableName 
-                    FROM DBA_TAB_PRIVS WHERE GRANTEE = :grantee
+                    SELECT PRIVILEGE AS PrivilegeName, 'OBJECT' AS Type, OWNER || '.' || TABLE_NAME AS TableName 
+                    FROM DBA_TAB_PRIVS 
+                    WHERE GRANTEE = :grantee
+                      AND NVL(COMMON, 'NO') = 'NO'
+                      AND NVL(INHERITED, 'NO') = 'NO'
                     UNION ALL
                     SELECT GRANTED_ROLE AS PrivilegeName, 'ROLE' AS Type, NULL AS TableName 
-                    FROM DBA_ROLE_PRIVS WHERE GRANTEE = :grantee";
+                    FROM DBA_ROLE_PRIVS 
+                    WHERE GRANTEE = :grantee
+                      AND NVL(COMMON, 'NO') = 'NO'
+                      AND NVL(INHERITED, 'NO') = 'NO'";
 
-                OracleCommand cmd = new OracleCommand(sql, conn);
-                cmd.Parameters.Add(new OracleParameter("grantee", grantee.ToUpper()));
-                using (OracleDataReader reader = cmd.ExecuteReader())
+                using (OracleCommand cmd = new OracleCommand(sql, conn))
                 {
-                    while (reader.Read())
+                    cmd.Parameters.Add(new OracleParameter("grantee", grantee.ToUpper()));
+
+                    using (OracleDataReader reader = cmd.ExecuteReader())
                     {
-                        list.Add(new PrivilegeInfo
+                        while (reader.Read())
                         {
-                            PrivilegeName = reader["PrivilegeName"].ToString(),
-                            Type = reader["Type"].ToString(),
-                            TableName = reader["TableName"]?.ToString()
-                        });
+                            list.Add(new PrivilegeInfo
+                            {
+                                PrivilegeName = reader["PrivilegeName"].ToString(),
+                                Type = reader["Type"].ToString(),
+                                TableName = reader["TableName"]?.ToString()
+                            });
+                        }
                     }
                 }
             }
-            return list;
-        }
 
-        public bool RevokePrivilege(string privilege, string userOrRole)
-        {
-            using (OracleConnection conn = DBConfig.GetConnection())
-            {
-                conn.Open();
-                string sql = $"REVOKE {privilege} FROM {userOrRole}";
-                using (OracleCommand cmd = new OracleCommand(sql, conn))
-                {
-                    cmd.ExecuteNonQuery();
-                }
-                return true;
-            }
+            return list;
         }
     }
 }
