@@ -84,14 +84,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DBConfig.cs" />
-    <Compile Include="Models\BenhNhan.cs" />
     <Compile Include="Models\AccountModels.cs" />
-    <Compile Include="Presenters\BenhNhanPresenter.cs" />
     <Compile Include="Presenters\AccountPresenter.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Views\Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Views\FormGrantPrivileges.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -137,11 +132,6 @@
     <Content Include="Resources\Database.sql" />
     <Content Include="Services\keep.txt" />
     <Content Include="Utilities\keep.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Views\Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

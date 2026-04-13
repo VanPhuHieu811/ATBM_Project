@@ -69,7 +69,7 @@ namespace ATBM_Project.Views
             this.btnRevoke.Location = new System.Drawing.Point(380, 15);
             this.btnRevoke.Name = "btnRevoke";
             this.btnRevoke.Size = new System.Drawing.Size(120, 30);
-            this.btnRevoke.Text = "Thu Hồi Chọn";
+            this.btnRevoke.Text = "Thu Hồi";
             this.btnRevoke.Click += new System.EventHandler(this.btnRevoke_Click);
 
             // dgvPrivileges
