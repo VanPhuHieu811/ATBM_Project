@@ -12,4 +12,11 @@
         public string RoleName { get; set; }
         public string RoleId { get; set; }
     }
+
+    public class PrivilegeInfo
+    {
+        public string PrivilegeName { get; set; }
+        public string Type { get; set; }
+        public string TableName { get; set; }
+    }
 }

@@ -7,14 +7,23 @@ namespace ATBM_Project.Data
     public class DBConfig
     {
         // 1. Khai báo các thông số kết nối
-        private static string host = "localhost";
-        private static string port = "1521";
-        private static string sid = "xe";
-        private static string user = "ADMIN_YTE"; 
-        private static string pass = "12345678";
+        private static string host = "";
+        private static string port = "";
+        private static string sid = "";
+        public static string user = ""; 
+        private static string pass = "";
 
         // 2. Chuỗi kết nối (Connection String) chuẩn Oracle
-        public static string ConnectionString = $"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={port}))(CONNECT_DATA=(SERVICE_NAME={sid})));User Id={user};Password={pass};";
+        public static string ConnectionString => $"Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={port}))(CONNECT_DATA=(SERVICE_NAME={sid})));User Id={user};Password={pass};";
+
+        public static void UpdateConfig(string pHost, string pPort, string pSid, string pUser, string pPass)
+        {
+            host = string.IsNullOrWhiteSpace(pHost) ? "localhost" : pHost;
+            port = string.IsNullOrWhiteSpace(pPort) ? "1521" : pPort;
+            sid = string.IsNullOrWhiteSpace(pSid) ? "xe" : pSid;
+            user = pUser;
+            pass = pPass;
+        }
 
         // 3. Hàm lấy đối tượng kết nối
         public static OracleConnection GetConnection()

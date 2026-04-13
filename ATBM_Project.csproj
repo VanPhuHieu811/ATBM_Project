@@ -92,6 +92,30 @@
     <Compile Include="Views\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\FormGrantPrivileges.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormGrantRoles.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormRevoke.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormRevokePrivilege.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormRole.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormUser.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
     </None>

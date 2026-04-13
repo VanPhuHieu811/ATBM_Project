@@ -10,6 +10,7 @@ namespace ATBM_Project.Views
         private DataGridView dataGridView1;
         private Button btnShowRoles;
         private Button btnUserLoadPatient;
+        private Button btnRevokePrivilege;
 
         public Form1()
         {
@@ -36,6 +37,7 @@ namespace ATBM_Project.Views
             this.btnUserLoad = new System.Windows.Forms.Button();
             this.btnUserLoadPatient = new System.Windows.Forms.Button();
             this.btnShowRoles = new System.Windows.Forms.Button();
+            this.btnRevokePrivilege = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -47,6 +49,7 @@ namespace ATBM_Project.Views
             this.dataGridView1.RowHeadersWidth = 51;
             this.dataGridView1.Size = new System.Drawing.Size(630, 300);
             this.dataGridView1.TabIndex = 0;
+            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick);
             // 
             // btnUserLoad
             // 
@@ -77,9 +80,20 @@ namespace ATBM_Project.Views
             this.btnShowRoles.UseVisualStyleBackColor = true;
             this.btnShowRoles.Click += new System.EventHandler(this.btnShowRoles_Click);
             // 
+            // btnRevokePrivilege
+            // 
+            this.btnRevokePrivilege.Location = new System.Drawing.Point(370, 20);
+            this.btnRevokePrivilege.Name = "btnRevokePrivilege";
+            this.btnRevokePrivilege.Size = new System.Drawing.Size(120, 40);
+            this.btnRevokePrivilege.TabIndex = 3;
+            this.btnRevokePrivilege.Text = "Thu Hồi";
+            this.btnRevokePrivilege.UseVisualStyleBackColor = true;
+            this.btnRevokePrivilege.Click += new System.EventHandler(this.btnRevokePrivilege_Click);
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(680, 420);
+            this.Controls.Add(this.btnRevokePrivilege);
             this.Controls.Add(this.btnShowRoles);
             this.Controls.Add(this.btnUserLoadPatient);
             this.Controls.Add(this.btnUserLoad);
@@ -125,6 +139,20 @@ namespace ATBM_Project.Views
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi: " + ex.Message);
+            }
+        }
+
+        private void btnRevokePrivilege_Click(object sender, EventArgs e)
+        {
+            FormRevoke f = new FormRevoke();
+            f.ShowDialog();
+        }
+
+        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                // To do: implement this if needed
             }
         }
     }
