@@ -83,7 +83,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\DBConfig.cs" />
+    <Compile Include="Config\DBConfig.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Presenters\PrivilegePresenter.cs" />
     <Compile Include="Presenters\RolePresenter.cs" />
