@@ -27,7 +27,7 @@ namespace ATBM_Project.Views
         {
             try
             {
-                AccountPresenter presenter = new AccountPresenter();
+                PrivilegePresenter presenter = new PrivilegePresenter();
                 var privileges = presenter.GetPrivileges(grantee);
                 dgvPrivileges.DataSource = privileges;
 
@@ -130,7 +130,7 @@ namespace ATBM_Project.Views
             {
                 try
                 {
-                    AccountPresenter presenter = new AccountPresenter();
+                    PrivilegePresenter presenter = new PrivilegePresenter();
                     if (presenter.RevokePrivilege(fullPrivilege, grantee))
                     {
                         MessageBox.Show("Thu hồi quyền thành công!");

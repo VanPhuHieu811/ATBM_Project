@@ -85,7 +85,9 @@
   <ItemGroup>
     <Compile Include="Data\DBConfig.cs" />
     <Compile Include="Models\AccountModels.cs" />
-    <Compile Include="Presenters\AccountPresenter.cs" />
+    <Compile Include="Presenters\PrivilegePresenter.cs" />
+    <Compile Include="Presenters\RolePresenter.cs" />
+    <Compile Include="Presenters\UserPresenter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Views\FormGrantPrivileges.cs">
       <SubType>Form</SubType>

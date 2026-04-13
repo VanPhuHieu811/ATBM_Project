@@ -21,7 +21,7 @@ namespace ATBM_Project.Views
         {
             try
             {
-                AccountPresenter presenter = new AccountPresenter();
+                UserPresenter presenter = new UserPresenter();
                 dgvUsers.DataSource = presenter.GetUsers();
                 if (dgvUsers.Columns.Count > 0)
                 {

@@ -47,7 +47,7 @@ namespace ATBM_Project.Views
             currentMode = "USER";
             try
             {
-                AccountPresenter presenter = new AccountPresenter();
+                UserPresenter presenter = new UserPresenter();
                 dgvList.DataSource = presenter.GetUsers();
                 if (dgvList.Columns.Count > 0)
                 {
@@ -65,7 +65,7 @@ namespace ATBM_Project.Views
             currentMode = "ROLE";
             try
             {
-                AccountPresenter presenter = new AccountPresenter();
+                RolePresenter presenter = new RolePresenter();
                 dgvList.DataSource = presenter.GetRoles();
                 if (dgvList.Columns.Count > 0)
                 {

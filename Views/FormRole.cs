@@ -21,7 +21,7 @@ namespace ATBM_Project.Views
         {
             try
             {
-                AccountPresenter presenter = new AccountPresenter();
+                RolePresenter presenter = new RolePresenter();
                 dgvRoles.DataSource = presenter.GetRoles();
                 if (dgvRoles.Columns.Count > 0)
                 {
