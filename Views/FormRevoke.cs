@@ -19,20 +19,31 @@ namespace ATBM_Project.Views
         private void InitializeComponent()
         {
             this.ClientSize = new Size(800, 600);
-            this.BackColor = Color.White;
-            
-            this.btnShowUsers = new Button() { Text = "Users", Location = new Point(20, 20), Size = new Size(100, 30) };
+            this.BackColor = Color.WhiteSmoke;
+
+            this.btnShowUsers = CreateActionButton("Users", 20, 20);
             this.btnShowUsers.Click += BtnShowUsers_Click;
 
-            this.btnShowRoles = new Button() { Text = "Roles", Location = new Point(130, 20), Size = new Size(100, 30) };
+            this.btnShowRoles = CreateActionButton("Roles", 130, 20);
             this.btnShowRoles.Click += BtnShowRoles_Click;
 
             this.dgvList = new DataGridView();
             this.dgvList.Location = new Point(20, 70);
             this.dgvList.Size = new Size(760, 500);
             this.dgvList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            this.dgvList.BackgroundColor = Color.White;
+            this.dgvList.BorderStyle = BorderStyle.None;
+            this.dgvList.RowHeadersVisible = false;
+            this.dgvList.AllowUserToAddRows = false;
+            this.dgvList.AllowUserToResizeColumns = false;
+            this.dgvList.AllowUserToResizeRows = false;
             this.dgvList.ReadOnly = true;
             this.dgvList.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.dgvList.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+            this.dgvList.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.dgvList.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 53, 65);
+            this.dgvList.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            this.dgvList.EnableHeadersVisualStyles = false;
             this.dgvList.CellDoubleClick += DgvList_CellDoubleClick;
 
             this.Controls.Add(btnShowUsers);
@@ -40,6 +51,21 @@ namespace ATBM_Project.Views
             this.Controls.Add(dgvList);
 
             this.Text = "FormRevoke";
+        }
+
+        private Button CreateActionButton(string text, int x, int y)
+        {
+            Button btn = new Button();
+            btn.Text = text;
+            btn.Location = new Point(x, y);
+            btn.Size = new Size(100, 35);
+            btn.BackColor = Color.SteelBlue;
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btn.Cursor = Cursors.Hand;
+            return btn;
         }
 
         private void BtnShowUsers_Click(object sender, EventArgs e)

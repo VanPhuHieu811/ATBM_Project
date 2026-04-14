@@ -78,6 +78,8 @@ namespace ATBM_Project.Views
             this.dgvPrivileges.Size = new System.Drawing.Size(480, 280);
             this.dgvPrivileges.AllowUserToAddRows = false;
             this.dgvPrivileges.AllowUserToDeleteRows = false;
+            this.dgvPrivileges.AllowUserToResizeColumns = false;
+            this.dgvPrivileges.AllowUserToResizeRows = false;
             this.dgvPrivileges.ReadOnly = true;
             this.dgvPrivileges.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvPrivileges.MultiSelect = false;

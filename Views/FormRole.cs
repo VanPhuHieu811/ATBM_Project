@@ -37,18 +37,33 @@ namespace ATBM_Project.Views
         private void InitializeComponent()
         {
             this.ClientSize = new Size(800, 600);
-            this.lblRoles = new Label() { Text = "Roles", Location = new Point(20, 20), AutoSize = true, Font = new Font(this.Font, FontStyle.Bold) };
+            this.BackColor = Color.WhiteSmoke;
+            Font headerFont = new Font("Segoe UI", 16F, FontStyle.Bold);
+            this.lblRoles = new Label() { Text = "Roles Management", Location = new Point(20, 20), AutoSize = true, Font = headerFont, ForeColor = Color.FromArgb(41, 53, 65) };
 
-            int btnY = 50;
+            int btnY = 65;
             this.btnRoleCreate = CreateActionButton("Create", 20, btnY);
-            this.btnRoleUpdate = CreateActionButton("Update", 110, btnY);
-            this.btnRoleDelete = CreateActionButton("Delete", 200, btnY);
-            this.btnRoleView = CreateActionButton("View", 290, btnY);
+            this.btnRoleUpdate = CreateActionButton("Update", 120, btnY);
+            this.btnRoleDelete = CreateActionButton("Delete", 220, btnY);
+            this.btnRoleView = CreateActionButton("View", 320, btnY);
 
             this.dgvRoles = new DataGridView();
-            this.dgvRoles.Location = new Point(20, 90);
-            this.dgvRoles.Size = new Size(760, 480);
+            this.dgvRoles.Location = new Point(20, 115);
+            this.dgvRoles.Size = new Size(740, 450);
             this.dgvRoles.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            this.dgvRoles.BackgroundColor = Color.White;
+            this.dgvRoles.BorderStyle = BorderStyle.None;
+            this.dgvRoles.RowHeadersVisible = false;
+            this.dgvRoles.AllowUserToAddRows = false;
+            this.dgvRoles.AllowUserToResizeColumns = false;
+            this.dgvRoles.AllowUserToResizeRows = false;
+            this.dgvRoles.ReadOnly = true;
+            this.dgvRoles.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.dgvRoles.DefaultCellStyle.Font = new Font("Segoe UI", 10F);
+            this.dgvRoles.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.dgvRoles.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 53, 65);
+            this.dgvRoles.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            this.dgvRoles.EnableHeadersVisualStyles = false;
 
             this.Controls.Add(lblRoles);
             this.Controls.Add(btnRoleCreate); this.Controls.Add(btnRoleUpdate);
@@ -56,7 +71,6 @@ namespace ATBM_Project.Views
             this.Controls.Add(dgvRoles);
 
             this.Text = "FormRole";
-            this.BackColor = Color.White;
         }
 
         private Button CreateActionButton(string text, int x, int y)
@@ -64,7 +78,13 @@ namespace ATBM_Project.Views
             Button btn = new Button();
             btn.Text = text;
             btn.Location = new Point(x, y);
-            btn.Size = new Size(80, 30);
+            btn.Size = new Size(90, 35);
+            btn.BackColor = Color.SteelBlue;
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btn.Cursor = Cursors.Hand;
             return btn;
         }
     }

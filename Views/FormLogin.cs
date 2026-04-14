@@ -18,36 +18,56 @@ namespace ATBM_Project.Views
 
         private void InitializeComponent()
         {
-            this.lblHost = new Label() { Text = "Host:", Location = new Point(30, 30), AutoSize = true };
-            this.txtHost = new TextBox() { Location = new Point(120, 27), Width = 150 };
+            this.Text = "Login to Oracle DB";
+            this.ClientSize = new Size(450, 420);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.BackColor = Color.WhiteSmoke;
 
-            this.lblPort = new Label() { Text = "Port:", Location = new Point(30, 70), AutoSize = true };
-            this.txtPort = new TextBox() { Text = "1521", Location = new Point(120, 67), Width = 150, ReadOnly = true };
+            Font headerFont = new Font("Segoe UI", 16F, FontStyle.Bold);
+            Font labelFont = new Font("Segoe UI", 10F, FontStyle.Regular);
+            Font textFont = new Font("Segoe UI", 10F, FontStyle.Regular);
 
-            this.lblSid = new Label() { Text = "Service/PDB:", Location = new Point(30, 110), AutoSize = true };
-            this.txtSid = new TextBox() { Text = "xepdb1", Location = new Point(120, 107), Width = 150 };
+            Label lblTitle = new Label() { Text = "Oracle Database Login", Location = new Point(0, 30), AutoSize = false, Width = 450, Height = 50, TextAlign = ContentAlignment.MiddleCenter, Font = headerFont, ForeColor = Color.SteelBlue };
 
-            this.lblUser = new Label() { Text = "Username:", Location = new Point(30, 150), AutoSize = true };
-            this.txtUser = new TextBox() { Location = new Point(120, 147), Width = 150 };
+            int startY = 100;
+            int gapY = 45;
+            int lx = 80;
+            int tx = 180;
+            int tw = 180;
 
-            this.lblPass = new Label() { Text = "Password:", Location = new Point(30, 190), AutoSize = true };
-            this.txtPass = new TextBox() { Location = new Point(120, 187), Width = 150, UseSystemPasswordChar = true };
+            this.lblHost = new Label() { Text = "Host:", Location = new Point(lx, startY), AutoSize = true, Font = labelFont };
+            this.txtHost = new TextBox() { Text = "localhost", Location = new Point(tx, startY - 3), Width = tw, Font = textFont };
 
-            this.btnLogin = new Button() { Text = "Login", Location = new Point(120, 230), Width = 80, Height = 30 };
+            this.lblPort = new Label() { Text = "Port:", Location = new Point(lx, startY + gapY), AutoSize = true, Font = labelFont };
+            this.txtPort = new TextBox() { Text = "1521", Location = new Point(tx, startY + gapY - 3), Width = tw, Font = textFont }; // Cho phép chỉnh sửa
+
+            this.lblSid = new Label() { Text = "Service/PDB:", Location = new Point(lx, startY + gapY * 2), AutoSize = true, Font = labelFont };
+            this.txtSid = new TextBox() { Text = "xepdb1", Location = new Point(tx, startY + gapY * 2 - 3), Width = tw, Font = textFont };
+
+            this.lblUser = new Label() { Text = "Username:", Location = new Point(lx, startY + gapY * 3), AutoSize = true, Font = labelFont };
+            this.txtUser = new TextBox() { Location = new Point(tx, startY + gapY * 3 - 3), Width = tw, Font = textFont };
+
+            this.lblPass = new Label() { Text = "Password:", Location = new Point(lx, startY + gapY * 4), AutoSize = true, Font = labelFont };
+            this.txtPass = new TextBox() { Location = new Point(tx, startY + gapY * 4 - 3), Width = tw, UseSystemPasswordChar = true, Font = textFont };
+
+            this.btnLogin = new Button() { Text = "ĐĂNG NHẬP", Location = new Point(tx, startY + gapY * 5), Width = tw, Height = 40 };
+            this.btnLogin.BackColor = Color.SteelBlue;
+            this.btnLogin.ForeColor = Color.White;
+            this.btnLogin.FlatStyle = FlatStyle.Flat;
+            this.btnLogin.FlatAppearance.BorderSize = 0;
+            this.btnLogin.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.btnLogin.Cursor = Cursors.Hand;
             this.btnLogin.Click += BtnLogin_Click;
 
+            this.Controls.Add(lblTitle);
             this.Controls.Add(lblHost); this.Controls.Add(txtHost);
             this.Controls.Add(lblPort); this.Controls.Add(txtPort);
             this.Controls.Add(lblSid);  this.Controls.Add(txtSid);
             this.Controls.Add(lblUser); this.Controls.Add(txtUser);
             this.Controls.Add(lblPass); this.Controls.Add(txtPass);
             this.Controls.Add(btnLogin);
-
-            this.Text = "Login to Oracle DB";
-            this.ClientSize = new Size(320, 300);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
         }
 
         private void BtnLogin_Click(object sender, EventArgs e)
