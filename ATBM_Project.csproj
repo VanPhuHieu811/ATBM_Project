@@ -114,6 +114,9 @@
     <Compile Include="Views\FormUser.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\FormViewPrivileges.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
     </None>

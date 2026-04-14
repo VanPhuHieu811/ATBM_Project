@@ -9,7 +9,7 @@ namespace ATBM_Project.Views
     {
         private Panel pnlSidebar;
         private Label lblUsername;
-        private Button btnUsersSide, btnRolesSide, btnGrantPrivs, btnGrantRoles, btnRevoke;
+        private Button btnUsersSide, btnRolesSide, btnGrantPrivs, btnGrantRoles, btnRevoke, btnViewPrivs;
         private Button btnLogout;
         
         private Panel pnlContent;
@@ -49,6 +49,9 @@ namespace ATBM_Project.Views
             btnRevoke = CreateSidebarButton("Revoke", 260);
             btnRevoke.Click += (s, e) => OpenChildForm(new FormRevoke());
 
+            btnViewPrivs = CreateSidebarButton("View Privileges", 300);
+            btnViewPrivs.Click += (s, e) => OpenChildForm(new FormViewPrivileges());
+
             btnLogout = CreateSidebarButton("Logout", 0);
             btnLogout.Dock = DockStyle.Bottom;
             btnLogout.Click += BtnLogout_Click;
@@ -60,6 +63,7 @@ namespace ATBM_Project.Views
             pnlSidebar.Controls.Add(btnGrantPrivs);
             pnlSidebar.Controls.Add(btnGrantRoles);
             pnlSidebar.Controls.Add(btnRevoke);
+            pnlSidebar.Controls.Add(btnViewPrivs);
 
             // CONTENT
             pnlContent = new Panel();
@@ -107,19 +111,9 @@ namespace ATBM_Project.Views
             return btn;
         }
 
-        private Button CreateActionButton(string text, int x, int y)
-        {
-            Button btn = new Button();
-            btn.Text = text;
-            btn.Location = new Point(x, y);
-            btn.Size = new Size(80, 30);
-            return btn;
-        }
-
         private void BtnLogout_Click(object sender, EventArgs e)
         {
             this.Hide();
-            // Nếu bạn muốn làm lại Login cho dễ quản lý thì dùng Application.Restart() hoặc mở lại FormLogin
             FormLogin login = new FormLogin();
             login.ShowDialog();
             this.Close();
