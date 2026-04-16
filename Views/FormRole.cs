@@ -9,7 +9,6 @@ namespace ATBM_Project.Views
     public class FormRole : Form
     {
         private Label lblRoles;
-        private Button btnRoleCreate, btnRoleDelete;
         private DataGridView dgvRoles;
 
         public FormRole()
@@ -44,7 +43,6 @@ namespace ATBM_Project.Views
 
             int btnY = 65;
             this.btnRoleCreate = CreateActionButton("Create", 20, btnY);
-            this.btnRoleCreate.Click += BtnRoleCreate_Click;
 
             this.btnRoleDelete = CreateActionButton("Delete", 120, btnY);
             this.btnRoleDelete.Click += BtnRoleDelete_Click;
@@ -68,8 +66,6 @@ namespace ATBM_Project.Views
             this.dgvRoles.EnableHeadersVisualStyles = false;
 
             this.Controls.Add(lblRoles);
-            this.Controls.Add(btnRoleCreate);
-            this.Controls.Add(btnRoleDelete); 
             this.Controls.Add(dgvRoles);
 
             this.Text = "FormRole";
