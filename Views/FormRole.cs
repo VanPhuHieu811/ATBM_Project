@@ -9,6 +9,7 @@ namespace ATBM_Project.Views
     public class FormRole : Form
     {
         private Label lblRoles;
+        private Button btnRoleCreate, btnRoleUpdate, btnRoleDelete, btnRoleView;
         private DataGridView dgvRoles;
 
         public FormRole()
@@ -30,7 +31,7 @@ namespace ATBM_Project.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải danh sách Role: " + ex.Message);
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -43,9 +44,16 @@ namespace ATBM_Project.Views
 
             int btnY = 65;
             this.btnRoleCreate = CreateActionButton("Create", 20, btnY);
+            this.btnRoleCreate.Click += BtnRoleCreate_Click;
 
-            this.btnRoleDelete = CreateActionButton("Delete", 120, btnY);
+            this.btnRoleUpdate = CreateActionButton("Update", 120, btnY);
+            this.btnRoleUpdate.Enabled = false;
+
+            this.btnRoleDelete = CreateActionButton("Delete", 220, btnY);
             this.btnRoleDelete.Click += BtnRoleDelete_Click;
+
+            this.btnRoleView = CreateActionButton("View", 320, btnY);
+            this.btnRoleView.Click += BtnRoleView_Click;
 
             this.dgvRoles = new DataGridView();
             this.dgvRoles.Location = new Point(20, 115);
@@ -66,6 +74,8 @@ namespace ATBM_Project.Views
             this.dgvRoles.EnableHeadersVisualStyles = false;
 
             this.Controls.Add(lblRoles);
+            this.Controls.Add(btnRoleCreate); this.Controls.Add(btnRoleUpdate);
+            this.Controls.Add(btnRoleDelete); this.Controls.Add(btnRoleView);
             this.Controls.Add(dgvRoles);
 
             this.Text = "FormRole";
@@ -121,6 +131,11 @@ namespace ATBM_Project.Views
                     MessageBox.Show(ex.Message);
                 }
             }
+        }
+
+        private void BtnRoleView_Click(object sender, EventArgs e)
+        {
+            LoadData();
         }
     }
 }

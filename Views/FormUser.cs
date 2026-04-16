@@ -9,7 +9,7 @@ namespace ATBM_Project.Views
     public class FormUser : Form
     {
         private Label lblUsers;
-        private Button btnUserCreate, btnUserUpdate, btnUserDelete;
+        private Button btnUserCreate, btnUserUpdate, btnUserDelete, btnUserView;
         private DataGridView dgvUsers;
 
         public FormUser()
@@ -31,7 +31,7 @@ namespace ATBM_Project.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải danh sách User: " + ex.Message);
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -51,6 +51,9 @@ namespace ATBM_Project.Views
 
             this.btnUserDelete = CreateActionButton("Delete", 220, btnY);
             this.btnUserDelete.Click += BtnUserDelete_Click;
+
+            this.btnUserView = CreateActionButton("View", 320, btnY);
+            this.btnUserView.Click += BtnUserView_Click;
 
             this.dgvUsers = new DataGridView();
             this.dgvUsers.Location = new Point(20, 115);
@@ -72,7 +75,7 @@ namespace ATBM_Project.Views
 
             this.Controls.Add(lblUsers);
             this.Controls.Add(btnUserCreate); this.Controls.Add(btnUserUpdate);
-            this.Controls.Add(btnUserDelete);
+            this.Controls.Add(btnUserDelete); this.Controls.Add(btnUserView);
             this.Controls.Add(dgvUsers);
 
             this.Text = "FormUser";
@@ -148,6 +151,11 @@ namespace ATBM_Project.Views
                     MessageBox.Show(ex.Message);
                 }
             }
+        }
+
+        private void BtnUserView_Click(object sender, EventArgs e)
+        {
+            LoadData();
         }
     }
 }

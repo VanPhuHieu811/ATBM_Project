@@ -31,5 +31,49 @@ namespace ATBM_Project.Presenters
             }
             return list;
         }
+
+        public void CreateUser(string username, string password)
+        {
+            using (OracleConnection conn = DBConfig.GetConnection())
+            {
+                conn.Open();
+                string sql = $"CREATE USER {username} IDENTIFIED BY \"{password}\"";
+                using (OracleCommand cmd = new OracleCommand(sql, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                string grantSql = $"GRANT CREATE SESSION TO {username}";
+                using (OracleCommand cmd = new OracleCommand(grantSql, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void DropUser(string username)
+        {
+            using (OracleConnection conn = DBConfig.GetConnection())
+            {
+                conn.Open();
+                string sql = $"DROP USER {username} CASCADE";
+                using (OracleCommand cmd = new OracleCommand(sql, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void ChangePassword(string username, string newPassword)
+        {
+            using (OracleConnection conn = DBConfig.GetConnection())
+            {
+                conn.Open();
+                string sql = $"ALTER USER {username} IDENTIFIED BY \"{newPassword}\"";
+                using (OracleCommand cmd = new OracleCommand(sql, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
-}
+} 
