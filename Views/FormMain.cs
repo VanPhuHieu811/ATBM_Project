@@ -19,7 +19,14 @@ namespace ATBM_Project.Views
         {
             InitializeComponent();
             lblUsername.Text = DBConfig.User?.ToUpper();
+            btnUsersSide.Click += (s, e) => OpenChildForm(new FormUser());
+            btnRolesSide.Click += (s, e) => OpenChildForm(new FormRole());
+            btnViewPrivs.Click += (s, e) => OpenChildForm(new FormViewPrivileges());
+            btnGrantRoles.Click += (s, e) => OpenChildForm(new FormGrantRoles());
+            btnGrantPrivs.Click += (s, e) => OpenChildForm(new FormGrantPrivileges());
+            btnRevoke.Click += (s, e) => OpenChildForm(new FormRevoke());
         }
+
 
         private void InitializeComponent()
         {
@@ -41,18 +48,18 @@ namespace ATBM_Project.Views
             lblUsername.ForeColor = Color.White;
 
             btnUsersSide = CreateSidebarButton("User", 90);
-            btnUsersSide.Click += (s, e) => OpenChildForm(new FormUser());
+
             btnRolesSide = CreateSidebarButton("Role", 140);
-            btnRolesSide.Click += (s, e) => OpenChildForm(new FormRole());
+            
             btnGrantPrivs = CreateSidebarButton("Grant Privileges", 190);
-            btnGrantPrivs.Click += (s, e) => OpenChildForm(new FormGrantPrivileges());
+            
             btnGrantRoles = CreateSidebarButton("Grant Roles", 240);
-            btnGrantRoles.Click += (s, e) => OpenChildForm(new FormGrantRoles());
+            
             btnRevoke = CreateSidebarButton("Revoke", 290);
-            btnRevoke.Click += (s, e) => OpenChildForm(new FormRevoke());
+            
 
             btnViewPrivs = CreateSidebarButton("View Privileges", 340);
-            btnViewPrivs.Click += (s, e) => OpenChildForm(new FormViewPrivileges());
+            
 
             btnLogout = CreateSidebarButton("Logout", 0);
             btnLogout.Dock = DockStyle.Bottom;

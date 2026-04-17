@@ -436,6 +436,12 @@
     <Content Include="Services\keep.txt" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\FormGrantPrivileges.resx">
+      <DependentUpon>FormGrantPrivileges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FormViewPrivileges.resx">
+      <DependentUpon>FormViewPrivileges.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\frmEditUser.resx">
       <DependentUpon>frmEditUser.cs</DependentUpon>
     </EmbeddedResource>
