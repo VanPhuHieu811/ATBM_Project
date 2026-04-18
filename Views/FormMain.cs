@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using ATBM_Project.Data;
@@ -29,7 +29,7 @@ namespace ATBM_Project.Views
 
 
         private void InitializeComponent()
-        {
+        {   
             this.SuspendLayout();
             
             // SIDEBAR

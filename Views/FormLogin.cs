@@ -68,6 +68,7 @@ namespace ATBM_Project.Views
             this.Controls.Add(lblUser); this.Controls.Add(txtUser);
             this.Controls.Add(lblPass); this.Controls.Add(txtPass);
             this.Controls.Add(btnLogin);
+            this.AcceptButton = this.btnLogin;
         }
 
         private void BtnLogin_Click(object sender, EventArgs e)

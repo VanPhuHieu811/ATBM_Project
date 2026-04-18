@@ -19,4 +19,14 @@
         public string Type { get; set; }
         public string TableName { get; set; }
     }
+
+    public class PrivilegeModel
+    {
+        public string Grantee { get; set; }
+        public string ObjectType { get; set; }
+        public string ObjectName { get; set; }
+        public System.Collections.Generic.List<string> SelectedPrivileges { get; set; }
+        public System.Collections.Generic.List<string> SelectedColumns { get; set; }
+        public bool WithGrantOption { get; set; }
+    }
 }
