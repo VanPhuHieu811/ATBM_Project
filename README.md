@@ -6,17 +6,16 @@
 
 | Thư mục | Mục đích sử dụng |
 | :--- | :--- |
-| **Data/** | Chứa cấu hình kết nối CSDL (`DBConfig.cs`). Đây là nơi duy nhất tương tác với Driver Oracle. |
+| **Config/** | Chứa cấu hình kết nối CSDL (`DBConfig.cs`). Đây là nơi duy nhất tương tác với Driver Oracle. |
 | **Models/** | Định nghĩa các thực thể dữ liệu như `User`, `Role`, `NhanVien`, `BenhNhan`. |
 | **Views/** | Chứa giao diện người dùng (Forms, UserControls). Chỉ tập trung vào hiển thị. |
 | **Presenters/** | Cầu nối điều khiển: Lấy dữ liệu từ DB để hiển thị lên Form và ngược lại. |
-| **Services/** | Chứa các hàm nghiệp vụ dùng chung hoặc xử lý đặc biệt (kiểm tra định dạng, xử lý quyền). |
 | **Utilities/** | Các công cụ hỗ trợ: Định dạng chuỗi, xuất báo cáo, xử lý lỗi. |
 | **Resources/** | [cite_start]Lưu trữ tài liệu đồ án, icon và các script SQL (`.sql`)[cite: 111]. |
 
 ### 🛠 Quy trình và Quy định làm việc
 
-1. **Kết nối DB**: Sử dụng duy nhất chuỗi kết nối trong `Data/DBConfig.cs` với tài khoản `ADMIN_YTE`.
+1. **Kết nối DB**: Sử dụng duy nhất chuỗi kết nối trong `Data/DBConfig.cs` với tài khoản `admin`.
 2. **Thêm chức năng**: 
    - Thiết kế UI tại **Views**.
    - Viết logic xử lý SQL tại **Presenters**.
