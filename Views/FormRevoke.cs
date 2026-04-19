@@ -14,6 +14,7 @@ namespace ATBM_Project.Views
         public FormRevoke()
         {
             InitializeComponent();
+            BtnShowUsers_Click(this, EventArgs.Empty);
         }
 
         private void InitializeComponent()

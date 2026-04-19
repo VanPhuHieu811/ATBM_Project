@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
 using ATBM_Project.Data;
@@ -26,6 +26,10 @@ namespace ATBM_Project.Presenters
                     UNION ALL
                     SELECT GRANTED_ROLE AS PrivilegeName, 'ROLE' AS Type, NULL AS TableName 
                     FROM DBA_ROLE_PRIVS 
+                    WHERE GRANTEE = :grantee AND NVL(COMMON, 'NO') = 'NO'
+                    UNION ALL
+                    SELECT PRIVILEGE AS PrivilegeName, 'COLUMN' AS Type, OWNER || '.' || TABLE_NAME || '(' || COLUMN_NAME || ')' AS TableName 
+                    FROM DBA_COL_PRIVS 
                     WHERE GRANTEE = :grantee AND NVL(COMMON, 'NO') = 'NO'";
 
                 using (OracleCommand cmd = new OracleCommand(sql, conn))
@@ -72,7 +76,7 @@ namespace ATBM_Project.Presenters
             using (OracleConnection conn = DBConfig.GetConnection())
             {
                 conn.Open();
-                string sql = "SELECT ROLE FROM DBA_ROLES WHERE ORACLE_MAINTAINED = 'N' ORDER BY ROLE";
+                string sql = "SELECT ROLE FROM DBA_ROLES ORDER BY ROLE";
                 using (OracleCommand cmd = new OracleCommand(sql, conn))
                 using (OracleDataReader reader = cmd.ExecuteReader())
                 {
