@@ -73,7 +73,7 @@ namespace ATBM_Project.Presenters
             using (OracleConnection conn = DBConfig.GetConnection())
             {
                 conn.Open();
-                string sql = "SELECT ROLE FROM DBA_ROLES ORDER BY ROLE";
+                string sql = "SELECT ROLE FROM DBA_ROLES WHERE ORACLE_MAINTAINED = 'N' ORDER BY ROLE";
                 using (OracleCommand cmd = new OracleCommand(sql, conn))
                 using (OracleDataReader reader = cmd.ExecuteReader())
                 {

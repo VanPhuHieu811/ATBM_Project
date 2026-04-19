@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
 using ATBM_Project.Data;
