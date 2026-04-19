@@ -208,4 +208,32 @@ INSERT ALL
   INTO DONTHUOC VALUES ('BA020', TO_DATE('2024-01-20','YYYY-MM-DD'), N'Otinum', N'Nhỏ tai 3 lần/ngày')
 SELECT * FROM dual;
 
+-- tao them function va procedure de test
+CREATE OR REPLACE PROCEDURE PROC_THEM_BENHNHAN (
+    p_MaBN IN VARCHAR2, 
+    p_TenBN IN NVARCHAR2, 
+    p_Phai IN NVARCHAR2, 
+    p_NgaySinh IN DATE,
+    p_CCCD IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO BENHNHAN (MABN, TENBN, PHAI, NGAYSINH, CCCD) 
+    VALUES (p_MaBN, p_TenBN, p_Phai, p_NgaySinh, p_CCCD);
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE FUNCTION FUNC_DEM_HSBA_BACSI (
+    p_MaBS IN VARCHAR2
+) RETURN NUMBER IS
+    v_Total NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_Total 
+    FROM HSBA 
+    WHERE MABS = p_MaBS;
+    
+    RETURN v_Total;
+END;
+/
+
 COMMIT;
