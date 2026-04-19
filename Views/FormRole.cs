@@ -9,8 +9,10 @@ namespace ATBM_Project.Views
     public class FormRole : Form
     {
         private Label lblRoles;
-        private Button btnRoleCreate, btnRoleUpdate, btnRoleDelete, btnRoleView;
+        private Button btnRoleCreate, btnRoleDelete, btnRoleView;
         private DataGridView dgvRoles;
+        private TextBox txtRoleSearch;
+        private Button btnRoleSearch;
 
         public FormRole()
         {
@@ -46,13 +48,10 @@ namespace ATBM_Project.Views
             this.btnRoleCreate = CreateActionButton("Create", 20, btnY);
             this.btnRoleCreate.Click += BtnRoleCreate_Click;
 
-            this.btnRoleUpdate = CreateActionButton("Update", 120, btnY);
-            this.btnRoleUpdate.Enabled = false;
-
-            this.btnRoleDelete = CreateActionButton("Delete", 220, btnY);
+            this.btnRoleDelete = CreateActionButton("Delete", 120, btnY);
             this.btnRoleDelete.Click += BtnRoleDelete_Click;
 
-            this.btnRoleView = CreateActionButton("View", 320, btnY);
+            this.btnRoleView = CreateActionButton("View", 220, btnY);
             this.btnRoleView.Click += BtnRoleView_Click;
 
             this.dgvRoles = new DataGridView();
@@ -73,8 +72,23 @@ namespace ATBM_Project.Views
             this.dgvRoles.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             this.dgvRoles.EnableHeadersVisualStyles = false;
 
+            this.txtRoleSearch = new TextBox() { Location = new Point(450, 70), Width = 200, Font = new Font("Segoe UI", 10F) };
+            this.btnRoleSearch = CreateActionButton("Search", 660, 65);
+            this.btnRoleSearch.Width = 100;
+            this.btnRoleSearch.Click += (s, e) => {
+                string kw = txtRoleSearch.Text.Trim();
+                if (string.IsNullOrEmpty(kw)) { LoadData(); return; }
+                try
+                {
+                    dgvRoles.DataSource = new RolePresenter().SearchRoles(kw);
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+            };
+
+            this.Controls.Add(txtRoleSearch);
+            this.Controls.Add(btnRoleSearch);
             this.Controls.Add(lblRoles);
-            this.Controls.Add(btnRoleCreate); this.Controls.Add(btnRoleUpdate);
+            this.Controls.Add(btnRoleCreate); 
             this.Controls.Add(btnRoleDelete); this.Controls.Add(btnRoleView);
             this.Controls.Add(dgvRoles);
 

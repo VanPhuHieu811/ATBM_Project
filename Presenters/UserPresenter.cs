@@ -75,5 +75,32 @@ namespace ATBM_Project.Presenters
                 }
             }
         }
+        public List<UserAccount> SearchUsers(string keyword)
+        {
+            List<UserAccount> list = new List<UserAccount>();
+            using (OracleConnection conn = DBConfig.GetConnection())
+            {
+                conn.Open();
+                string sql = "SELECT USERNAME, TO_CHAR(CREATED, 'DD/MM/YYYY') as CREATED, ACCOUNT_STATUS " +
+                             "FROM DBA_USERS WHERE UPPER(USERNAME) LIKE :kw";
+                using (OracleCommand cmd = new OracleCommand(sql, conn))
+                {
+                    cmd.Parameters.Add(new OracleParameter("kw", "%" + keyword.ToUpper() + "%"));
+                    using (OracleDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new UserAccount
+                            {
+                                Username = reader["USERNAME"].ToString(),
+                                CreatedDate = reader["CREATED"].ToString(),
+                                Status = reader["ACCOUNT_STATUS"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return list;
+        }
     }
 } 

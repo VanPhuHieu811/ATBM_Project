@@ -432,8 +432,6 @@
     <Content Include="packages\System.ValueTuple.4.5.0\useSharedDesignerContext.txt" />
     <Content Include="packages\System.ValueTuple.4.5.0\version.txt" />
     <Content Include="Resources\Database.sql" />
-    <Content Include="Resources\Screen1_SQL.sql" />
-    <Content Include="Services\keep.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\FormGrantPrivileges.resx">
