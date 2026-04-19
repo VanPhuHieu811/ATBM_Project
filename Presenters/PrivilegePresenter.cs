@@ -8,7 +8,6 @@ namespace ATBM_Project.Presenters
 {
     public class PrivilegePresenter
     {
-        // 1. LẤY DANH SÁCH QUYỀN HIỆN TẠI (Dùng cho View Privileges)
         public List<PrivilegeInfo> GetPrivileges(string grantee)
         {
             List<PrivilegeInfo> list = new List<PrivilegeInfo>();
@@ -52,7 +51,6 @@ namespace ATBM_Project.Presenters
             return list;
         }
 
-        // 2. LẤY DANH SÁCH USER (Loại bỏ user hệ thống)
         public List<string> GetUsers()
         {
             List<string> users = new List<string>();
@@ -69,7 +67,6 @@ namespace ATBM_Project.Presenters
             return users;
         }
 
-        // 3. LẤY DANH SÁCH ROLE (Loại bỏ role hệ thống)
         public List<string> GetRoles()
         {
             List<string> roles = new List<string>();
@@ -86,7 +83,6 @@ namespace ATBM_Project.Presenters
             return roles;
         }
 
-        // 4. LẤY ĐỐI TƯỢNG (TABLE/VIEW/PROC/FUNC)
         public List<string> GetObjects(string objectType)
         {
             List<string> objects = new List<string>();
@@ -109,7 +105,6 @@ namespace ATBM_Project.Presenters
             return objects;
         }
 
-        // 5. LẤY CỘT CỦA BẢNG/VIEW
         public List<string> GetColumns(string tableName)
         {
             List<string> columns = new List<string>();
@@ -126,7 +121,6 @@ namespace ATBM_Project.Presenters
             return columns;
         }
 
-        // 6. THỰC THI CẤP QUYỀN (Hàm quan trọng nhất)
         public void ExecuteGrant(PrivilegeModel priv)
         {
             using (OracleConnection conn = DBConfig.GetConnection())
@@ -136,12 +130,10 @@ namespace ATBM_Project.Presenters
                 {
                     string sql = "";
 
-                    // XỬ LÝ SELECT MỨC CỘT (Tạo View động)
                     if (p.ToUpper() == "SELECT" && priv.SelectedColumns != null && priv.SelectedColumns.Count > 0)
                     {
                         string cols = string.Join(", ", priv.SelectedColumns);
 
-                        // FIX LỖI DOUBLE V: Nếu ObjectName chưa có V_ thì mới thêm V_
                         string prefix = priv.ObjectName.StartsWith("V_", StringComparison.OrdinalIgnoreCase) ? "" : "V_";
                         string viewName = $"{prefix}{priv.ObjectName}_{priv.Grantee}";
 
@@ -152,13 +144,11 @@ namespace ATBM_Project.Presenters
                         }
                         sql = $"GRANT SELECT ON {viewName} TO {priv.Grantee}";
                     }
-                    // XỬ LÝ UPDATE MỨC CỘT
                     else if (p.ToUpper() == "UPDATE" && priv.SelectedColumns != null && priv.SelectedColumns.Count > 0)
                     {
                         string cols = string.Join(", ", priv.SelectedColumns);
                         sql = $"GRANT UPDATE ({cols}) ON {priv.ObjectName} TO {priv.Grantee}";
                     }
-                    // CÁC TRƯỜNG HỢP CÒN LẠI (TOÀN BẢNG HOẶC EXECUTE)
                     else
                     {
                         sql = $"GRANT {p} ON {priv.ObjectName} TO {priv.Grantee}";
@@ -174,7 +164,6 @@ namespace ATBM_Project.Presenters
             }
         }
 
-        // 7. THỰC THI CẤP ROLE
         public void ExecuteGrantRole(string grantee, string roleName, bool withAdminOption)
         {
             using (OracleConnection conn = DBConfig.GetConnection())

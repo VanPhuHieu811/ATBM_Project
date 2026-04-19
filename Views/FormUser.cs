@@ -11,7 +11,8 @@ namespace ATBM_Project.Views
         private Label lblUsers;
         private Button btnUserCreate, btnUserUpdate, btnUserDelete, btnUserView;
         private DataGridView dgvUsers;
-
+        private TextBox txtUserSearch;
+        private Button btnUserSearch;
         public FormUser()
         {
             InitializeComponent();
@@ -73,10 +74,25 @@ namespace ATBM_Project.Views
             this.dgvUsers.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             this.dgvUsers.EnableHeadersVisualStyles = false;
 
+            this.txtUserSearch = new TextBox() { Location = new Point(450, 70), Width = 200, Font = new Font("Segoe UI", 10F) };
+            this.btnUserSearch = CreateActionButton("Search", 660, 65);
+            this.btnUserSearch.Width = 100;
+            this.btnUserSearch.Click += (s, e) => {
+                string kw = txtUserSearch.Text.Trim();
+                if (string.IsNullOrEmpty(kw)) { LoadData(); return; }
+                try
+                {
+                    dgvUsers.DataSource = new UserPresenter().SearchUsers(kw);
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+            };
+
             this.Controls.Add(lblUsers);
             this.Controls.Add(btnUserCreate); this.Controls.Add(btnUserUpdate);
             this.Controls.Add(btnUserDelete); this.Controls.Add(btnUserView);
             this.Controls.Add(dgvUsers);
+            this.Controls.Add(txtUserSearch);
+            this.Controls.Add(btnUserSearch);
 
             this.Text = "FormUser";
         }
