@@ -139,6 +139,182 @@ INSERT ALL
   INTO BENHNHAN VALUES ('BN020', N'Suboi', N'Nữ', TO_DATE('1990-01-10','YYYY-MM-DD'), '001090123470', '10', N'Lê Văn Sỹ', N'Quận 3', N'TP HCM', NULL, NULL, NULL)
 SELECT * FROM dual;
 
+-- Bo sung du lieu theo quy mo de bai:
+-- 20 Dieu phoi vien, 100 Bac si/Y si, 50 Ky thuat vien, 100000 Benh nhan.
+-- Tao Oracle user voi username = MANV/MABN va password = "123".
+DECLARE
+    c_total_patients CONSTANT NUMBER := 100000;
+    c_create_patient_accounts CONSTANT BOOLEAN := FALSE;
+
+    PROCEDURE ensure_account(p_username IN VARCHAR2) IS
+        v_username VARCHAR2(30) := UPPER(TRIM(p_username));
+    BEGIN
+        BEGIN
+            EXECUTE IMMEDIATE 'CREATE USER ' || v_username ||
+                ' IDENTIFIED BY "123" DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA 10M ON users';
+        EXCEPTION
+            WHEN OTHERS THEN
+                IF SQLCODE = -1920 THEN
+                    EXECUTE IMMEDIATE 'ALTER USER ' || v_username || ' IDENTIFIED BY "123" ACCOUNT UNLOCK';
+                ELSE
+                    RAISE;
+                END IF;
+        END;
+
+        BEGIN
+            EXECUTE IMMEDIATE 'GRANT CREATE SESSION TO ' || v_username;
+        EXCEPTION
+            WHEN OTHERS THEN
+                IF SQLCODE != -1927 THEN
+                    RAISE;
+                END IF;
+        END;
+
+        -- Quyen toi thieu de FormLogin xac dinh vai tro. 
+        BEGIN
+            EXECUTE IMMEDIATE 'GRANT SELECT ON NHANVIEN TO ' || v_username;
+            EXECUTE IMMEDIATE 'GRANT SELECT ON BENHNHAN TO ' || v_username;
+        EXCEPTION
+            WHEN OTHERS THEN
+                NULL;
+        END;
+    END;
+
+    PROCEDURE insert_nhanvien(
+        p_manv IN VARCHAR2,
+        p_hoten IN NVARCHAR2,
+        p_phai IN NVARCHAR2,
+        p_ngaysinh IN DATE,
+        p_cmnd IN VARCHAR2,
+        p_quequan IN NVARCHAR2,
+        p_sodt IN VARCHAR2,
+        p_vaitro IN NVARCHAR2,
+        p_chuyenkhoa IN NVARCHAR2
+    ) IS
+    BEGIN
+        INSERT INTO NHANVIEN (MANV, HOTEN, PHAI, NGAYSINH, CMND, QUEQUAN, SODT, VAITRO, CHUYENKHOA)
+        SELECT p_manv, p_hoten, p_phai, p_ngaysinh, p_cmnd, p_quequan, p_sodt, p_vaitro, p_chuyenkhoa
+        FROM dual
+        WHERE NOT EXISTS (SELECT 1 FROM NHANVIEN WHERE MANV = p_manv);
+    END;
+
+    PROCEDURE insert_benhnhan(p_index IN NUMBER) IS
+        v_mabn VARCHAR2(10) := 'BN' || LPAD(p_index, 6, '0');
+    BEGIN
+        INSERT INTO BENHNHAN (
+            MABN, TENBN, PHAI, NGAYSINH, CCCD, SONHA, TENDUONG,
+            QUANHUYEN, TINHTP, TIENSUBENH, TIENSUBENHGD, DIUNGTHUOC
+        )
+        SELECT
+            v_mabn,
+            N'Bệnh nhân ' || TO_NCHAR(p_index),
+            CASE WHEN MOD(p_index, 2) = 0 THEN N'Nữ' ELSE N'Nam' END,
+            ADD_MONTHS(DATE '1970-01-01', MOD(p_index, 480)),
+            TO_CHAR(100000000000 + p_index),
+            TO_NCHAR(MOD(p_index, 250) + 1),
+            N'Đường số ' || TO_NCHAR(MOD(p_index, 120) + 1),
+            CASE MOD(p_index, 3)
+                WHEN 0 THEN N'Quận 1'
+                WHEN 1 THEN N'Quận 10'
+                ELSE N'Cầu Giấy'
+            END,
+            CASE MOD(p_index, 3)
+                WHEN 0 THEN N'TP HCM'
+                WHEN 1 THEN N'Hà Nội'
+                ELSE N'Hải Phòng'
+            END,
+            NULL,
+            NULL,
+            NULL
+        FROM dual
+        WHERE NOT EXISTS (SELECT 1 FROM BENHNHAN WHERE MABN = v_mabn);
+    END;
+BEGIN
+    -- Bo sung Dieu phoi vien: NV021 - NV036 de tong cong 20 nguoi.
+    FOR i IN 21..36 LOOP
+        insert_nhanvien(
+            'NV' || LPAD(i, 3, '0'),
+            N'Điều phối viên ' || TO_NCHAR(i),
+            CASE WHEN MOD(i, 2) = 0 THEN N'Nữ' ELSE N'Nam' END,
+            ADD_MONTHS(DATE '1980-01-01', i),
+            TO_CHAR(200000000 + i),
+            N'TP HCM',
+            '090' || LPAD(i, 7, '0'),
+            N'Điều phối viên',
+            NULL
+        );
+    END LOOP;
+
+    -- Bo sung Bac si/Y si: NV037 - NV126 de tong cong 100 nguoi.
+    FOR i IN 37..126 LOOP
+        insert_nhanvien(
+            'NV' || LPAD(i, 3, '0'),
+            N'Bác sĩ/Y sĩ ' || TO_NCHAR(i),
+            CASE WHEN MOD(i, 2) = 0 THEN N'Nữ' ELSE N'Nam' END,
+            ADD_MONTHS(DATE '1975-01-01', i),
+            TO_CHAR(200000000 + i),
+            CASE MOD(i, 3)
+                WHEN 0 THEN N'TP HCM'
+                WHEN 1 THEN N'Hà Nội'
+                ELSE N'Hải Phòng'
+            END,
+            '091' || LPAD(i, 7, '0'),
+            N'Bác sĩ/Y sĩ',
+            CASE MOD(i, 3)
+                WHEN 0 THEN N'Tiêu hóa'
+                WHEN 1 THEN N'Thần kinh'
+                ELSE N'Tim mạch'
+            END
+        );
+    END LOOP;
+
+    -- Bo sung Ky thuat vien: NV127 - NV170 de tong cong 50 nguoi.
+    FOR i IN 127..170 LOOP
+        insert_nhanvien(
+            'NV' || LPAD(i, 3, '0'),
+            N'Kỹ thuật viên ' || TO_NCHAR(i),
+            CASE WHEN MOD(i, 2) = 0 THEN N'Nữ' ELSE N'Nam' END,
+            ADD_MONTHS(DATE '1985-01-01', i),
+            TO_CHAR(200000000 + i),
+            CASE MOD(i, 3)
+                WHEN 0 THEN N'TP HCM'
+                WHEN 1 THEN N'Hà Nội'
+                ELSE N'Hải Phòng'
+            END,
+            '092' || LPAD(i, 7, '0'),
+            N'Kỹ thuật viên',
+            CASE MOD(i, 3)
+                WHEN 0 THEN N'Chẩn đoán hình ảnh'
+                WHEN 1 THEN N'Xét nghiệm'
+                ELSE N'Siêu âm'
+            END
+        );
+    END LOOP;
+
+    -- Bo sung benh nhan: BN000021 - BN100000, ket hop 20 benh nhan mau ban dau.
+    -- Neu may yeu, dat c_create_patient_accounts := FALSE
+    -- va chi tao demo cho cac benh nhan can test.
+    IF c_create_patient_accounts THEN
+       FOR i IN 21..c_total_patients LOOP
+           insert_benhnhan(i);
+       END LOOP;
+    END IF;
+    
+
+    COMMIT;
+
+    -- Tao account cho toan bo nhan vien.
+    FOR r IN (SELECT MANV FROM NHANVIEN ORDER BY MANV) LOOP
+        ensure_account(r.MANV);
+    END LOOP;
+
+    -- Tao account cho benh nhan. 
+    FOR r IN (SELECT MABN FROM BENHNHAN ORDER BY MABN) LOOP
+        ensure_account(r.MABN);
+    END LOOP;
+END;
+/
+
 INSERT ALL
   INTO HSBA VALUES ('BA001', 'BN001', TO_DATE('2024-01-01','YYYY-MM-DD'), N'Đau bao tử', N'Uống thuốc tiêu hóa', 'NV009', 'K01', N'Ổn định')
   INTO HSBA VALUES ('BA002', 'BN002', TO_DATE('2024-01-02','YYYY-MM-DD'), N'Viêm phổi', N'Kháng sinh', 'NV005', 'K02', N'Theo dõi thêm')

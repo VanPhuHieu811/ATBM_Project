@@ -85,12 +85,20 @@
   <ItemGroup>
     <Compile Include="Config\DBConfig.cs" />
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Presenters\DoctorPresenter.cs" />
     <Compile Include="Presenters\PrivilegePresenter.cs" />
     <Compile Include="Presenters\RevokePresenter.cs" />
     <Compile Include="Presenters\RolePresenter.cs" />
+    <Compile Include="Presenters\SessionPresenter.cs" />
     <Compile Include="Presenters\UserPresenter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Utilities\Prompt.cs" />
+    <Compile Include="Views\FormDoctorMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormDoctorRecordDetail.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Views\FormGrantPrivileges.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -112,6 +120,9 @@
     <Compile Include="Views\FormRole.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\FormRolePlaceholders.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Views\FormUser.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +137,8 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="README.md" />
+    <None Include="README_HIEU.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -229,7 +242,6 @@
     <None Include="packages\System.ValueTuple.4.5.0\ref\xamarintvos10\_._" />
     <None Include="packages\System.ValueTuple.4.5.0\ref\xamarinwatchos10\_._" />
     <None Include="packages\System.ValueTuple.4.5.0\System.ValueTuple.4.5.0.nupkg" />
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

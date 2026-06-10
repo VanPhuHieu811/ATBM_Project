@@ -18,8 +18,8 @@ namespace ATBM_Project.Views
 
         private void InitializeComponent()
         {
-            this.Text = "Login to Oracle DB";
-            this.ClientSize = new Size(450, 420);
+            this.Text = "Đăng nhập hệ thống bệnh viện";
+            this.ClientSize = new Size(450, 455);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -29,28 +29,29 @@ namespace ATBM_Project.Views
             Font labelFont = new Font("Segoe UI", 10F, FontStyle.Regular);
             Font textFont = new Font("Segoe UI", 10F, FontStyle.Regular);
 
-            Label lblTitle = new Label() { Text = "Oracle Database Login", Location = new Point(0, 30), AutoSize = false, Width = 450, Height = 50, TextAlign = ContentAlignment.MiddleCenter, Font = headerFont, ForeColor = Color.SteelBlue };
+            Label lblTitle = new Label() { Text = "Đăng nhập hệ thống bệnh viện", Location = new Point(0, 25), AutoSize = false, Width = 450, Height = 42, TextAlign = ContentAlignment.MiddleCenter, Font = headerFont, ForeColor = Color.SteelBlue };
+            Label lblDemo = new Label() { Text = "Chế độ demo giao diện - chưa kết nối Oracle", Location = new Point(0, 67), AutoSize = false, Width = 450, Height = 24, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 9F, FontStyle.Italic), ForeColor = Color.DimGray };
 
-            int startY = 100;
+            int startY = 115;
             int gapY = 45;
             int lx = 80;
             int tx = 180;
             int tw = 180;
 
             this.lblHost = new Label() { Text = "Host:", Location = new Point(lx, startY), AutoSize = true, Font = labelFont };
-            this.txtHost = new TextBox() { Text = "localhost", Location = new Point(tx, startY - 3), Width = tw, Font = textFont };
+            this.txtHost = new TextBox() { Text = "localhost", Location = new Point(tx, startY - 3), Width = tw, Font = textFont, ReadOnly = true };
 
             this.lblPort = new Label() { Text = "Port:", Location = new Point(lx, startY + gapY), AutoSize = true, Font = labelFont };
-            this.txtPort = new TextBox() { Text = "1521", Location = new Point(tx, startY + gapY - 3), Width = tw, Font = textFont }; // Cho phép chỉnh sửa
+            this.txtPort = new TextBox() { Text = "1521", Location = new Point(tx, startY + gapY - 3), Width = tw, Font = textFont, ReadOnly = true };
 
             this.lblSid = new Label() { Text = "Service/PDB:", Location = new Point(lx, startY + gapY * 2), AutoSize = true, Font = labelFont };
-            this.txtSid = new TextBox() { Text = "xepdb1", Location = new Point(tx, startY + gapY * 2 - 3), Width = tw, Font = textFont };
+            this.txtSid = new TextBox() { Text = "xepdb1", Location = new Point(tx, startY + gapY * 2 - 3), Width = tw, Font = textFont, ReadOnly = true };
 
             this.lblUser = new Label() { Text = "Username:", Location = new Point(lx, startY + gapY * 3), AutoSize = true, Font = labelFont };
-            this.txtUser = new TextBox() { Location = new Point(tx, startY + gapY * 3 - 3), Width = tw, Font = textFont };
+            this.txtUser = new TextBox() { Text = "NV005", Location = new Point(tx, startY + gapY * 3 - 3), Width = tw, Font = textFont };
 
             this.lblPass = new Label() { Text = "Password:", Location = new Point(lx, startY + gapY * 4), AutoSize = true, Font = labelFont };
-            this.txtPass = new TextBox() { Location = new Point(tx, startY + gapY * 4 - 3), Width = tw, UseSystemPasswordChar = true, Font = textFont };
+            this.txtPass = new TextBox() { Text = "123", Location = new Point(tx, startY + gapY * 4 - 3), Width = tw, UseSystemPasswordChar = true, Font = textFont };
 
             this.btnLogin = new Button() { Text = "ĐĂNG NHẬP", Location = new Point(tx, startY + gapY * 5), Width = tw, Height = 40 };
             this.btnLogin.BackColor = Color.SteelBlue;
@@ -62,6 +63,7 @@ namespace ATBM_Project.Views
             this.btnLogin.Click += BtnLogin_Click;
 
             this.Controls.Add(lblTitle);
+            this.Controls.Add(lblDemo);
             this.Controls.Add(lblHost); this.Controls.Add(txtHost);
             this.Controls.Add(lblPort); this.Controls.Add(txtPort);
             this.Controls.Add(lblSid);  this.Controls.Add(txtSid);
@@ -79,42 +81,66 @@ namespace ATBM_Project.Views
             string user = txtUser.Text.Trim();
             string pass = txtPass.Text;
 
-            if (string.IsNullOrEmpty(sid) || string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
+            if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass))
             {
-                MessageBox.Show("Vui lòng nhập Service/PDB, Username và Password!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập Username và Password!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Chặn connect root service mặc định vì sẽ gây lỗi scope khi revoke.
-            if (sid.Equals("xe", StringComparison.OrdinalIgnoreCase) ||
-                sid.Equals("cdb$root", StringComparison.OrdinalIgnoreCase))
-            {
-                MessageBox.Show("Vui lòng dùng service của PDB (ví dụ: xepdb1), không dùng root service 'xe'.", "Sai Service/PDB", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // Update configuration logic
             DBConfig.UpdateConfig(host, port, sid, user, pass);
 
             try
             {
-                if (DBConfig.TestConnection())
-                {
-                    // Chuyển sang Form Main
-                    FormMain fm = new FormMain();
-                    this.Hide();
-                    fm.ShowDialog();
-                    this.Close(); // Kết thúc app khi FormMain đóng
-                }
-                else
-                {
-                    MessageBox.Show("Kết nối thất bại. Vui lòng kiểm tra lại thông tin đăng nhập!", "Lỗi kết nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                Form nextForm = ResolveNextForm(user);
+                this.Hide();
+                nextForm.ShowDialog();
+                this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi kết nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi đăng nhập demo", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private Form ResolveNextForm(string username)
+        {
+            string normalizedUser = (username ?? string.Empty).Trim().ToUpperInvariant();
+            if (normalizedUser == "ADMIN" || normalizedUser == "SYS" || normalizedUser == "SYSTEM")
+            {
+                return new FormMain();
+            }
+
+            if (normalizedUser == "BS" || normalizedUser == "BACSI" || normalizedUser == "NV005" || normalizedUser == "NV009")
+            {
+                return new FormDoctorMain(GetDemoDisplayName(normalizedUser, "Bác sĩ/Y sĩ demo"));
+            }
+
+            if (normalizedUser == "DPV" || normalizedUser == "DIEUPHOI" || normalizedUser == "NV001")
+            {
+                return new FormCoordinatorMain(GetDemoDisplayName(normalizedUser, "Điều phối viên demo"));
+            }
+
+            if (normalizedUser == "KTV" || normalizedUser == "NV015")
+            {
+                return new FormTechnicianMain(GetDemoDisplayName(normalizedUser, "Kỹ thuật viên demo"));
+            }
+
+            if (normalizedUser == "BN" || normalizedUser.StartsWith("BN"))
+            {
+                return new FormPatientMain(GetDemoDisplayName(normalizedUser, "Bệnh nhân demo"));
+            }
+
+            return new FormDoctorMain(GetDemoDisplayName(normalizedUser, "Bác sĩ/Y sĩ demo"));
+        }
+
+        private string GetDemoDisplayName(string username, string fallback)
+        {
+            if (username == "NV005") return "Đặng Thu Hà";
+            if (username == "NV009") return "Đỗ Mỹ Linh";
+            if (username == "NV001") return "Nguyễn Văn An";
+            if (username == "NV015") return "Nguyễn Tử Quảng";
+            if (username.StartsWith("BN")) return "Nguyễn Văn Khách";
+            return fallback;
         }
     }
 }
