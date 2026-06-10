@@ -8,9 +8,9 @@ namespace ATBM_Project.Presenters
     {
         public bool RevokePrivilege(string privilegeName, string privilegeType, string tableName, string grantee)
         {
-            string normalizedPrivilege = (privilegeName ?? string.Empty).Trim();
+            string normalizedPrivilege = (privilegeName ?? string.Empty).Trim().ToUpperInvariant();
             string normalizedType = (privilegeType ?? "SYSTEM").Trim().ToUpperInvariant();
-            string normalizedGrantee = (grantee ?? string.Empty).Trim();
+            string normalizedGrantee = (grantee ?? string.Empty).Trim().ToUpper();
             string normalizedTableName = (tableName ?? string.Empty).Trim();
 
             if (string.IsNullOrEmpty(normalizedPrivilege) || string.IsNullOrEmpty(normalizedGrantee))
@@ -19,14 +19,22 @@ namespace ATBM_Project.Presenters
             }
 
             string sql;
-            if (normalizedType == "OBJECT")
+            if (normalizedType == "OBJECT" || normalizedType == "COLUMN")
             {
                 if (string.IsNullOrEmpty(normalizedTableName) || !normalizedTableName.Contains("."))
                 {
-                    throw new Exception("Tên object không hợp lệ. Dùng dạng OWNER.TABLE_NAME.");
+                    throw new Exception("Tên object không hợp lệ. Dùng dạng OWNER.TABLE_NAME hoặc OWNER.TABLE_NAME (COL_NAME).");
                 }
 
-                sql = $"REVOKE {normalizedPrivilege} ON {normalizedTableName} FROM {normalizedGrantee}";
+                // Oracle không cho REVOKE UPDATE/REFERENCES theo từng cột ma phai full table
+                string actualTableName = normalizedTableName;
+                int idx = normalizedTableName.IndexOf('(');
+                if (idx > 0)
+                {
+                    actualTableName = normalizedTableName.Substring(0, idx).Trim();
+                }
+
+                sql = $"REVOKE {normalizedPrivilege} ON {actualTableName} FROM {normalizedGrantee}";
             }
             else
             {

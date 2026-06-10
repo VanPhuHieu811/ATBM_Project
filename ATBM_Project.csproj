@@ -85,7 +85,6 @@
   <ItemGroup>
     <Compile Include="Config\DBConfig.cs" />
     <Compile Include="Models\AccountModels.cs" />
-    <Compile Include="obj\Debug\.NETFramework,Version=v4.7.2.AssemblyAttributes.cs" />
     <Compile Include="Presenters\PrivilegePresenter.cs" />
     <Compile Include="Presenters\RevokePresenter.cs" />
     <Compile Include="Presenters\RolePresenter.cs" />
@@ -119,17 +118,7 @@
     <Compile Include="Views\FormViewPrivileges.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Views\frmEditUser.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\frmUserRole.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\frmUserRole.Designer.cs">
-      <DependentUpon>frmUserRole.cs</DependentUpon>
-    </Compile>
     <None Include="._ATBM_Project.csproj" />
-    <None Include="bin\Debug\ATBM_Project.exe.config" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -243,37 +232,11 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="bin\Release\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitattributes" />
     <Content Include=".gitignore" />
-    <Content Include="bin\Debug\ATBM_Project.exe" />
-    <Content Include="bin\Debug\ATBM_Project.pdb" />
-    <Content Include="bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll" />
-    <Content Include="bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml" />
-    <Content Include="bin\Debug\Oracle.ManagedDataAccess.dll" />
-    <Content Include="bin\Debug\System.Buffers.dll" />
-    <Content Include="bin\Debug\System.Buffers.xml" />
-    <Content Include="bin\Debug\System.Diagnostics.DiagnosticSource.dll" />
-    <Content Include="bin\Debug\System.Diagnostics.DiagnosticSource.xml" />
-    <Content Include="bin\Debug\System.Formats.Asn1.dll" />
-    <Content Include="bin\Debug\System.Formats.Asn1.xml" />
-    <Content Include="bin\Debug\System.Memory.dll" />
-    <Content Include="bin\Debug\System.Memory.xml" />
-    <Content Include="bin\Debug\System.Numerics.Vectors.dll" />
-    <Content Include="bin\Debug\System.Numerics.Vectors.xml" />
-    <Content Include="bin\Debug\System.Runtime.CompilerServices.Unsafe.dll" />
-    <Content Include="bin\Debug\System.Runtime.CompilerServices.Unsafe.xml" />
-    <Content Include="bin\Debug\System.Text.Encodings.Web.dll" />
-    <Content Include="bin\Debug\System.Text.Encodings.Web.xml" />
-    <Content Include="bin\Debug\System.Text.Json.dll" />
-    <Content Include="bin\Debug\System.Text.Json.xml" />
-    <Content Include="bin\Debug\System.Threading.Tasks.Extensions.dll" />
-    <Content Include="bin\Debug\System.Threading.Tasks.Extensions.xml" />
-    <Content Include="bin\Debug\System.ValueTuple.dll" />
-    <Content Include="bin\Debug\System.ValueTuple.xml" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\Icon.png" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.xml" />
@@ -439,12 +402,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\FormViewPrivileges.resx">
       <DependentUpon>FormViewPrivileges.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\frmEditUser.resx">
-      <DependentUpon>frmEditUser.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\frmUserRole.resx">
-      <DependentUpon>frmUserRole.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

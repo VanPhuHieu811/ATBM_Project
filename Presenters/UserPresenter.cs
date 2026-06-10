@@ -14,7 +14,7 @@ namespace ATBM_Project.Presenters
             using (OracleConnection conn = DBConfig.GetConnection())
             {
                 conn.Open();
-                string sql = "SELECT USERNAME, TO_CHAR(CREATED, 'DD/MM/YYYY') as CREATED, ACCOUNT_STATUS FROM DBA_USERS";
+                string sql = "SELECT USERNAME, TO_CHAR(CREATED, 'DD/MM/YYYY') as CREATED, ACCOUNT_STATUS FROM DBA_USERS WHERE USERNAME NOT IN ('SYS', 'SYSTEM', 'XDB', 'ANONYMOUS', 'WMSYS', 'OJVMSYS', 'CTXSYS', 'ORDSYS', 'ORDDATA', 'MDSYS', 'OLAPSYS', 'MDDATA', 'SYSMAN', 'MGMT_VIEW', 'SI_INFORMTN_SCHEMA', 'ORDPLUGINS', 'OWBSYS', 'DBSNMP', 'OUTLN', 'APPQOSSYS', 'DVSYS', 'DVF', 'AUDSYS') ORDER BY USERNAME";
                 OracleCommand cmd = new OracleCommand(sql, conn);
                 using (OracleDataReader reader = cmd.ExecuteReader())
                 {

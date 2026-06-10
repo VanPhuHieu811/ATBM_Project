@@ -192,7 +192,7 @@ INSERT ALL
   INTO DONTHUOC VALUES ('BA004', TO_DATE('2024-01-04','YYYY-MM-DD'), N'Paracetamol', N'3 viên/ngày')
   INTO DONTHUOC VALUES ('BA005', TO_DATE('2024-01-05','YYYY-MM-DD'), N'Oresol', N'Uống thay nước')
   INTO DONTHUOC VALUES ('BA006', TO_DATE('2024-01-06','YYYY-MM-DD'), N'Alpha Choay', N'4 viên/ngày')
-  INTO DONTHUOC VALUES ('BA007', TO_DATE('2024-01-07','YYYY-MM-DD'), N'Enalapril', N'1 viên/ngày')
+  INTO DONTHUOC VALUES ('BA007', TO_DATE('2024-01-07','YYYY-MM-DD'), N'Enalapril', N'1 viên/ngày')  
   INTO DONTHUOC VALUES ('BA008', TO_DATE('2024-01-08','YYYY-MM-DD'), N'Betaserc', N'2 viên/ngày')
   INTO DONTHUOC VALUES ('BA009', TO_DATE('2024-01-09','YYYY-MM-DD'), N'Eugica', N'3 viên/ngày')
   INTO DONTHUOC VALUES ('BA010', TO_DATE('2024-01-10','YYYY-MM-DD'), N'Siro Pectol', N'3 thìa/ngày')
@@ -207,5 +207,33 @@ INSERT ALL
   INTO DONTHUOC VALUES ('BA019', TO_DATE('2024-01-19','YYYY-MM-DD'), N'Hapacol', N'2 gói/ngày')
   INTO DONTHUOC VALUES ('BA020', TO_DATE('2024-01-20','YYYY-MM-DD'), N'Otinum', N'Nhỏ tai 3 lần/ngày')
 SELECT * FROM dual;
+
+-- tao them function va procedure de test
+CREATE OR REPLACE PROCEDURE PROC_THEM_BENHNHAN (
+    p_MaBN IN VARCHAR2, 
+    p_TenBN IN NVARCHAR2, 
+    p_Phai IN NVARCHAR2, 
+    p_NgaySinh IN DATE,
+    p_CCCD IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO BENHNHAN (MABN, TENBN, PHAI, NGAYSINH, CCCD) 
+    VALUES (p_MaBN, p_TenBN, p_Phai, p_NgaySinh, p_CCCD);
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE FUNCTION FUNC_DEM_HSBA_BACSI (
+    p_MaBS IN VARCHAR2
+) RETURN NUMBER IS
+    v_Total NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_Total 
+    FROM HSBA 
+    WHERE MABS = p_MaBS;
+    
+    RETURN v_Total;
+END;
+/
 
 COMMIT;

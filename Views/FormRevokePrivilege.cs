@@ -9,7 +9,11 @@ namespace ATBM_Project.Views
     {
         private Label lblGrantee;
         private TextBox txtGrantee;
-        private DataGridView dgvPrivileges;
+        private TabControl tabControlPrivs;
+        private TabPage tabGeneral;
+        private TabPage tabColumn;
+        private DataGridView dgvGeneral;
+        private DataGridView dgvColumn;
         private Button btnRevoke;
 
         public FormRevokePrivilege()
@@ -29,12 +33,21 @@ namespace ATBM_Project.Views
             {
                 PrivilegePresenter presenter = new PrivilegePresenter();
                 var privileges = presenter.GetPrivileges(grantee);
-                dgvPrivileges.DataSource = privileges;
 
-                if (privileges.Count > 0)
+                var generalPrivs = new System.Collections.Generic.List<PrivilegeInfo>();
+                var colPrivs = new System.Collections.Generic.List<PrivilegeInfo>();
+
+                foreach (var priv in privileges)
                 {
-                    dgvPrivileges.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                    if (priv.Type == "COLUMN") colPrivs.Add(priv);
+                    else generalPrivs.Add(priv);
                 }
+
+                dgvGeneral.DataSource = generalPrivs;
+                dgvColumn.DataSource = colPrivs;
+
+                if (generalPrivs.Count > 0) dgvGeneral.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                if (colPrivs.Count > 0) dgvColumn.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }
             catch (Exception ex)
             {
@@ -46,10 +59,19 @@ namespace ATBM_Project.Views
         {
             this.lblGrantee = new System.Windows.Forms.Label();
             this.txtGrantee = new System.Windows.Forms.TextBox();
-            this.dgvPrivileges = new System.Windows.Forms.DataGridView();
             this.btnRevoke = new System.Windows.Forms.Button();
 
-            ((System.ComponentModel.ISupportInitialize)(this.dgvPrivileges)).BeginInit();
+            this.tabControlPrivs = new System.Windows.Forms.TabControl();
+            this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.tabColumn = new System.Windows.Forms.TabPage();
+            this.dgvGeneral = new System.Windows.Forms.DataGridView();
+            this.dgvColumn = new System.Windows.Forms.DataGridView();
+
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGeneral)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvColumn)).BeginInit();
+            this.tabControlPrivs.SuspendLayout();
+            this.tabGeneral.SuspendLayout();
+            this.tabColumn.SuspendLayout();
             this.SuspendLayout();
 
             // lblGrantee
@@ -66,49 +88,91 @@ namespace ATBM_Project.Views
             this.txtGrantee.ReadOnly = true;
 
             // btnRevoke
-            this.btnRevoke.Location = new System.Drawing.Point(380, 15);
+            this.btnRevoke.Location = new System.Drawing.Point(540, 15);
             this.btnRevoke.Name = "btnRevoke";
             this.btnRevoke.Size = new System.Drawing.Size(120, 30);
             this.btnRevoke.Text = "Thu Hồi";
             this.btnRevoke.Click += new System.EventHandler(this.btnRevoke_Click);
 
-            // dgvPrivileges
-            this.dgvPrivileges.Location = new System.Drawing.Point(20, 60);
-            this.dgvPrivileges.Name = "dgvPrivileges";
-            this.dgvPrivileges.Size = new System.Drawing.Size(480, 280);
-            this.dgvPrivileges.AllowUserToAddRows = false;
-            this.dgvPrivileges.AllowUserToDeleteRows = false;
-            this.dgvPrivileges.AllowUserToResizeColumns = false;
-            this.dgvPrivileges.AllowUserToResizeRows = false;
-            this.dgvPrivileges.ReadOnly = true;
-            this.dgvPrivileges.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvPrivileges.MultiSelect = false;
+            // tabControlPrivs
+            this.tabControlPrivs.Controls.Add(this.tabGeneral);
+            this.tabControlPrivs.Controls.Add(this.tabColumn);
+            this.tabControlPrivs.Location = new System.Drawing.Point(20, 60);
+            this.tabControlPrivs.Name = "tabControlPrivs";
+            this.tabControlPrivs.SelectedIndex = 0;
+            this.tabControlPrivs.Size = new System.Drawing.Size(640, 320);
+
+            // tabGeneral
+            this.tabGeneral.Controls.Add(this.dgvGeneral);
+            this.tabGeneral.Location = new System.Drawing.Point(4, 22);
+            this.tabGeneral.Name = "tabGeneral";
+            this.tabGeneral.Padding = new System.Windows.Forms.Padding(3);
+            this.tabGeneral.Size = new System.Drawing.Size(632, 294);
+            this.tabGeneral.Text = "Quyền Hệ Thống / Đối Tượng";
+            this.tabGeneral.UseVisualStyleBackColor = true;
+
+            // dgvGeneral
+            this.dgvGeneral.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvGeneral.Name = "dgvGeneral";
+            this.dgvGeneral.AllowUserToAddRows = false;
+            this.dgvGeneral.AllowUserToDeleteRows = false;
+            this.dgvGeneral.AllowUserToResizeColumns = false;
+            this.dgvGeneral.AllowUserToResizeRows = false;
+            this.dgvGeneral.ReadOnly = true;
+            this.dgvGeneral.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvGeneral.MultiSelect = false;
+
+            // tabColumn
+            this.tabColumn.Controls.Add(this.dgvColumn);
+            this.tabColumn.Location = new System.Drawing.Point(4, 22);
+            this.tabColumn.Name = "tabColumn";
+            this.tabColumn.Padding = new System.Windows.Forms.Padding(3);
+            this.tabColumn.Size = new System.Drawing.Size(632, 294);
+            this.tabColumn.Text = "Quyền Trên Cột";
+            this.tabColumn.UseVisualStyleBackColor = true;
+
+            // dgvColumn
+            this.dgvColumn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvColumn.Name = "dgvColumn";
+            this.dgvColumn.AllowUserToAddRows = false;
+            this.dgvColumn.AllowUserToDeleteRows = false;
+            this.dgvColumn.AllowUserToResizeColumns = false;
+            this.dgvColumn.AllowUserToResizeRows = false;
+            this.dgvColumn.ReadOnly = true;
+            this.dgvColumn.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvColumn.MultiSelect = false;
 
             // FormRevokePrivilege
-            this.ClientSize = new System.Drawing.Size(520, 360);
+            this.ClientSize = new System.Drawing.Size(680, 400);
             this.Controls.Add(this.lblGrantee);
             this.Controls.Add(this.txtGrantee);
             this.Controls.Add(this.btnRevoke);
-            this.Controls.Add(this.dgvPrivileges);
+            this.Controls.Add(this.tabControlPrivs);
             this.Name = "FormRevokePrivilege";
             this.Text = "Danh Sách Các Quyền Đã Cấp - Thu Hồi";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 
-            ((System.ComponentModel.ISupportInitialize)(this.dgvPrivileges)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGeneral)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvColumn)).EndInit();
+            this.tabControlPrivs.ResumeLayout(false);
+            this.tabGeneral.ResumeLayout(false);
+            this.tabColumn.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
 
         private void btnRevoke_Click(object sender, EventArgs e)
         {
-            if (dgvPrivileges.SelectedRows.Count == 0)
+            DataGridView activeGrid = tabControlPrivs.SelectedTab == tabGeneral ? dgvGeneral : dgvColumn;
+
+            if (activeGrid.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Vui lòng chọn một quyền từ danh sách để thu hồi.");
                 return;
             }
 
             string grantee = txtGrantee.Text.Trim();
-            DataGridViewRow row = dgvPrivileges.SelectedRows[0];
+            DataGridViewRow row = activeGrid.SelectedRows[0];
 
             string privName = row.Cells["PrivilegeName"].Value?.ToString().Trim();
             string privType = row.Cells["Type"].Value?.ToString().Trim();
