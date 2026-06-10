@@ -192,7 +192,7 @@ INSERT ALL
   INTO DONTHUOC VALUES ('BA004', TO_DATE('2024-01-04','YYYY-MM-DD'), N'Paracetamol', N'3 viên/ngày')
   INTO DONTHUOC VALUES ('BA005', TO_DATE('2024-01-05','YYYY-MM-DD'), N'Oresol', N'Uống thay nước')
   INTO DONTHUOC VALUES ('BA006', TO_DATE('2024-01-06','YYYY-MM-DD'), N'Alpha Choay', N'4 viên/ngày')
-  INTO DONTHUOC VALUES ('BA007', TO_DATE('2024-01-07','YYYY-MM-DD'), N'Enalapril', N'1 viên/ngày')
+  INTO DONTHUOC VALUES ('BA007', TO_DATE('2024-01-07','YYYY-MM-DD'), N'Enalapril', N'1 viên/ngày')  
   INTO DONTHUOC VALUES ('BA008', TO_DATE('2024-01-08','YYYY-MM-DD'), N'Betaserc', N'2 viên/ngày')
   INTO DONTHUOC VALUES ('BA009', TO_DATE('2024-01-09','YYYY-MM-DD'), N'Eugica', N'3 viên/ngày')
   INTO DONTHUOC VALUES ('BA010', TO_DATE('2024-01-10','YYYY-MM-DD'), N'Siro Pectol', N'3 thìa/ngày')
