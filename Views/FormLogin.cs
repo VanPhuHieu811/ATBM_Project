@@ -122,12 +122,12 @@ namespace ATBM_Project.Views
 
             if (normalizedUser == "KTV" || normalizedUser == "NV015")
             {
-                return new FormTechnicianMain(GetDemoDisplayName(normalizedUser, "Kỹ thuật viên demo"));
+                return new KTV.FormKTVMain();
             }
 
             if (normalizedUser == "BN" || normalizedUser.StartsWith("BN"))
             {
-                return new FormPatientMain(GetDemoDisplayName(normalizedUser, "Bệnh nhân demo"));
+                return new BN.FormBenhNhanMain();
             }
 
             return new FormDoctorMain(GetDemoDisplayName(normalizedUser, "Bác sĩ/Y sĩ demo"));
