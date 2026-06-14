@@ -10,8 +10,9 @@ namespace ATBM_Project.Views
         private Panel pnlSidebar;
         private Label lblUsername;
         private Button btnUsersSide, btnRolesSide, btnGrantPrivs, btnGrantRoles, btnRevoke, btnViewPrivs;
+        private Button btnThongBao;
         private Button btnLogout;
-        
+
         private Panel pnlContent;
         private Form currentChildForm;
 
@@ -25,6 +26,7 @@ namespace ATBM_Project.Views
             btnGrantRoles.Click += (s, e) => OpenChildForm(new FormGrantRoles());
             btnGrantPrivs.Click += (s, e) => OpenChildForm(new FormGrantPrivileges());
             btnRevoke.Click += (s, e) => OpenChildForm(new FormRevoke());
+            btnThongBao.Click += (s, e) => OpenChildForm(new FormThongBaoManagement());
         }
 
 
@@ -59,7 +61,8 @@ namespace ATBM_Project.Views
             
 
             btnViewPrivs = CreateSidebarButton("View Privileges", 340);
-            
+
+            btnThongBao = CreateSidebarButton("Quản lý thông báo", 390);
 
             btnLogout = CreateSidebarButton("Logout", 0);
             btnLogout.Dock = DockStyle.Bottom;
@@ -75,6 +78,7 @@ namespace ATBM_Project.Views
             pnlSidebar.Controls.Add(btnGrantRoles);
             pnlSidebar.Controls.Add(btnRevoke);
             pnlSidebar.Controls.Add(btnViewPrivs);
+            pnlSidebar.Controls.Add(btnThongBao);
 
             // CONTENT
             pnlContent = new Panel();

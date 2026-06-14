@@ -99,6 +99,7 @@
     <Compile Include="Presenters\SessionPresenter.cs" />
     <Compile Include="Presenters\UserPresenter.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Utilities\OracleHelper.cs" />
     <Compile Include="Utilities\Prompt.cs" />
     <Compile Include="Views\BN\FormBenhNhanMain.cs">
       <SubType>Form</SubType>
@@ -139,6 +140,12 @@
     <Compile Include="Views\FormRolePlaceholders.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Views\FormThongBao.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormThongBaoManagement.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Views\FormUser.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -171,6 +178,7 @@
     <None Include="README.md" />
     <None Include="README_HIEU.md" />
     <None Include="README_HUY.md" />
+    <None Include="START_HERE.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -281,6 +289,7 @@
   <ItemGroup>
     <Content Include=".gitattributes" />
     <Content Include=".gitignore" />
+    <Content Include="OLS_Setup.sql" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\Icon.png" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.xml" />

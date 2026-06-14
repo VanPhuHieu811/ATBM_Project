@@ -110,6 +110,14 @@ namespace ATBM_Project.Views
                 return new FormMain();
             }
 
+            // 8 user OLS test - mở FormThongBao để xem thông báo
+            if (normalizedUser == "U1_BGD" || normalizedUser == "U2_LDK" || normalizedUser == "U3_LDK" ||
+                normalizedUser == "U4_NV" || normalizedUser == "U5_NV" || normalizedUser == "U6_LDK" ||
+                normalizedUser == "U7_LDK" || normalizedUser == "U8_NV")
+            {
+                return new FormThongBao(DBConfig.ConnectionString);
+            }
+
             if (normalizedUser == "BS" || normalizedUser == "BACSI" || normalizedUser == "NV005" || normalizedUser == "NV009")
             {
                 return new FormDoctorMain(GetDemoDisplayName(normalizedUser, "Bác sĩ/Y sĩ demo"));
