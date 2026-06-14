@@ -92,9 +92,7 @@ namespace ATBM_Project.Views
             try
             {
                 Form nextForm = ResolveNextForm(user);
-                this.Hide();
-                nextForm.ShowDialog();
-                this.Close();
+                MoForm(nextForm);
             }
             catch (Exception ex)
             {
@@ -149,6 +147,35 @@ namespace ATBM_Project.Views
             if (username == "NV015") return "Nguyễn Tử Quảng";
             if (username.StartsWith("BN")) return "Nguyễn Văn Khách";
             return fallback;
+        }
+
+        private void MoForm(Form nextForm)
+        {
+            if (nextForm is ILogoutSupport logoutForm)
+            {
+                logoutForm.LogoutRequested += (s, e) =>
+                {
+                    nextForm.Hide();
+                    txtPass.Clear();
+                    txtUser.Focus();
+                    this.Show();
+                };
+
+                nextForm.FormClosed += (s, e) =>
+                {
+                    txtPass.Clear();
+                    this.Show();
+                };
+
+                this.Hide();
+                nextForm.Show();
+            }
+            else
+            {
+                this.Hide();
+                nextForm.ShowDialog();
+                this.Show();
+            }
         }
     }
 }

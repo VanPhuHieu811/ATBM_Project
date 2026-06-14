@@ -5,7 +5,7 @@ using ATBM_Project.Data;
 
 namespace ATBM_Project.Views
 {
-    public class FormMain : Form
+    public class FormMain : Form, ILogoutSupport
     {
         private Panel pnlSidebar;
         private Label lblUsername;
@@ -15,6 +15,7 @@ namespace ATBM_Project.Views
 
         private Panel pnlContent;
         private Form currentChildForm;
+        public event EventHandler LogoutRequested;
 
         public FormMain()
         {
@@ -132,10 +133,14 @@ namespace ATBM_Project.Views
 
         private void BtnLogout_Click(object sender, EventArgs e)
         {
+            var confirm = MessageBox.Show("Bạn có chắc muốn đăng xuất?", "Xác nhận",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2);
+
+            if (confirm != DialogResult.Yes) return;
+
             this.Hide();
-            FormLogin login = new FormLogin();
-            login.ShowDialog();
-            this.Close();
+            LogoutRequested?.Invoke(this, EventArgs.Empty);
         }
     }
 }

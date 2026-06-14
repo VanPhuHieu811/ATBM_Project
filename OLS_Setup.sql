@@ -25,8 +25,12 @@
 --     - Bước 15: Tạo SP_GET_THONGBAO
 --
 -- ============================================================
-
-
+---> BẬT OLS NẾU CHƯA BẬT/ CHƯA ĐĂNG KÝ THÌ ĐĂNG KÝ OLS VÀ BẬT OLS
+EXEC LBACSYS.CONFIGURE_OLS; -- This procedure registers Oracle Label Security.
+EXEC LBACSYS.OLS_ENFORCEMENT.ENABLE_OLS; -- This procedure enables it
+---> KHỞI ĐỘNG LẠI
+SHUTDOWN IMMEDIATE;
+STARTUP
 -- ============================================================
 -- PHẦN A: Chạy bằng SYS as SYSDBA
 -- ============================================================
@@ -55,7 +59,6 @@ GRANT EXECUTE ON LBACSYS.TO_LBAC_DATA_LABEL TO ADMIN WITH GRANT OPTION;
 GRANT EXECUTE ON CHAR_TO_LABEL           TO ADMIN WITH GRANT OPTION;
 GRANT LBAC_DBA TO ADMIN;
 /
-
 
 -- ============================================================
 -- PHẦN B: Chạy bằng ADMIN
