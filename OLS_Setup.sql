@@ -326,7 +326,6 @@ COMMIT;
 
 -- Kiểm tra dữ liệu và label
 SELECT MATB, NOIDUNG, OLS_LABEL FROM ADMIN.THONGBAO ORDER BY MATB;
-/
 
 -- ============================================================
 -- BƯỚC 10: Đổi policy sang READ_CONTROL, WRITE_CONTROL
@@ -510,3 +509,9 @@ GRANT EXECUTE ON ADMIN.SP_GET_THONGBAO TO U6_LDK;
 GRANT EXECUTE ON ADMIN.SP_GET_THONGBAO TO U7_LDK;
 GRANT EXECUTE ON ADMIN.SP_GET_THONGBAO TO U8_NV;
 
+-- Coi bảng label đã tạo
+SELECT label_tag, label
+FROM dba_sa_labels
+WHERE policy_name = 'HOSPITAL_TB_POL'
+ORDER BY label_tag;
+/
