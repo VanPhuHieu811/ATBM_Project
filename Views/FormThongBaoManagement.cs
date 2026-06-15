@@ -314,10 +314,8 @@ namespace ATBM_Project.Views
                 return;
             }
 
-            // ✅ Thêm: Xác nhận label trước khi gửi
-            string labelPreview = lblNhanOLS.Text.Replace("Nhãn OLS: ", "");
             var confirm = MessageBox.Show(
-                $"Xác nhận gửi thông báo với nhãn OLS:\n{labelPreview}",
+                "Bạn có chắc chắn muốn gửi thông báo này không?",
                 "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
 

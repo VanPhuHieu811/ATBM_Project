@@ -20,7 +20,7 @@ Hệ thống này cho phép:
 ### **BƯỚC 1: Chạy Script Oracle (5-10 phút)**
 
 ```bash
-File: OLS_Setup.sql (ở thư mục gốc)
+File: Resources\3.OLS_Setup.sql
 Chương trình: SQL Developer
 Account: SYS (SYSDBA)
 ```
@@ -28,7 +28,7 @@ Account: SYS (SYSDBA)
 **Cách làm:**
 1. Mở **SQL Developer**
 2. **New Connection** → Username: `SYS`, Password: `[nhập pass]`, Service Name: `XEPDB1`, Role: `SYSDBA`
-3. **File → Open** → `OLS_Setup.sql`
+3. **File → Open** → `Resources\3.OLS_Setup.sql`
 4. **Ctrl+A** (chọn tất cả) → **Ctrl+Enter** (chạy)
 5. Chờ hoàn thành
 6. Kiểm tra: `SELECT COUNT(*) FROM ADMIN.THONGBAO;` → Kết quả: `7` ✓
@@ -105,7 +105,7 @@ Password: OLS123 (tất cả)
 ## 📂 File cần biết
 
 ### 🔴 **CHẠY**
-- `OLS_Setup.sql` → SQL Developer (lần đầu, 1 lần)
+- `3.OLS_Setup.sql` → SQL Developer (lần đầu, 1 lần)
 - `ATBM_Project.sln` → Visual Studio (Build)
 
 ### 🟡 **ĐỌC**
@@ -135,7 +135,7 @@ Password: OLS123 (tất cả)
 ## 🎯 Quy trình chi tiết
 
 ```
-1. [SQL Developer] Chạy OLS_Setup.sql
+1. [SQL Developer] Chạy 3.OLS_Setup.sql
    ├─ GRANT INHERIT PRIVILEGES
    ├─ GRANT OLS permissions
    ├─ CREATE POLICY HOSPITAL_TB_POL
@@ -197,7 +197,7 @@ Password: OLS123 (tất cả)
 → Kiểm tra: `localhost:1521/XEPDB1` có chạy?
 
 ### ❌ SP không tìm thấy
-→ Chạy lại phần **BƯỚC 11** trong `OLS_Setup.sql`
+→ Chạy lại phần **BƯỚC 11** trong `3.OLS_Setup.sql`
 
 ### ❌ User không thấy thông báo
 → Xem **README_OLS_Setup.md** → Troubleshooting
@@ -243,7 +243,7 @@ Password: OLS123 (tất cả)
 ## 🚀 Bắt đầu ngay!
 
 ```bash
-1. Mở SQL Developer → Chạy OLS_Setup.sql
+1. Mở SQL Developer → Chạy 3.OLS_Setup.sql
    ⏱ Mất 5-10 phút
 
 2. Mở Visual Studio → Build project

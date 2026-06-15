@@ -7,8 +7,12 @@ namespace ATBM_Project.Views
 {
     public class FormLogin : Form
     {
-        private Label lblHost, lblPort, lblSid, lblUser, lblPass;
-        private TextBox txtHost, txtPort, txtSid, txtUser, txtPass;
+        private const string DefaultHost = "localhost";
+        private const string DefaultPort = "1521";
+        private const string DefaultService = "xepdb1";
+
+        private Label lblUser, lblPass;
+        private TextBox txtUser, txtPass;
         private Button btnLogin;
 
         public FormLogin()
@@ -19,7 +23,7 @@ namespace ATBM_Project.Views
         private void InitializeComponent()
         {
             this.Text = "Đăng nhập hệ thống bệnh viện";
-            this.ClientSize = new Size(450, 455);
+            this.ClientSize = new Size(450, 305);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -30,7 +34,6 @@ namespace ATBM_Project.Views
             Font textFont = new Font("Segoe UI", 10F, FontStyle.Regular);
 
             Label lblTitle = new Label() { Text = "Đăng nhập hệ thống bệnh viện", Location = new Point(0, 25), AutoSize = false, Width = 450, Height = 42, TextAlign = ContentAlignment.MiddleCenter, Font = headerFont, ForeColor = Color.SteelBlue };
-            Label lblDemo = new Label() { Text = "Chế độ demo giao diện - chưa kết nối Oracle", Location = new Point(0, 67), AutoSize = false, Width = 450, Height = 24, TextAlign = ContentAlignment.MiddleCenter, Font = new Font("Segoe UI", 9F, FontStyle.Italic), ForeColor = Color.DimGray };
 
             int startY = 115;
             int gapY = 45;
@@ -38,22 +41,13 @@ namespace ATBM_Project.Views
             int tx = 180;
             int tw = 180;
 
-            this.lblHost = new Label() { Text = "Host:", Location = new Point(lx, startY), AutoSize = true, Font = labelFont };
-            this.txtHost = new TextBox() { Text = "localhost", Location = new Point(tx, startY - 3), Width = tw, Font = textFont, ReadOnly = true };
+            this.lblUser = new Label() { Text = "Username:", Location = new Point(lx, startY), AutoSize = true, Font = labelFont };
+            this.txtUser = new TextBox() { Text = "NV005", Location = new Point(tx, startY - 3), Width = tw, Font = textFont };
 
-            this.lblPort = new Label() { Text = "Port:", Location = new Point(lx, startY + gapY), AutoSize = true, Font = labelFont };
-            this.txtPort = new TextBox() { Text = "1521", Location = new Point(tx, startY + gapY - 3), Width = tw, Font = textFont, ReadOnly = true };
+            this.lblPass = new Label() { Text = "Password:", Location = new Point(lx, startY + gapY), AutoSize = true, Font = labelFont };
+            this.txtPass = new TextBox() { Text = "123", Location = new Point(tx, startY + gapY - 3), Width = tw, UseSystemPasswordChar = true, Font = textFont };
 
-            this.lblSid = new Label() { Text = "Service/PDB:", Location = new Point(lx, startY + gapY * 2), AutoSize = true, Font = labelFont };
-            this.txtSid = new TextBox() { Text = "xepdb1", Location = new Point(tx, startY + gapY * 2 - 3), Width = tw, Font = textFont, ReadOnly = true };
-
-            this.lblUser = new Label() { Text = "Username:", Location = new Point(lx, startY + gapY * 3), AutoSize = true, Font = labelFont };
-            this.txtUser = new TextBox() { Text = "NV005", Location = new Point(tx, startY + gapY * 3 - 3), Width = tw, Font = textFont };
-
-            this.lblPass = new Label() { Text = "Password:", Location = new Point(lx, startY + gapY * 4), AutoSize = true, Font = labelFont };
-            this.txtPass = new TextBox() { Text = "123", Location = new Point(tx, startY + gapY * 4 - 3), Width = tw, UseSystemPasswordChar = true, Font = textFont };
-
-            this.btnLogin = new Button() { Text = "ĐĂNG NHẬP", Location = new Point(tx, startY + gapY * 5), Width = tw, Height = 40 };
+            this.btnLogin = new Button() { Text = "ĐĂNG NHẬP", Location = new Point(tx, startY + gapY * 2 + 15), Width = tw, Height = 40 };
             this.btnLogin.BackColor = Color.SteelBlue;
             this.btnLogin.ForeColor = Color.White;
             this.btnLogin.FlatStyle = FlatStyle.Flat;
@@ -63,10 +57,6 @@ namespace ATBM_Project.Views
             this.btnLogin.Click += BtnLogin_Click;
 
             this.Controls.Add(lblTitle);
-            this.Controls.Add(lblDemo);
-            this.Controls.Add(lblHost); this.Controls.Add(txtHost);
-            this.Controls.Add(lblPort); this.Controls.Add(txtPort);
-            this.Controls.Add(lblSid);  this.Controls.Add(txtSid);
             this.Controls.Add(lblUser); this.Controls.Add(txtUser);
             this.Controls.Add(lblPass); this.Controls.Add(txtPass);
             this.Controls.Add(btnLogin);
@@ -75,9 +65,6 @@ namespace ATBM_Project.Views
 
         private void BtnLogin_Click(object sender, EventArgs e)
         {
-            string host = txtHost.Text.Trim();
-            string port = txtPort.Text.Trim();
-            string sid = txtSid.Text.Trim();
             string user = txtUser.Text.Trim();
             string pass = txtPass.Text;
 
@@ -87,7 +74,7 @@ namespace ATBM_Project.Views
                 return;
             }
 
-            DBConfig.UpdateConfig(host, port, sid, user, pass);
+            DBConfig.UpdateConfig(DefaultHost, DefaultPort, DefaultService, user, pass);
 
             try
             {

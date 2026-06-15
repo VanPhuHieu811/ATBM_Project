@@ -65,7 +65,7 @@ namespace ATBM_Project.Views
 
             btnThongBao = CreateSidebarButton("Quản lý thông báo", 390);
 
-            btnLogout = CreateSidebarButton("Logout", 0);
+            btnLogout = CreateSidebarButton("Đăng xuất", 0);
             btnLogout.Dock = DockStyle.Bottom;
             btnLogout.Height = 50;
             btnLogout.BackColor = Color.FromArgb(31, 43, 55);
