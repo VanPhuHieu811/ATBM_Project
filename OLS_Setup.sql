@@ -1,3 +1,5 @@
+SET DEFINE OFF;
+
 -- ============================================================
 -- OLS_Setup.sql - Thiết lập Oracle Label Security cho hệ thống thông báo bệnh viện
 -- Container: XEPDB1, Schema: ADMIN
@@ -26,8 +28,8 @@
 --
 -- ============================================================
 ---> BẬT OLS NẾU CHƯA BẬT/ CHƯA ĐĂNG KÝ THÌ ĐĂNG KÝ OLS VÀ BẬT OLS
-EXEC LBACSYS.CONFIGURE_OLS; -- This procedure registers Oracle Label Security.
-EXEC LBACSYS.OLS_ENFORCEMENT.ENABLE_OLS; -- This procedure enables it
+EXEC LBACSYS.CONFIGURE_OLS;
+EXEC LBACSYS.OLS_ENFORCEMENT.ENABLE_OLS;
 ---> KHỞI ĐỘNG LẠI
 SHUTDOWN IMMEDIATE;
 STARTUP
@@ -36,6 +38,32 @@ STARTUP
 -- ============================================================
 
 ALTER SESSION SET CONTAINER = XEPDB1;
+
+-- ============================================================
+-- RESET POLICY CU CUA PROJECT TRUOC KHI TAO MOI
+-- Chay tot nhat bang SYS AS SYSDBA. Neu dang chay bang ADMIN ma khong du quyen,
+-- cac lenh reset se duoc bo qua va can don sach bang SYS truoc.
+-- ============================================================
+BEGIN
+    SA_POLICY_ADMIN.REMOVE_TABLE_POLICY('HOSPITAL_TB_POL', 'ADMIN', 'THONGBAO');
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    SA_SYSDBA.DROP_POLICY('HOSPITAL_TB_POL', TRUE);
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP ROLE HOSPITAL_TB_POL_DBA';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
 
 -- ============================================================
 -- BƯỚC 0: Cấp quyền INHERIT PRIVILEGES
@@ -80,8 +108,21 @@ EXCEPTION
 END;
 /
 
+-- Cap quyen quan tri policy cho ADMIN ngay sau khi tao policy.
+-- Neu de den cuoi file, ADMIN co the bi ORA-12446 khi apply/set labels.
+BEGIN
+    SA_USER_ADMIN.SET_USER_PRIVS(
+        policy_name => 'HOSPITAL_TB_POL',
+        user_name   => 'ADMIN',
+        privileges  => 'FULL'
+    );
+END;
+/
+
 -- Enable policy
-EXEC SA_SYSDBA.ENABLE_POLICY('HOSPITAL_TB_POL');
+BEGIN
+    SA_SYSDBA.ENABLE_POLICY('HOSPITAL_TB_POL');
+END;
 /
 
 -- ============================================================
