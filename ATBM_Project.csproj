@@ -290,7 +290,7 @@
   <ItemGroup>
     <Content Include=".gitattributes" />
     <Content Include=".gitignore" />
-    <Content Include="OLS_Setup.sql" />
+    <Content Include="Resources\3.OLS_Setup.sql" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\Icon.png" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.xml" />
@@ -448,8 +448,8 @@
     <Content Include="packages\System.ValueTuple.4.5.0\THIRD-PARTY-NOTICES.TXT" />
     <Content Include="packages\System.ValueTuple.4.5.0\useSharedDesignerContext.txt" />
     <Content Include="packages\System.ValueTuple.4.5.0\version.txt" />
-    <Content Include="Resources\Database.sql" />
-    <Content Include="Resources\huy_pj.sql" />
+    <Content Include="Resources\1.Database.sql" />
+    <Content Include="Resources\2.huy_pj.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\FormGrantPrivileges.resx">
