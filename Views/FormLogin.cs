@@ -7,10 +7,6 @@ namespace ATBM_Project.Views
 {
     public class FormLogin : Form
     {
-        private const string DefaultHost = "localhost";
-        private const string DefaultPort = "1521";
-        private const string DefaultService = "xepdb1";
-
         private Label lblUser, lblPass;
         private TextBox txtUser, txtPass;
         private Button btnLogin;
@@ -74,7 +70,7 @@ namespace ATBM_Project.Views
                 return;
             }
 
-            DBConfig.UpdateConfig(DefaultHost, DefaultPort, DefaultService, user, pass);
+            DBConfig.UpdateConfig(DBConfig.Host, DBConfig.Port, DBConfig.ServiceName, user, pass);
 
             try
             {
@@ -110,7 +106,7 @@ namespace ATBM_Project.Views
 
             if (normalizedUser == "DPV" || normalizedUser == "DIEUPHOI" || normalizedUser == "NV001")
             {
-                return new FormCoordinatorMain(GetDemoDisplayName(normalizedUser, "Điều phối viên demo"));
+                return new DPV.FormCoordinatorMain();
             }
 
             if (normalizedUser == "KTV" || normalizedUser == "NV015")

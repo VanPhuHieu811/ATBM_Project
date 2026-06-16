@@ -87,9 +87,11 @@
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\BenhNhan.cs" />
     <Compile Include="Models\BNModels.cs" />
+    <Compile Include="Models\CoordinatorModels.cs" />
     <Compile Include="Models\KTVModels.cs" />
     <Compile Include="Models\NVModels.cs" />
     <Compile Include="Presenters\BenhNhanPresenter.cs" />
+    <Compile Include="Presenters\CoordinatorPresenter.cs" />
     <Compile Include="Presenters\DoctorPresenter.cs" />
     <Compile Include="Presenters\KTVPresenter.cs" />
     <Compile Include="Presenters\NhanVienPresenter.cs" />
@@ -108,6 +110,18 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\BN\FormEditBenhNhan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\DPV\FormCoordinatorMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\DPV\FormCoordinatorPatients.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\DPV\FormCoordinatorRecords.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\DPV\FormCoordinatorServices.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\FormDoctorMain.cs">
