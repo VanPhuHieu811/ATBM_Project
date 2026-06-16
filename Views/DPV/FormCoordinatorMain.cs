@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Oracle.ManagedDataAccess.Client;
 using ATBM_Project.Data;
 
 namespace ATBM_Project.Views.DPV
@@ -76,7 +77,22 @@ namespace ATBM_Project.Views.DPV
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Controls.Add(pnlContent);
             this.Controls.Add(pnlSidebar);
+            this.Shown += FormCoordinatorMain_Shown;
             this.ResumeLayout(false);
+        }
+
+        private void FormCoordinatorMain_Shown(object sender, EventArgs e)
+        {
+            if (!HasCoordinatorRole())
+            {
+                MessageBox.Show(
+                    "Không có quyền truy cập. Vui lòng liên hệ admin để cấp role/quyền tương ứng rồi đăng nhập lại.",
+                    "Không có quyền",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                this.Close();
+                return;
+            }
 
             OpenChildForm(new FormCoordinatorPatients());
         }
@@ -119,10 +135,19 @@ namespace ATBM_Project.Views.DPV
 
         private void BtnLogout_Click(object sender, EventArgs e)
         {
-            this.Hide();
-            FormLogin login = new FormLogin();
-            login.ShowDialog();
             this.Close();
+        }
+
+        private bool HasCoordinatorRole()
+        {
+            using (OracleConnection conn = DBConfig.GetConnection())
+            using (OracleCommand cmd = conn.CreateCommand())
+            {
+                conn.Open();
+                cmd.CommandText = "SELECT COUNT(*) FROM SESSION_ROLES WHERE ROLE = 'ROLE_DIEUPHOIVIEN'";
+                object value = cmd.ExecuteScalar();
+                return Convert.ToInt32(value) > 0;
+            }
         }
     }
 }

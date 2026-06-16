@@ -182,7 +182,6 @@
     <Compile Include="Views\NV\FormNhanVienProfile.cs">
       <SubType>Form</SubType>
     </Compile>
-    <None Include="._ATBM_Project.csproj" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
     </None>

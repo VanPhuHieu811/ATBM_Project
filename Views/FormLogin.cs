@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using ATBM_Project.Data;
+using ATBM_Project.Presenters;
 
 namespace ATBM_Project.Views
 {
@@ -38,10 +39,10 @@ namespace ATBM_Project.Views
             int tw = 180;
 
             this.lblUser = new Label() { Text = "Username:", Location = new Point(lx, startY), AutoSize = true, Font = labelFont };
-            this.txtUser = new TextBox() { Text = "NV005", Location = new Point(tx, startY - 3), Width = tw, Font = textFont };
+            this.txtUser = new TextBox() { Location = new Point(tx, startY - 3), Width = tw, Font = textFont };
 
             this.lblPass = new Label() { Text = "Password:", Location = new Point(lx, startY + gapY), AutoSize = true, Font = labelFont };
-            this.txtPass = new TextBox() { Text = "123", Location = new Point(tx, startY + gapY - 3), Width = tw, UseSystemPasswordChar = true, Font = textFont };
+            this.txtPass = new TextBox() { Location = new Point(tx, startY + gapY - 3), Width = tw, UseSystemPasswordChar = true, Font = textFont };
 
             this.btnLogin = new Button() { Text = "ĐĂNG NHẬP", Location = new Point(tx, startY + gapY * 2 + 15), Width = tw, Height = 40 };
             this.btnLogin.BackColor = Color.SteelBlue;
@@ -74,7 +75,13 @@ namespace ATBM_Project.Views
 
             try
             {
-                Form nextForm = ResolveNextForm(user);
+                if (!DBConfig.TestConnection())
+                {
+                    MessageBox.Show("Sai Username/Password hoặc không kết nối được CSDL.", "Lỗi đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                Form nextForm = ResolveNextForm();
                 MoForm(nextForm);
             }
             catch (Exception ex)
@@ -83,53 +90,43 @@ namespace ATBM_Project.Views
             }
         }
 
-        private Form ResolveNextForm(string username)
+        private Form ResolveNextForm()
         {
-            string normalizedUser = (username ?? string.Empty).Trim().ToUpperInvariant();
-            if (normalizedUser == "ADMIN" || normalizedUser == "SYS" || normalizedUser == "SYSTEM")
+            SessionPresenter sessionPresenter = new SessionPresenter();
+            string role = (sessionPresenter.GetCurrentRole() ?? string.Empty).Trim();
+            string normalizedRole = role.ToUpperInvariant();
+
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                throw new Exception("Không xác định được vai trò của tài khoản trong hệ thống.");
+            }
+
+            if (normalizedRole == "DBA")
             {
                 return new FormMain();
             }
 
-            // 8 user OLS test - mở FormThongBao để xem thông báo
-            if (normalizedUser == "U1_BGD" || normalizedUser == "U2_LDK" || normalizedUser == "U3_LDK" ||
-                normalizedUser == "U4_NV" || normalizedUser == "U5_NV" || normalizedUser == "U6_LDK" ||
-                normalizedUser == "U7_LDK" || normalizedUser == "U8_NV")
-            {
-                return new FormThongBao(DBConfig.ConnectionString);
-            }
-
-            if (normalizedUser == "BS" || normalizedUser == "BACSI" || normalizedUser == "NV005" || normalizedUser == "NV009")
-            {
-                return new FormDoctorMain(GetDemoDisplayName(normalizedUser, "Bác sĩ/Y sĩ demo"));
-            }
-
-            if (normalizedUser == "DPV" || normalizedUser == "DIEUPHOI" || normalizedUser == "NV001")
+            if (normalizedRole == "ĐIỀU PHỐI VIÊN")
             {
                 return new DPV.FormCoordinatorMain();
             }
 
-            if (normalizedUser == "KTV" || normalizedUser == "NV015")
+            if (normalizedRole == "BÁC SĨ/Y SĨ")
+            {
+                return new FormDoctorMain(sessionPresenter.GetCurrentDisplayName());
+            }
+
+            if (normalizedRole == "KỸ THUẬT VIÊN")
             {
                 return new KTV.FormKTVMain();
             }
 
-            if (normalizedUser == "BN" || normalizedUser.StartsWith("BN"))
+            if (normalizedRole == "BỆNH NHÂN")
             {
                 return new BN.FormBenhNhanMain();
             }
 
-            return new FormDoctorMain(GetDemoDisplayName(normalizedUser, "Bác sĩ/Y sĩ demo"));
-        }
-
-        private string GetDemoDisplayName(string username, string fallback)
-        {
-            if (username == "NV005") return "Đặng Thu Hà";
-            if (username == "NV009") return "Đỗ Mỹ Linh";
-            if (username == "NV001") return "Nguyễn Văn An";
-            if (username == "NV015") return "Nguyễn Tử Quảng";
-            if (username.StartsWith("BN")) return "Nguyễn Văn Khách";
-            return fallback;
+            throw new Exception("Vai trò chưa được hỗ trợ: " + role);
         }
 
         private void MoForm(Form nextForm)
@@ -157,6 +154,8 @@ namespace ATBM_Project.Views
             {
                 this.Hide();
                 nextForm.ShowDialog();
+                txtPass.Clear();
+                txtUser.Focus();
                 this.Show();
             }
         }

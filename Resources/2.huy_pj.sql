@@ -4,6 +4,7 @@ BEGIN
     EXECUTE IMMEDIATE 'DROP ROLE ROLE_BENHNHAN';
     EXECUTE IMMEDIATE 'DROP ROLE ROLE_KYTHUATVIEN';
     EXECUTE IMMEDIATE 'DROP ROLE ROLE_NHANVIEN';
+    EXECUTE IMMEDIATE 'DROP ROLE ROLE_DIEUPHOIVIEN';
     EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
@@ -98,6 +99,27 @@ BEGIN
             WHEN OTHERS THEN
                 IF SQLCODE != -1917 THEN 
                     RAISE; 
+                END IF;
+        END;
+    END LOOP;
+END;
+/
+
+-- tao role ROLE_DIEUPHOIVIEN
+CREATE ROLE ROLE_DIEUPHOIVIEN;
+
+-- Cấp ROLE_DIEUPHOIVIEN cho từng nhân viên điều phối viên
+DECLARE
+    v_sql VARCHAR2(200);
+BEGIN
+    FOR r IN (SELECT MANV FROM admin.NHANVIEN WHERE VAITRO = N'Điều phối viên') LOOP
+        BEGIN
+            v_sql := 'GRANT ROLE_DIEUPHOIVIEN TO ' || r.MANV;
+            EXECUTE IMMEDIATE v_sql;
+        EXCEPTION
+            WHEN OTHERS THEN
+                IF SQLCODE != -1917 THEN
+                    RAISE;
                 END IF;
         END;
     END LOOP;
