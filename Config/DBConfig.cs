@@ -5,7 +5,7 @@ namespace ATBM_Project.Data
 {
     public class DBConfig
     {
-        private static string host = "10.211.55.4";
+        private static string host = "localhost";
         private static string port = "1521";
         private static string sid = "xepdb1";
         private static string user = string.Empty;
