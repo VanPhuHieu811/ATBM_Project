@@ -170,10 +170,10 @@ DECLARE
                 END IF;
         END;
 
-        -- Quyen toi thieu de FormLogin xac dinh vai tro. 
+        -- Quyen toi thieu de FormLogin xac dinh vai tro.
         BEGIN
-            EXECUTE IMMEDIATE 'GRANT SELECT ON NHANVIEN TO ' || v_username;
-            EXECUTE IMMEDIATE 'GRANT SELECT ON BENHNHAN TO ' || v_username;
+            EXECUTE IMMEDIATE 'GRANT SELECT ON ADMIN.NHANVIEN TO ' || v_username;
+            EXECUTE IMMEDIATE 'GRANT SELECT ON ADMIN.BENHNHAN TO ' || v_username;
         EXCEPTION
             WHEN OTHERS THEN
                 NULL;

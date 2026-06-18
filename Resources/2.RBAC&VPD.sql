@@ -125,3 +125,154 @@ BEGIN
     END LOOP;
 END;
 /
+
+
+-- HSBA - Bác sĩ chỉ thấy/cập nhật HSBA mình phụ trách
+CREATE OR REPLACE FUNCTION FN_VPD_HSBA_BACSI (
+    p_schema IN VARCHAR2,
+    p_object IN VARCHAR2
+)
+RETURN VARCHAR2
+AS
+BEGIN
+    RETURN 'MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')';
+END;
+/
+
+
+-- BENHNHAN - Bac si thay benh nhan minh phu trach; benh nhan thay chinh ho so cua minh
+CREATE OR REPLACE FUNCTION FN_VPD_BENHNHAN_BACSI (
+    p_schema IN VARCHAR2,
+    p_object IN VARCHAR2
+)
+RETURN VARCHAR2
+AS
+BEGIN
+    RETURN 'MABN = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+         OR MABN IN (
+            SELECT MABN
+            FROM ADMIN.HSBA
+            WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+         )';
+END;
+/
+
+   
+-- HSBA_DV - Bác sĩ chỉ thêm/xóa dịch vụ mà mình phụ trách
+CREATE OR REPLACE FUNCTION FN_VPD_HSBA_DV_BACSI (
+    p_schema IN VARCHAR2,
+    p_object IN VARCHAR2
+)
+RETURN VARCHAR2
+AS
+BEGIN
+    RETURN 'MAHSBA IN (
+        SELECT MAHSBA
+        FROM ADMIN.HSBA
+        WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+    )';
+END;
+/
+
+-- DONTHUOC - Bác sĩ chỉ thao tác đơn thuốc thuộc HSBA mà mình phụ trách
+CREATE OR REPLACE FUNCTION FN_VPD_DONTHUOC_BACSI (
+    p_schema IN VARCHAR2,
+    p_object IN VARCHAR2
+)
+RETURN VARCHAR2
+AS
+BEGIN
+    RETURN 'MAHSBA IN (
+        SELECT MAHSBA
+        FROM ADMIN.HSBA
+        WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+    )';
+END;
+/
+
+
+
+--- POLICY
+-- 1. Bác sĩ chỉ xem các hồ sơ bệnh án mà mình phụ trách
+BEGIN
+    DBMS_RLS.ADD_POLICY(
+        object_schema   => 'ADMIN',
+        object_name     => 'HSBA',
+        policy_name     => 'POL_HSBA_SELECT_BACSI',
+        function_schema => 'ADMIN',
+        policy_function => 'FN_VPD_HSBA_BACSI',
+        statement_types => 'SELECT'
+    );
+END;
+/
+
+
+-- 2. Bác sĩ chỉ cập nhật CHANDOAN, DIEUTRI, KETLUAN trên HSBA mà mình phụ trách
+BEGIN
+    DBMS_RLS.ADD_POLICY(
+        object_schema   => 'ADMIN',
+        object_name     => 'HSBA',
+        policy_name     => 'POL_HSBA_UPDATE_BACSI',
+        function_schema => 'ADMIN',
+        policy_function => 'FN_VPD_HSBA_BACSI',
+        statement_types => 'UPDATE',
+        update_check    => TRUE
+    );
+END;
+/
+
+-- 3. Bác sĩ chỉ thêm/xóa dịch vụ hỗ trợ chẩn đoán thuộc HSBA mà mình phụ trách
+BEGIN
+    DBMS_RLS.ADD_POLICY(
+        object_schema   => 'ADMIN',
+        object_name     => 'HSBA_DV',
+        policy_name     => 'POL_HSBA_DV_BACSI',
+        function_schema => 'ADMIN',
+        policy_function => 'FN_VPD_HSBA_DV_BACSI',
+        statement_types => 'INSERT, DELETE',
+        update_check    => TRUE
+    );
+END;
+/
+
+-- 4. Bác sĩ chỉ xem bệnh nhân thuộc HSBA mà mình phụ trách
+BEGIN
+    DBMS_RLS.ADD_POLICY(
+        object_schema   => 'ADMIN',
+        object_name     => 'BENHNHAN',
+        policy_name     => 'POL_BENHNHAN_SELECT_BACSI',
+        function_schema => 'ADMIN',
+        policy_function => 'FN_VPD_BENHNHAN_BACSI',
+        statement_types => 'SELECT'
+    );
+END;
+/
+
+-- 5. Bác sĩ chỉ cập nhật TIENSUBENH, TIENSUBENHGD, DIUNGTHUOC của bệnh nhân mình điều trị
+BEGIN
+    DBMS_RLS.ADD_POLICY(
+        object_schema   => 'ADMIN',
+        object_name     => 'BENHNHAN',
+        policy_name     => 'POL_BENHNHAN_UPDATE_BACSI',
+        function_schema => 'ADMIN',
+        policy_function => 'FN_VPD_BENHNHAN_BACSI',
+        statement_types => 'UPDATE',
+        update_check    => TRUE
+    );
+END;
+/
+
+
+-- 6. Bác sĩ chỉ thao tác đơn thuốc thuộc HSBA mà mình phụ trách
+BEGIN
+    DBMS_RLS.ADD_POLICY(
+        object_schema   => 'ADMIN',
+        object_name     => 'DONTHUOC',
+        policy_name     => 'POL_DONTHUOC_BACSI',
+        function_schema => 'ADMIN',
+        policy_function => 'FN_VPD_DONTHUOC_BACSI',
+        statement_types => 'SELECT, INSERT, UPDATE, DELETE',
+        update_check    => TRUE
+    );
+END;
+/

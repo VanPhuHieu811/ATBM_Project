@@ -190,9 +190,6 @@
     </None>
     <None Include="packages.config" />
     <None Include="README.md" />
-    <None Include="README_HIEU.md" />
-    <None Include="README_HUY.md" />
-    <None Include="START_HERE.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -462,7 +459,7 @@
     <Content Include="packages\System.ValueTuple.4.5.0\useSharedDesignerContext.txt" />
     <Content Include="packages\System.ValueTuple.4.5.0\version.txt" />
     <Content Include="Resources\1.Database.sql" />
-    <Content Include="Resources\2.huy_pj.sql" />
+    <Content Include="Resources\2.RBAC&amp;VPD.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\FormGrantPrivileges.resx">
