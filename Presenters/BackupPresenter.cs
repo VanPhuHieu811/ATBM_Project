@@ -7,7 +7,13 @@ namespace ATBM_Project.Presenters
 {
     public class BackupPresenter
     {
-        public bool ExecuteFlashback(string tableName, string timestamp)
+        public DataTable GetTables()
+        {
+            string sql = "SELECT TABLE_NAME FROM USER_TABLES ORDER BY TABLE_NAME";
+            return OracleHelper.ExecuteTextReader(DBConfig.ConnectionString, sql);
+        }
+
+        public string ExecuteFlashback(string tableName, string timestamp)
         {
             try
             {
@@ -16,15 +22,13 @@ namespace ATBM_Project.Presenters
 
                 string sqlFlashback = $"FLASHBACK TABLE ADMIN.{tableName} TO TIMESTAMP TO_TIMESTAMP('{timestamp}', 'YYYY-MM-DD HH24:MI:SS')";
                 OracleHelper.ExecuteTextReader(DBConfig.ConnectionString, sqlFlashback);
-                return true;
-            }
-            catch { return false; }
-        }
 
-        public DataTable GetTablePreview(string tableName)
-        {
-            string sql = $"SELECT * FROM ADMIN.{tableName} WHERE ROWNUM <= 50";
-            return OracleHelper.ExecuteTextReader(DBConfig.ConnectionString, sql);
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
         }
     }
 }
