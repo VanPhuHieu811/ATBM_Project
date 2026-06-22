@@ -6,7 +6,7 @@ using ATBM_Project.Presenters;
 
 namespace ATBM_Project.Views
 {
-    public partial class FormAuditLog : Form
+    public class FormAuditLog : Form
     {
         private GroupBox gbFilter;
         private ComboBox cbAuditType, cbTables;
@@ -37,7 +37,7 @@ namespace ATBM_Project.Views
 
             this.gbFilter = new GroupBox()
             {
-                Text = "1. Bộ lọc nhật ký kiểm toán",
+                Text = "Bộ lọc nhật ký kiểm toán",
                 Location = new Point(20, 10),
                 Size = new Size(910, 85),
                 Font = groupFont,
@@ -69,7 +69,7 @@ namespace ATBM_Project.Views
             this.dgvLogs = new DataGridView()
             {
                 Location = new Point(20, 110),
-                Size = new Size(910, 430),
+                Size = new Size(910, 390),
                 BackgroundColor = Color.White,
                 BorderStyle = BorderStyle.FixedSingle,
                 ReadOnly = true,
@@ -96,9 +96,7 @@ namespace ATBM_Project.Views
 
             this.btnLoadData.Click += (s, e) => {
                 string tableFilter = cbTables.Text == "--- TẤT CẢ ---" ? "" : cbTables.Text;
-
                 dgvLogs.DataSource = cbAuditType.SelectedIndex == 0 ? _presenter.GetStandardAudit(tableFilter) : _presenter.GetFGAAudit(tableFilter);
-
                 FormatAuditGrid();
             };
 

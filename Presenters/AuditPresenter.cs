@@ -1,14 +1,30 @@
 ﻿using ATBM_Project.Data;
 using ATBM_Project.Utilities;
+using System;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace ATBM_Project.Presenters
 {
     public class AuditPresenter
     {
+        private string GetActiveTableFilter()
+        {
+            return @"SELECT TABLE_NAME
+                     FROM USER_TABLES t
+                     WHERE t.DROPPED = 'NO' 
+                       AND t.TEMPORARY = 'N' 
+                       AND t.SECONDARY = 'N'
+                       AND EXISTS (
+                           SELECT 1 FROM USER_CONSTRAINTS c 
+                           WHERE c.TABLE_NAME = t.TABLE_NAME 
+                             AND c.CONSTRAINT_TYPE = 'P'
+                       )";
+        }
+
         public DataTable GetTables()
         {
-            string sql = "SELECT TABLE_NAME FROM USER_TABLES ORDER BY TABLE_NAME";
+            string sql = $"SELECT TABLE_NAME FROM ({GetActiveTableFilter()}) ORDER BY TABLE_NAME";
             return OracleHelper.ExecuteTextReader(DBConfig.ConnectionString, sql);
         }
 
@@ -20,6 +36,15 @@ namespace ATBM_Project.Presenters
             {
                 sql += $" AND OBJ_NAME = '{tableName}'";
             }
+            else
+            {
+                sql += @" AND (OBJ_NAME IS NULL 
+                            OR (OBJ_NAME NOT LIKE 'BIN$%' 
+                                AND OBJ_NAME NOT LIKE 'ET$%' 
+                                AND OBJ_NAME NOT LIKE 'SYS_%' 
+                                AND OBJ_NAME NOT IN ('SPD_SCRATCH_TAB', 'IMPDP_STATS')))";
+            }
+
             sql += " ORDER BY TIMESTAMP DESC";
 
             return OracleHelper.ExecuteTextReader(DBConfig.ConnectionString, sql);
@@ -33,9 +58,41 @@ namespace ATBM_Project.Presenters
             {
                 sql += $" AND OBJECT_NAME = '{tableName}'";
             }
+            else
+            {
+                sql += @" AND (OBJECT_NAME IS NULL 
+                            OR (OBJECT_NAME NOT LIKE 'BIN$%' 
+                                AND OBJECT_NAME NOT LIKE 'ET$%' 
+                                AND OBJECT_NAME NOT LIKE 'SYS_%' 
+                                AND OBJECT_NAME NOT IN ('SPD_SCRATCH_TAB', 'IMPDP_STATS')))";
+            }
+
             sql += " ORDER BY TIMESTAMP DESC";
 
-            return OracleHelper.ExecuteTextReader(DBConfig.ConnectionString, sql);
+            DataTable dt = OracleHelper.ExecuteTextReader(DBConfig.ConnectionString, sql);
+
+            foreach (DataRow row in dt.Rows)
+            {
+                string sqlText = row["SQL_TEXT"]?.ToString();
+
+                if (!string.IsNullOrEmpty(sqlText))
+                {
+                    try
+                    {
+                        string decodedText = Regex.Replace(sqlText, @"\\([0-9a-fA-F]{4})",
+                            m => ((char)Convert.ToInt32(m.Groups[1].Value, 16)).ToString());
+
+                        decodedText = decodedText.Replace("= u'", "= '");
+
+                        row["SQL_TEXT"] = decodedText;
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            return dt;
         }
     }
 }

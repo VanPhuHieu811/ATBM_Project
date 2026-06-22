@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ATBM_Project.Presenters;
 
@@ -11,11 +12,11 @@ namespace ATBM_Project.Views
 {
     public class FormBackupRestore : Form
     {
-        private GroupBox gbConfig, gbConsole;
+        private GroupBox gbConfig, gbPreview;
         private ComboBox cbMethods, cbTables;
         private DateTimePicker dtpFlashback;
         private Button btnBackup, btnRestore;
-        private RichTextBox rtbConsoleLog;
+        private DataGridView dgvPreview;
         private Label lblTable, lblTime;
 
         private BackupPresenter _presenter;
@@ -41,7 +42,7 @@ namespace ATBM_Project.Views
 
             this.gbConfig = new GroupBox()
             {
-                Text = "1. Cấu hình giải pháp quản trị",
+                Text = "Cấu hình giải pháp quản trị",
                 Location = new Point(20, 10),
                 Size = new Size(910, 160),
                 Font = groupFont,
@@ -49,7 +50,6 @@ namespace ATBM_Project.Views
             };
 
             Label lblMethod = new Label { Text = "Phương pháp:", Location = new Point(20, 35), AutoSize = true, Font = labelFont };
-            // Đẩy tọa độ X từ 130 lên 160 để thẳng hàng và không bị đè chữ
             this.cbMethods = new ComboBox() { Location = new Point(160, 32), Width = 410, DropDownStyle = ComboBoxStyle.DropDownList, Font = labelFont };
             this.cbMethods.Items.AddRange(new string[] {
                 "1. Oracle Data Pump (Sao lưu Logic mức Bảng)",
@@ -59,38 +59,42 @@ namespace ATBM_Project.Views
             this.cbMethods.SelectedIndex = 0;
 
             this.lblTable = new Label { Text = "Chọn bảng dữ liệu:", Location = new Point(20, 75), AutoSize = true, Font = labelFont };
-            // Đẩy tọa độ X lên 160
             this.cbTables = new ComboBox() { Location = new Point(160, 72), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList, Font = labelFont };
 
             this.lblTime = new Label { Text = "Mốc thời gian lùi:", Location = new Point(330, 75), AutoSize = true, Font = labelFont, Visible = false };
-            this.dtpFlashback = new DateTimePicker() { Location = new Point(460, 72), Width = 190, Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy HH:mm:ss", Font = labelFont, Visible = false };
+            this.dtpFlashback = new DateTimePicker() { Location = new Point(460, 72), Width = 190, Format = DateTimePickerFormat.Custom, CustomFormat = "yyyy-MM-dd HH:mm:ss", Font = labelFont, Visible = false };
 
             this.btnBackup = new Button() { Text = "🚀 THỰC THI SAO LƯU", Location = new Point(160, 115), Size = new Size(180, 35), BackColor = Color.SteelBlue, ForeColor = Color.White, Font = groupFont, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
             this.btnRestore = new Button() { Text = "⏪ KHÔI PHỤC DỮ LIỆU", Location = new Point(360, 115), Size = new Size(180, 35), BackColor = Color.DarkRed, ForeColor = Color.White, Font = groupFont, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
 
             this.gbConfig.Controls.AddRange(new Control[] { lblMethod, cbMethods, lblTable, cbTables, lblTime, dtpFlashback, btnBackup, btnRestore });
 
-            this.gbConsole = new GroupBox()
+            this.gbPreview = new GroupBox()
             {
-                Text = "2. Nhật ký luồng tiến trình hệ thống (Console)",
+                Text = "Dữ liệu bảng",
                 Location = new Point(20, 180),
-                Size = new Size(910, 360),
+                Size = new Size(910, 340),
                 Font = groupFont,
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
             };
 
-            this.rtbConsoleLog = new RichTextBox()
+            this.dgvPreview = new DataGridView()
             {
                 Location = new Point(15, 25),
-                Size = new Size(880, 320),
-                BackColor = Color.FromArgb(30, 30, 30),
-                ForeColor = Color.LightGreen,
-                Font = new Font("Consolas", 9.5F),
+                Size = new Size(880, 300),
+                BackgroundColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle,
                 ReadOnly = true,
-                BorderStyle = BorderStyle.None,
+                AllowUserToAddRows = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                Font = labelFont,
+                RowTemplate = { Height = 30 },
+                ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
+                ColumnHeadersHeight = 40,
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
             };
-            this.gbConsole.Controls.Add(rtbConsoleLog);
+            this.gbPreview.Controls.Add(dgvPreview);
 
             this.Load += (s, e) => {
                 foreach (DataRow row in _presenter.GetTables().Rows)
@@ -100,99 +104,220 @@ namespace ATBM_Project.Views
                 if (cbTables.Items.Count > 0) cbTables.SelectedIndex = 0;
             };
 
+            this.cbTables.SelectedIndexChanged += (s, e) => { LoadTablePreview(); };
+
             this.cbMethods.SelectedIndexChanged += (s, e) => {
                 int sel = cbMethods.SelectedIndex;
                 lblTable.Visible = cbTables.Visible = (sel == 0 || sel == 2);
                 lblTime.Visible = dtpFlashback.Visible = (sel == 2);
                 btnBackup.Enabled = !(sel == 2);
+
+                if (sel == 1) dgvPreview.DataSource = null;
+                else LoadTablePreview();
             };
 
             this.btnBackup.Click += BtnBackup_Click;
             this.btnRestore.Click += BtnRestore_Click;
 
-            this.Controls.AddRange(new Control[] { gbConfig, gbConsole });
+            this.Controls.AddRange(new Control[] { gbConfig, gbPreview });
         }
 
-        private void BtnBackup_Click(object sender, EventArgs e)
+        private void LoadTablePreview()
         {
-            rtbConsoleLog.Clear();
-            LogToConsole("=== BẮT ĐẦU TIẾN TRÌNH SAO LƯU ===");
-            if (!Directory.Exists(@"C:\ATBM_Backup")) Directory.CreateDirectory(@"C:\ATBM_Backup");
+            if (!string.IsNullOrEmpty(cbTables.Text) && cbTables.Visible)
+            {
+                dgvPreview.DataSource = _presenter.GetTablePreview(cbTables.Text);
+            }
+            else
+            {
+                dgvPreview.DataSource = null;
+            }
+        }
+
+        private string GetDbLogonString()
+        {
+            try
+            {
+                var builder = new System.Data.Common.DbConnectionStringBuilder();
+                builder.ConnectionString = ATBM_Project.Data.DBConfig.ConnectionString;
+
+                if (builder.ContainsKey("User Id") && builder.ContainsKey("Password"))
+                {
+                    string user = builder["User Id"].ToString();
+                    string pass = builder["Password"].ToString();
+                    return $"{user}/{pass}@//localhost:1521/XEPDB1";
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private string GetCurrentSchema()
+        {
+            try
+            {
+                var builder = new System.Data.Common.DbConnectionStringBuilder();
+                builder.ConnectionString = ATBM_Project.Data.DBConfig.ConnectionString;
+
+                if (builder.ContainsKey("User Id"))
+                {
+                    return builder["User Id"].ToString().ToUpper();
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private async void BtnBackup_Click(object sender, EventArgs e)
+        {
+            if (!Directory.Exists(@"C:\ATBM_Backup"))
+            {
+                Directory.CreateDirectory(@"C:\ATBM_Backup");
+            }
 
             string tableName = cbTables.Text;
+            string dbLogon = GetDbLogonString();
+            string schema = GetCurrentSchema();
+
+            if (string.IsNullOrEmpty(dbLogon) || string.IsNullOrEmpty(schema))
+            {
+                MessageBox.Show("Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            btnBackup.Enabled = false;
+            btnRestore.Enabled = false;
+
             if (cbMethods.SelectedIndex == 0 && !string.IsNullOrEmpty(tableName))
             {
-                LogToConsole($"[*] Đang gọi tiến trình nền Data Pump Export cho bảng: {tableName}...");
-                ExecuteExternalCommand("expdp.exe", $"/C expdp admin/password@XEPDB1 tables=admin.{tableName} directory=ATBM_DIR dumpfile=DP_{tableName}.dmp logfile=DP_exp_{tableName}.log reuse_dumpfiles=y");
+                string args = $"/C expdp {dbLogon} tables={schema}.{tableName} directory=ATBM_DIR dumpfile=DP_{tableName}.dmp logfile=DP_exp_{tableName}.log reuse_dumpfiles=y";
+                await ExecuteExternalCommandAsync(args, $"Đã hoàn tất Data Pump Export cho bảng {tableName}.");
             }
             else if (cbMethods.SelectedIndex == 1)
             {
-                LogToConsole("[*] Đang gọi tiến trình lõi RMAN: Đóng gói ảnh vật lý hệ thống...");
                 File.WriteAllText(@"C:\ATBM_Backup\rman_backup.txt", "backup database plus archivelog;");
-                ExecuteExternalCommand("cmd.exe", $"/C rman target / cmdfile='C:\\ATBM_Backup\\rman_backup.txt' log='C:\\ATBM_Backup\\rman.log'");
-                if (File.Exists(@"C:\ATBM_Backup\rman.log")) rtbConsoleLog.AppendText(File.ReadAllText(@"C:\ATBM_Backup\rman.log", Encoding.UTF8));
+                string args = $"/C rman target / cmdfile='C:\\ATBM_Backup\\rman_backup.txt' log='C:\\ATBM_Backup\\rman.log'";
+                await ExecuteExternalCommandAsync(args, "Đã hoàn tất sao lưu vật lý RMAN toàn hệ thống.");
             }
+
+            btnBackup.Enabled = true;
+            btnRestore.Enabled = true;
         }
 
-        private void BtnRestore_Click(object sender, EventArgs e)
+        private async void BtnRestore_Click(object sender, EventArgs e)
         {
-            rtbConsoleLog.Clear();
-            LogToConsole("=== BẮT ĐẦU TIẾN TRÌNH KHÔI PHỤC DỮ LIỆU ===");
             string tableName = cbTables.Text;
+
+            if (cbMethods.SelectedIndex == 0 || cbMethods.SelectedIndex == 1)
+            {
+                if (!Directory.Exists(@"C:\ATBM_Backup"))
+                {
+                    MessageBox.Show(@"Không tìm thấy thư mục C:\ATBM_Backup. Hệ thống không có dữ liệu để phục hồi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+
+            string dbLogon = GetDbLogonString();
+            string schema = GetCurrentSchema();
+
+            if (cbMethods.SelectedIndex == 0 && (string.IsNullOrEmpty(dbLogon) || string.IsNullOrEmpty(schema)))
+            {
+                MessageBox.Show("Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            btnBackup.Enabled = false;
+            btnRestore.Enabled = false;
 
             if (cbMethods.SelectedIndex == 0 && !string.IsNullOrEmpty(tableName))
             {
-                LogToConsole($"[*] Đang gọi tiến trình nền Data Pump Import ghi đè cấu trúc: {tableName}...");
-                ExecuteExternalCommand("impdp.exe", $"/C impdp admin/password@XEPDB1 tables=admin.{tableName} directory=ATBM_DIR dumpfile=DP_{tableName}.dmp logfile=DP_imp_{tableName}.log table_exists_action=replace");
+                string dumpFile = $@"C:\ATBM_Backup\DP_{tableName}.dmp";
+                if (!File.Exists(dumpFile))
+                {
+                    MessageBox.Show($"Không tìm thấy file sao lưu logic: {dumpFile}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    btnBackup.Enabled = true;
+                    btnRestore.Enabled = true;
+                    return;
+                }
+
+                string args = $"/C impdp {dbLogon} tables={schema}.{tableName} directory=ATBM_DIR dumpfile=DP_{tableName}.dmp logfile=DP_imp_{tableName}.log table_exists_action=replace";
+                await ExecuteExternalCommandAsync(args, $"Đã hoàn tất Data Pump Import cho bảng {tableName}.");
+                LoadTablePreview();
             }
             else if (cbMethods.SelectedIndex == 1)
             {
-                LogToConsole("[*] Đang nạp giao thức phục hồi khẩn cấp RMAN (Shutdown -> Mount)...");
-                File.WriteAllText(@"C:\ATBM_Backup\rman_restore.txt", "shutdown immediate; startup mount; restore database; recover database; alter database open;");
-                ExecuteExternalCommand("cmd.exe", $"/C rman target / cmdfile='C:\\ATBM_Backup\\rman_restore.txt' log='C:\\ATBM_Backup\\rman_restore.log'");
-                if (File.Exists(@"C:\ATBM_Backup\rman_restore.log")) rtbConsoleLog.AppendText(File.ReadAllText(@"C:\ATBM_Backup\rman_restore.log", Encoding.UTF8));
+                File.WriteAllText(@"C:\ATBM_Backup\rman_restore.txt", "startup force mount;\nrestore database;\nrecover database;");
+                File.WriteAllText(@"C:\ATBM_Backup\open_db.sql", "ALTER DATABASE OPEN RESETLOGS;\nALTER PLUGGABLE DATABASE ALL OPEN;\nEXIT;");
+
+                string batPath = @"C:\ATBM_Backup\execute_rman_recovery.bat";
+                string batContent = "@echo off\n" +
+                                    "rman target / cmdfile=\"C:\\ATBM_Backup\\rman_restore.txt\" log=\"C:\\ATBM_Backup\\rman_restore.log\"\n" +
+                                    "sqlplus / as sysdba @\"C:\\ATBM_Backup\\open_db.sql\" > \"C:\\ATBM_Backup\\open_db.log\"";
+                File.WriteAllText(batPath, batContent);
+
+                string args = $"/C \"{batPath}\"";
+                await ExecuteExternalCommandAsync(args, "Đã hoàn tất toàn bộ tiến trình khôi phục RMAN. Cơ sở dữ liệu và các phân hệ dịch vụ đã được mở cửa tự động thành công!");
+                LoadTablePreview();
             }
             else if (cbMethods.SelectedIndex == 2 && !string.IsNullOrEmpty(tableName))
             {
                 string timeStr = dtpFlashback.Value.ToString("yyyy-MM-dd HH:mm:ss");
-                LogToConsole($"[*] Đang gửi yêu cầu giao thức Flashback lùi bảng [{tableName}] về mốc: {timeStr}...");
-
                 string errorMsg = _presenter.ExecuteFlashback(tableName, timeStr);
 
                 if (string.IsNullOrEmpty(errorMsg))
                 {
-                    LogToConsole($"✅ THÀNH CÔNG: Đã kích hoạt cỗ máy thời gian lùi dữ liệu thực thể {tableName} thành công.");
                     MessageBox.Show($"Khôi phục Flashback bảng {tableName} thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadTablePreview();
                 }
                 else
                 {
-                    LogToConsole("❌ THẤT BẠI: Lỗi phản hồi từ hệ thống Oracle:\n" + errorMsg);
                     MessageBox.Show("Lỗi Flashback: " + errorMsg, "Thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+
+            btnBackup.Enabled = (cbMethods.SelectedIndex != 2);
+            btnRestore.Enabled = true;
         }
 
-        private void ExecuteExternalCommand(string fileName, string arguments)
+        private async Task ExecuteExternalCommandAsync(string arguments, string successMsg)
         {
             try
             {
-                ProcessStartInfo procInfo = new ProcessStartInfo { FileName = "cmd.exe", Arguments = arguments, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true, StandardOutputEncoding = Encoding.UTF8 };
+                ProcessStartInfo procInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = arguments,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = Encoding.UTF8
+                };
+
                 using (Process process = Process.Start(procInfo))
                 {
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
-                    if (!string.IsNullOrEmpty(output)) LogToConsole(output);
-                    if (!string.IsNullOrEmpty(error)) LogToConsole("⚠️ CẢNH BÁO TIẾN TRÌNH:\n" + error);
+                    string error = await Task.Run(() =>
+                    {
+                        string errText = process.StandardError.ReadToEnd();
+                        process.WaitForExit();
+                        return errText;
+                    });
+
+                    if (!string.IsNullOrEmpty(error) && error.Contains("ORA-") && !error.Contains("ORA-01109") && !error.Contains("ORA-01081"))
+                        MessageBox.Show("Cảnh báo tiến trình: \n" + error, "Lỗi Oracle", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                        MessageBox.Show(successMsg, "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
-            catch (Exception ex) { LogToConsole("Lỗi kích hoạt OS: " + ex.Message); }
-        }
-
-        private void LogToConsole(string text)
-        {
-            rtbConsoleLog.AppendText(text + "\n");
-            rtbConsoleLog.ScrollToCaret();
+            catch (Exception ex) { MessageBox.Show("Lỗi hệ điều hành: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
     }
 }
