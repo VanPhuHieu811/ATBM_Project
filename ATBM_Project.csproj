@@ -37,11 +37,15 @@
       <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="Oracle.ManagedDataAccess, Version=4.122.23.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
-      <HintPath>packages\Oracle.ManagedDataAccess.23.26.100\lib\net472\Oracle.ManagedDataAccess.dll</HintPath>
+      <HintPath>packages\Oracle.ManagedDataAccess.23.26.200\lib\net472\Oracle.ManagedDataAccess.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=10.0.0.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Collections.Immutable.10.0.3\lib\net462\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=6.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -50,15 +54,15 @@
     <Reference Include="System.Formats.Asn1, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Formats.Asn1.8.0.1\lib\net462\System.Formats.Asn1.dll</HintPath>
     </Reference>
-    <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\System.Numerics.Vectors.4.6.0\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.0\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Text.Encodings.Web, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Text.Encodings.Web.8.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
@@ -87,9 +91,13 @@
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\BenhNhan.cs" />
     <Compile Include="Models\BNModels.cs" />
+    <Compile Include="Models\CoordinatorModels.cs" />
     <Compile Include="Models\KTVModels.cs" />
     <Compile Include="Models\NVModels.cs" />
+    <Compile Include="Presenters\AuditPresenter.cs" />
+    <Compile Include="Presenters\BackupPresenter.cs" />
     <Compile Include="Presenters\BenhNhanPresenter.cs" />
+    <Compile Include="Presenters\CoordinatorPresenter.cs" />
     <Compile Include="Presenters\DoctorPresenter.cs" />
     <Compile Include="Presenters\KTVPresenter.cs" />
     <Compile Include="Presenters\NhanVienPresenter.cs" />
@@ -108,6 +116,24 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\BN\FormEditBenhNhan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\DPV\FormCoordinatorMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\DPV\FormCoordinatorPatients.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\DPV\FormCoordinatorRecords.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\DPV\FormCoordinatorServices.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormAuditLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\FormBackupRestore.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\FormDoctorMain.cs">
@@ -168,7 +194,6 @@
     <Compile Include="Views\NV\FormNhanVienProfile.cs">
       <SubType>Form</SubType>
     </Compile>
-    <None Include="._ATBM_Project.csproj" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -177,9 +202,6 @@
     </None>
     <None Include="packages.config" />
     <None Include="README.md" />
-    <None Include="README_HIEU.md" />
-    <None Include="README_HUY.md" />
-    <None Include="START_HERE.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -449,7 +471,8 @@
     <Content Include="packages\System.ValueTuple.4.5.0\useSharedDesignerContext.txt" />
     <Content Include="packages\System.ValueTuple.4.5.0\version.txt" />
     <Content Include="Resources\1.Database.sql" />
-    <Content Include="Resources\2.huy_pj.sql" />
+    <Content Include="Resources\2.RBAC&amp;VPD.sql" />
+    <Content Include="Resources\Audit&amp;Backup.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\FormGrantPrivileges.resx">

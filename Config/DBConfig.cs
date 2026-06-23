@@ -12,6 +12,9 @@ namespace ATBM_Project.Data
         private static string pass = string.Empty;
 
         public static string User => user;
+        public static string Host => host;
+        public static string Port => port;
+        public static string ServiceName => sid;
 
         public static string ConnectionString
         {

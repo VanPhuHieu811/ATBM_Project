@@ -173,5 +173,30 @@ namespace ATBM_Project.Utilities
                 return "";
             }
         }
+
+        public static DataTable ExecuteTextReader(string connectionString, string query)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    using (OracleCommand cmd = new OracleCommand(query, conn))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        conn.Open();
+                        using (OracleDataAdapter adapter = new OracleDataAdapter(cmd))
+                        {
+                            adapter.Fill(dt);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
+            return dt;
+        }
     }
 }

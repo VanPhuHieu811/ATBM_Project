@@ -11,6 +11,10 @@ namespace ATBM_Project.Views
         private Label lblUsername;
         private Button btnUsersSide, btnRolesSide, btnGrantPrivs, btnGrantRoles, btnRevoke, btnViewPrivs;
         private Button btnThongBao;
+
+        private Button btnAudit;
+        private Button btnBackup;
+
         private Button btnLogout;
 
         private Panel pnlContent;
@@ -28,14 +32,14 @@ namespace ATBM_Project.Views
             btnGrantPrivs.Click += (s, e) => OpenChildForm(new FormGrantPrivileges());
             btnRevoke.Click += (s, e) => OpenChildForm(new FormRevoke());
             btnThongBao.Click += (s, e) => OpenChildForm(new FormThongBaoManagement());
+            btnAudit.Click += (s, e) => OpenChildForm(new FormAuditLog());
+            btnBackup.Click += (s, e) => OpenChildForm(new FormBackupRestore());
         }
 
-
         private void InitializeComponent()
-        {   
+        {
             this.SuspendLayout();
-            
-            // SIDEBAR
+
             pnlSidebar = new Panel();
             pnlSidebar.Dock = DockStyle.Left;
             pnlSidebar.Width = 220;
@@ -51,19 +55,14 @@ namespace ATBM_Project.Views
             lblUsername.ForeColor = Color.White;
 
             btnUsersSide = CreateSidebarButton("User", 90);
-
             btnRolesSide = CreateSidebarButton("Role", 140);
-            
             btnGrantPrivs = CreateSidebarButton("Grant Privileges", 190);
-            
             btnGrantRoles = CreateSidebarButton("Grant Roles", 240);
-            
             btnRevoke = CreateSidebarButton("Revoke", 290);
-            
-
             btnViewPrivs = CreateSidebarButton("View Privileges", 340);
-
             btnThongBao = CreateSidebarButton("Quản lý thông báo", 390);
+            btnAudit = CreateSidebarButton("Nhật ký Kiểm toán", 440);
+            btnBackup = CreateSidebarButton("Sao lưu và Phục hồi", 490);
 
             btnLogout = CreateSidebarButton("Đăng xuất", 0);
             btnLogout.Dock = DockStyle.Bottom;
@@ -81,7 +80,9 @@ namespace ATBM_Project.Views
             pnlSidebar.Controls.Add(btnViewPrivs);
             pnlSidebar.Controls.Add(btnThongBao);
 
-            // CONTENT
+            pnlSidebar.Controls.Add(btnAudit);
+            pnlSidebar.Controls.Add(btnBackup);
+
             pnlContent = new Panel();
             pnlContent.Dock = DockStyle.Fill;
             pnlContent.BackColor = Color.White;
@@ -89,7 +90,6 @@ namespace ATBM_Project.Views
             this.Controls.Add(pnlContent);
             this.Controls.Add(pnlSidebar);
 
-            // MAIN FORM
             this.Text = "Admin Main";
             this.ClientSize = new Size(1000, 600);
             this.StartPosition = FormStartPosition.CenterScreen;

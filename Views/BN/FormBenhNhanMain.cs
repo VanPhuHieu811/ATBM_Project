@@ -102,9 +102,6 @@ namespace ATBM_Project.Views.BN
 
         private void BtnLogout_Click(object sender, EventArgs e)
         {
-            this.Hide();
-            FormLogin login = new FormLogin();
-            login.ShowDialog();
             this.Close();
         }
     }
