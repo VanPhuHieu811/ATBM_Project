@@ -26,12 +26,14 @@ namespace ATBM_Project.Views
         private Label lblDetailTitle;
         private TextBox txtSearch;
         private Button btnSearch;
+        private Button btnThongBao;
         private Button btnClearSearch;
         private Button btnRefresh;
         private Button btnLogout;
         private Button btnBack;
         private DataGridView dgvMedicalRecords;
         private FormDoctorRecordDetail currentDetailForm;
+        private FormThongBao currentThongBaoForm;
 
         public FormDoctorMain(string displayName)
         {
@@ -79,6 +81,9 @@ namespace ATBM_Project.Views
             btnLogout = CreateButton("Đăng xuất", 875, 27, 100);
             btnLogout.Click += (s, e) => this.Close();
 
+            btnThongBao = CreateButton("Thông báo", 635, 27, 100);
+            btnThongBao.Click += (s, e) => ShowNotificationPage();
+
             pnlContent = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -92,6 +97,7 @@ namespace ATBM_Project.Views
             pnlHeader.Controls.Add(lblUser);
             pnlHeader.Controls.Add(btnRefresh);
             pnlHeader.Controls.Add(btnLogout);
+            pnlHeader.Controls.Add(btnThongBao);
 
             this.Controls.Add(pnlContent);
             this.Controls.Add(pnlHeader);
@@ -360,6 +366,24 @@ namespace ATBM_Project.Views
             pnlListPage.Visible = true;
             pnlListPage.BringToFront();
             LoadMedicalRecords();
+        }
+
+        private void ShowNotificationPage()
+        {
+            if (currentThongBaoForm == null || currentThongBaoForm.IsDisposed)
+            {
+                currentThongBaoForm = new FormThongBao(DBConfig.ConnectionString)
+                {
+                    TopLevel = false,
+                    FormBorderStyle = FormBorderStyle.None,
+                    Dock = DockStyle.Fill
+                };
+            }
+
+            pnlContent.Controls.Clear();
+            pnlContent.Controls.Add(currentThongBaoForm);
+            currentThongBaoForm.BringToFront();
+            currentThongBaoForm.Show();
         }
 
         private void AddTextColumn(string name, string headerText, int width, string format = null)

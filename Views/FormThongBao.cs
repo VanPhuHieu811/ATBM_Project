@@ -109,6 +109,7 @@ namespace ATBM_Project.Views
             dgvThongBao = new DataGridView();
             dgvThongBao.Location = new Point(15, 68);
             dgvThongBao.Size = new Size(850, 420);
+            dgvThongBao.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvThongBao.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvThongBao.ReadOnly = true;
             dgvThongBao.RowHeadersVisible = false;
@@ -130,6 +131,7 @@ namespace ATBM_Project.Views
             pnlEmpty = new Panel();
             pnlEmpty.Location = new Point(15, 68);
             pnlEmpty.Size = new Size(850, 420);
+            pnlEmpty.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pnlEmpty.BackColor = Color.FromArgb(245, 248, 252);
             pnlEmpty.BorderStyle = BorderStyle.Fixed3D;
             pnlEmpty.Visible = false;
@@ -151,12 +153,9 @@ namespace ATBM_Project.Views
 
             this.Text = "Xem Thông Báo";
             this.ClientSize = new Size(880, 510);
-            this.MinimumSize = new Size(880, 510);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.White;
             this.AutoScroll = true;
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
 
             this.ResumeLayout(false);
         }

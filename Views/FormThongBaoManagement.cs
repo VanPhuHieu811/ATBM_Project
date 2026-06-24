@@ -1,5 +1,6 @@
 using System;
-using System.Data; // Đã thêm để sử dụng ParameterDirection
+using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Oracle.ManagedDataAccess.Client;
@@ -9,304 +10,265 @@ using ATBM_Project.Utilities;
 namespace ATBM_Project.Views
 {
     /// <summary>
-    /// Form quản lý thông báo OLS cho Admin
-    /// Cho phép tạo thông báo với các nhãn OLS khác nhau
+    /// Form quản lý thông báo OLS cho Admin.
+    /// Chỉ cho phép chọn từ danh sách 13 nhãn đã được CREATE_LABEL,
+    /// tránh hoàn toàn việc tạo nhãn mới ngoài whitelist.
     /// </summary>
     public class FormThongBaoManagement : Form
     {
+        // ── Controls ────────────────────────────────────────────────────────
         private TextBox txtNoiDung;
         private TextBox txtDiaDiem;
         private DateTimePicker dtpNgayGio;
-        private ComboBox cboCap;
-        private ComboBox cboKhoa;
-        private ComboBox cboCoso;
-        private Label lblNhanOLS;
+        private ComboBox cboNhanOLS;   // ← 1 combo thay cho 3 combo cũ
+        private Label lblNhanPreview;
         private Label lblSQLPreview;
         private Button btnGui;
-        private Label lblTitle;
 
+        // ── Whitelist: 13 nhãn đã CREATE_LABEL trong OLS_Setup.sql ─────────
+        private class OlsLabel
+        {
+            public string Tag { get; }   // chuỗi nhãn truyền vào FN_BUILD_LABEL/SP
+            public string Desc { get; }   // mô tả hiển thị cho người dùng
+            // Parse ngược ra 3 thành phần để truyền vào SP
+            public string Level { get; }
+            public string Comp { get; }
+            public string Group { get; }
+
+            public OlsLabel(string tag, string desc)
+            {
+                Tag = tag;
+                Desc = desc;
+
+                // Parse: "LEVEL:COMP:GROUP" hoặc "LEVEL:COMP" hoặc "LEVEL"
+                string[] parts = tag.Split(':');
+                Level = parts.Length > 0 ? parts[0] : "NV";
+                Comp = parts.Length > 1 ? parts[1] : "";
+                Group = parts.Length > 2 ? parts[2] : "";
+            }
+
+            // Hiển thị trong ComboBox
+            public override string ToString() => $"{Tag}   —   {Desc}";
+        }
+
+                    private static readonly List<OlsLabel> LABEL_WHITELIST = new List<OlsLabel>
+            {
+                new OlsLabel("NV",                   "[t1] Toàn thể nhân viên"),
+                new OlsLabel("BGD",                  "[t2] Ban Giám Đốc"),
+                new OlsLabel("LDK",                  "[t3] Tất cả lãnh đạo khoa"),
+                new OlsLabel("LDK:C_TH",            "[t4] Lãnh đạo Khoa Tiêu Hóa"),
+                new OlsLabel("NV:C_TH:G_HCM",       "[t5] Nhân viên Tiêu Hóa – TP.HCM"),
+                new OlsLabel("NV:C_TH:G_HN",        "[t6] Nhân viên Tiêu Hóa – Hà Nội"),
+                new OlsLabel("LDK:C_TH,C_TK:G_HP", "[t7] LĐ Tiêu Hóa & Thần Kinh – Hải Phòng"),
+            };
+
+        // ── Constructor ─────────────────────────────────────────────────────
         public FormThongBaoManagement()
         {
             InitializeComponent();
-            SetupEventHandlers();
-            UpdateOLSLabel();
+            PopulateLabelCombo();
+            cboNhanOLS.SelectedIndex = 0;
         }
 
+        // ── UI Setup ─────────────────────────────────────────────────────────
         private void InitializeComponent()
         {
             this.SuspendLayout();
+            this.Text = "Quản lý Thông báo – Oracle Label Security (OLS)";
+            this.Size = new Size(760, 560);
+            this.BackColor = Color.White;
+            this.AutoScroll = true;
 
-            // Title
-            lblTitle = new Label();
-            lblTitle.Text = "Quản lý Thông báo - Oracle Label Security (OLS)";
-            lblTitle.Location = new Point(15, 15);
-            lblTitle.AutoSize = false;
-            lblTitle.Width = 700;
-            lblTitle.Height = 30;
-            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            lblTitle.ForeColor = Color.SteelBlue;
+            int left = 20;
+            int width = 700;
+            int y = 15;
 
-            // Nội dung
-            Label lblNoiDung = new Label();
-            lblNoiDung.Text = "Nội dung thông báo:";
-            lblNoiDung.Location = new Point(15, 55);
-            lblNoiDung.AutoSize = true;
-            lblNoiDung.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            // ── Tiêu đề ────────────────────────────────────────────────────
+            var lblTitle = MakeLabel(
+                "Quản lý Thông báo — Oracle Label Security (OLS)",
+                left, y, width, 30,
+                new Font("Segoe UI", 13F, FontStyle.Bold), Color.SteelBlue);
+            y += 42;
 
-            txtNoiDung = new TextBox();
-            txtNoiDung.Multiline = true;
-            txtNoiDung.Location = new Point(15, 75);
-            txtNoiDung.Width = 700;
-            txtNoiDung.Height = 80;
-            txtNoiDung.Font = new Font("Segoe UI", 9F);
+            // ── Nội dung ───────────────────────────────────────────────────
+            this.Controls.Add(MakeLabel("Nội dung thông báo:", left, y));
+            y += 20;
+            txtNoiDung = new TextBox
+            {
+                Multiline = true,
+                Location = new Point(left, y),
+                Width = width,
+                Height = 80,
+                Font = new Font("Segoe UI", 9F),
+                ScrollBars = ScrollBars.Vertical
+            };
             txtNoiDung.TextChanged += (s, e) => UpdateSQLPreview();
-
-            // Địa điểm
-            Label lblDiaDiem = new Label();
-            lblDiaDiem.Text = "Địa điểm:";
-            lblDiaDiem.Location = new Point(15, 165);
-            lblDiaDiem.AutoSize = true;
-            lblDiaDiem.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-
-            txtDiaDiem = new TextBox();
-            txtDiaDiem.Location = new Point(15, 185);
-            txtDiaDiem.Width = 700;
-            txtDiaDiem.Font = new Font("Segoe UI", 9F);
-            txtDiaDiem.TextChanged += (s, e) => UpdateSQLPreview();
-
-            // Ngày giờ
-            Label lblNgayGio = new Label();
-            lblNgayGio.Text = "Ngày giờ:";
-            lblNgayGio.Location = new Point(15, 215);
-            lblNgayGio.AutoSize = true;
-            lblNgayGio.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-
-            dtpNgayGio = new DateTimePicker();
-            dtpNgayGio.Location = new Point(15, 235);
-            dtpNgayGio.Width = 200;
-            dtpNgayGio.Format = DateTimePickerFormat.Custom;
-            dtpNgayGio.CustomFormat = "dd/MM/yyyy HH:mm";
-            dtpNgayGio.Value = DateTime.Now;
-            dtpNgayGio.Font = new Font("Segoe UI", 9F);
-
-            // Cấp bậc
-            Label lblCap = new Label();
-            lblCap.Text = "Cấp bậc:";
-            lblCap.Location = new Point(15, 270);
-            lblCap.AutoSize = true;
-            lblCap.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-
-            cboCap = new ComboBox();
-            cboCap.Location = new Point(15, 290);
-            cboCap.Width = 220;
-            cboCap.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboCap.Font = new Font("Segoe UI", 9F);
-            cboCap.Items.AddRange(new object[]
-            {
-                "NV - Nhân viên",
-                "LDK - Lãnh đạo khoa",
-                "BGD - Ban giám đốc"
-            });
-            cboCap.SelectedIndex = 0;
-            cboCap.SelectedIndexChanged += (s, e) => UpdateOLSLabel();
-
-            // Khoa
-            Label lblKhoa = new Label();
-            lblKhoa.Text = "Khoa:";
-            lblKhoa.Location = new Point(250, 270);
-            lblKhoa.AutoSize = true;
-            lblKhoa.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-
-            cboKhoa = new ComboBox();
-            cboKhoa.Location = new Point(250, 290);
-            cboKhoa.Width = 220;
-            cboKhoa.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboKhoa.Font = new Font("Segoe UI", 9F);
-            cboKhoa.Items.AddRange(new object[]
-            {
-                "(Tất cả khoa)",
-                "C_TH - Tiêu Hóa",
-                "C_TK - Thần Kinh",
-                "C_TM - Tim Mạch",
-                "C_TH,C_TK - Tiêu Hóa + Thần Kinh"
-            });
-            cboKhoa.SelectedIndex = 0;
-            cboKhoa.SelectedIndexChanged += (s, e) => UpdateOLSLabel();
-
-            // Cơ sở
-            Label lblCoso = new Label();
-            lblCoso.Text = "Cơ sở:";
-            lblCoso.Location = new Point(485, 270);
-            lblCoso.AutoSize = true;
-            lblCoso.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-
-            cboCoso = new ComboBox();
-            cboCoso.Location = new Point(485, 290);
-            cboCoso.Width = 230;
-            cboCoso.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboCoso.Font = new Font("Segoe UI", 9F);
-            cboCoso.Items.AddRange(new object[]
-            {
-                "(Tất cả cơ sở)",
-                "G_HCM - Hồ Chí Minh",
-                "G_HP - Hải Phòng",
-                "G_HN - Hà Nội"
-            });
-            cboCoso.SelectedIndex = 0;
-            cboCoso.SelectedIndexChanged += (s, e) => UpdateOLSLabel();
-
-            // Nhãn OLS
-            lblNhanOLS = new Label();
-            lblNhanOLS.Text = "Nhãn OLS: NV";
-            lblNhanOLS.Location = new Point(15, 330);
-            lblNhanOLS.AutoSize = false;
-            lblNhanOLS.Width = 700;
-            lblNhanOLS.Height = 25;
-            lblNhanOLS.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            lblNhanOLS.ForeColor = Color.Green;
-            lblNhanOLS.BackColor = Color.AliceBlue;
-            lblNhanOLS.Padding = new Padding(5);
-            lblNhanOLS.BorderStyle = BorderStyle.Fixed3D;
-
-            // SQL Preview
-            Label lblSQLLabel = new Label();
-            lblSQLLabel.Text = "Preview lệnh SQL:";
-            lblSQLLabel.Location = new Point(15, 365);
-            lblSQLLabel.AutoSize = true;
-            lblSQLLabel.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-
-            lblSQLPreview = new Label();
-            lblSQLPreview.Text = "";
-            lblSQLPreview.Location = new Point(15, 385);
-            lblSQLPreview.AutoSize = false;
-            lblSQLPreview.Width = 700;
-            lblSQLPreview.Height = 60;
-            lblSQLPreview.Font = new Font("Courier New", 8F);
-            lblSQLPreview.BackColor = Color.FromArgb(240, 240, 240);
-            lblSQLPreview.ForeColor = Color.FromArgb(64, 64, 64);
-            lblSQLPreview.Padding = new Padding(5);
-            lblSQLPreview.BorderStyle = BorderStyle.Fixed3D;
-            UpdateSQLPreview();
-
-            // Button Gửi
-            btnGui = new Button();
-            btnGui.Text = "✉ Gửi thông báo";
-            btnGui.Location = new Point(15, 455);
-            btnGui.Width = 700;
-            btnGui.Height = 40;
-            btnGui.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            btnGui.BackColor = Color.SteelBlue;
-            btnGui.ForeColor = Color.White;
-            btnGui.FlatStyle = FlatStyle.Flat;
-            btnGui.FlatAppearance.BorderSize = 0;
-            btnGui.Cursor = Cursors.Hand;
-            btnGui.Click += BtnGui_Click;
-
-            // Add to form
-            this.Controls.Add(lblTitle);
-            this.Controls.Add(lblNoiDung);
             this.Controls.Add(txtNoiDung);
-            this.Controls.Add(lblDiaDiem);
+            y += 90;
+
+            // ── Địa điểm ───────────────────────────────────────────────────
+            this.Controls.Add(MakeLabel("Địa điểm:", left, y));
+            y += 20;
+            txtDiaDiem = new TextBox
+            {
+                Location = new Point(left, y),
+                Width = width,
+                Font = new Font("Segoe UI", 9F)
+            };
+            txtDiaDiem.TextChanged += (s, e) => UpdateSQLPreview();
             this.Controls.Add(txtDiaDiem);
-            this.Controls.Add(lblNgayGio);
+            y += 35;
+
+            // ── Ngày giờ ───────────────────────────────────────────────────
+            this.Controls.Add(MakeLabel("Ngày giờ:", left, y));
+            y += 20;
+            dtpNgayGio = new DateTimePicker
+            {
+                Location = new Point(left, y),
+                Width = 220,
+                Format = DateTimePickerFormat.Custom,
+                CustomFormat = "dd/MM/yyyy HH:mm",
+                Value = DateTime.Now,
+                Font = new Font("Segoe UI", 9F)
+            };
             this.Controls.Add(dtpNgayGio);
-            this.Controls.Add(lblCap);
-            this.Controls.Add(cboCap);
-            this.Controls.Add(lblKhoa);
-            this.Controls.Add(cboKhoa);
-            this.Controls.Add(lblCoso);
-            this.Controls.Add(cboCoso);
-            this.Controls.Add(lblNhanOLS);
-            this.Controls.Add(lblSQLLabel);
+            y += 38;
+
+            // ── Nhãn OLS (whitelist combo) ─────────────────────────────────
+            this.Controls.Add(MakeLabel("Nhãn OLS (chọn từ danh sách đã định nghĩa):", left, y));
+            y += 20;
+
+            cboNhanOLS = new ComboBox
+            {
+                Location = new Point(left, y),
+                Width = width,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Courier New", 9F),
+                DropDownWidth = width
+            };
+            cboNhanOLS.SelectedIndexChanged += (s, e) =>
+            {
+                UpdateLabelPreview();
+                UpdateSQLPreview();
+            };
+            this.Controls.Add(cboNhanOLS);
+            y += 32;
+
+            // ── Preview nhãn ───────────────────────────────────────────────
+            lblNhanPreview = new Label
+            {
+                Location = new Point(left, y),
+                AutoSize = false,
+                Width = width,
+                Height = 28,
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                ForeColor = Color.DarkGreen,
+                BackColor = Color.FromArgb(236, 248, 240),
+                BorderStyle = BorderStyle.FixedSingle,
+                Padding = new Padding(6, 4, 0, 0)
+            };
+            this.Controls.Add(lblNhanPreview);
+            y += 36;
+
+            // ── SQL Preview ────────────────────────────────────────────────
+            this.Controls.Add(MakeLabel("Preview lệnh gọi SP:", left, y));
+            y += 20;
+            lblSQLPreview = new Label
+            {
+                Location = new Point(left, y),
+                AutoSize = false,
+                Width = width,
+                Height = 75,
+                Font = new Font("Courier New", 8F),
+                BackColor = Color.FromArgb(245, 245, 245),
+                ForeColor = Color.FromArgb(60, 60, 60),
+                Padding = new Padding(6),
+                BorderStyle = BorderStyle.Fixed3D
+            };
             this.Controls.Add(lblSQLPreview);
+            y += 85;
+
+            // ── Nút Gửi ───────────────────────────────────────────────────
+            btnGui = new Button
+            {
+                Text = "✉  Gửi thông báo",
+                Location = new Point(left, y),
+                Width = width,
+                Height = 42,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                BackColor = Color.SteelBlue,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            btnGui.FlatAppearance.BorderSize = 0;
+            btnGui.Click += BtnGui_Click;
             this.Controls.Add(btnGui);
 
+            this.Controls.Add(lblTitle);
             this.ResumeLayout(false);
-            this.AutoScroll = true;
-            this.BackColor = Color.White;
         }
 
-        private void SetupEventHandlers()
+        // ── Helpers tạo Label ────────────────────────────────────────────────
+        private Label MakeLabel(string text, int x, int y,
+            int width = 0, int height = 0,
+            Font font = null, Color? color = null)
         {
+            var lbl = new Label
+            {
+                Text = text,
+                Location = new Point(x, y),
+                AutoSize = (width == 0),
+                Font = font ?? new Font("Segoe UI", 9F)
+            };
+            if (width > 0) lbl.Width = width;
+            if (height > 0) lbl.Height = height;
+            if (color.HasValue) lbl.ForeColor = color.Value;
+            return lbl;
         }
 
-        private void UpdateOLSLabel()
+        // ── Populate combo với 13 nhãn whitelist ────────────────────────────
+        private void PopulateLabelCombo()
         {
-            try
-            {
-                string level = ExtractLevel(cboCap.SelectedItem?.ToString());
-                string comp = ExtractCompartment(cboKhoa.SelectedItem?.ToString());
-                string group = ExtractGroup(cboCoso.SelectedItem?.ToString());
-
-                string label = OracleHelper.GetBuildLabel(DBConfig.ConnectionString, level, comp, group);
-                lblNhanOLS.Text = $"Nhãn OLS: {label}";
-                UpdateSQLPreview();
-            }
-            catch
-            {
-                lblNhanOLS.Text = "Nhãn OLS: Lỗi khi tính toán";
-            }
+            cboNhanOLS.Items.Clear();
+            foreach (var lbl in LABEL_WHITELIST)
+                cboNhanOLS.Items.Add(lbl);
         }
 
+        // ── Cập nhật preview nhãn ────────────────────────────────────────────
+        private void UpdateLabelPreview()
+        {
+            if (cboNhanOLS.SelectedItem is OlsLabel selected)
+                lblNhanPreview.Text = $"✓  {selected.Tag}   —   {selected.Desc}";
+            else
+                lblNhanPreview.Text = "";
+        }
+
+        // ── Cập nhật preview SQL ─────────────────────────────────────────────
         private void UpdateSQLPreview()
         {
-            try
-            {
-                string noidung = txtNoiDung.Text.Replace("'", "''");
-                string diadiem = txtDiaDiem.Text.Replace("'", "''");
-                string level = ExtractLevel(cboCap.SelectedItem?.ToString());
-                string comp = ExtractCompartment(cboKhoa.SelectedItem?.ToString());
-                string group = ExtractGroup(cboCoso.SelectedItem?.ToString());
-
-                string sql = $"EXEC ADMIN.SP_INSERT_THONGBAO(\n" +
-                    $"  p_noidung => N'{noidung}',\n" +
-                    $"  p_diadiem => N'{diadiem}',\n" +
-                    $"  p_level => '{level}',\n" +
-                    $"  p_comp => '{comp}',\n" +
-                    $"  p_group => '{group}'\n" +
-                    $")";
-
-                lblSQLPreview.Text = sql;
-            }
-            catch
+            if (!(cboNhanOLS.SelectedItem is OlsLabel selected))
             {
                 lblSQLPreview.Text = "";
+                return;
             }
+
+            string nd = txtNoiDung.Text.Replace("'", "''");
+            string dd = txtDiaDiem.Text.Replace("'", "''");
+
+            lblSQLPreview.Text =
+                $"EXEC ADMIN.SP_INSERT_THONGBAO(\r\n" +
+                $"  p_noidung => N'{nd}',\r\n" +
+                $"  p_level   => '{selected.Level}',\r\n" +
+                $"  p_comp    => '{selected.Comp}',\r\n" +
+                $"  p_group   => '{selected.Group}'\r\n" +
+                $")";
         }
 
-        private string ExtractLevel(string item)
-        {
-            if (string.IsNullOrEmpty(item)) return "NV";
-            if (item.StartsWith("NV")) return "NV";
-            if (item.StartsWith("LDK")) return "LDK";
-            if (item.StartsWith("BGD")) return "BGD";
-            return "NV";
-        }
-
-        private string ExtractCompartment(string item)
-        {
-            if (string.IsNullOrEmpty(item) || item.StartsWith("(Tất cả")) return "";
-
-            int dashIndex = item.IndexOf(" - ");
-            if (dashIndex > 0)
-                return item.Substring(0, dashIndex);
-
-            return "";
-        }
-
-        private string ExtractGroup(string item)
-        {
-            if (string.IsNullOrEmpty(item) || item.StartsWith("(Tất cả")) return "";
-
-            int dashIndex = item.IndexOf(" - ");
-            if (dashIndex > 0)
-                return item.Substring(0, dashIndex);
-
-            return "";
-        }
-
+        // ── Gửi thông báo ────────────────────────────────────────────────────
         private void BtnGui_Click(object sender, EventArgs e)
         {
+            // Validate input
             if (string.IsNullOrWhiteSpace(txtNoiDung.Text))
             {
                 MessageBox.Show("Vui lòng nhập nội dung thông báo!", "Cảnh báo",
@@ -314,27 +276,53 @@ namespace ATBM_Project.Views
                 return;
             }
 
-            // ✅ Thêm: Xác nhận label trước khi gửi
-            string labelPreview = lblNhanOLS.Text.Replace("Nhãn OLS: ", "");
+            if (!(cboNhanOLS.SelectedItem is OlsLabel selected))
+            {
+                MessageBox.Show("Vui lòng chọn nhãn OLS!", "Cảnh báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Xác nhận
             var confirm = MessageBox.Show(
-                $"Xác nhận gửi thông báo với nhãn OLS:\n{labelPreview}",
-                "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                $"Gửi thông báo với nhãn OLS:\n\n" +
+                $"  {selected.Tag}\n  ({selected.Desc})\n\n" +
+                $"Tiếp tục?",
+                "Xác nhận gửi thông báo",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
             if (confirm != DialogResult.Yes) return;
 
             try
             {
-                string level = ExtractLevel(cboCap.SelectedItem?.ToString());
-                string comp = ExtractCompartment(cboKhoa.SelectedItem?.ToString());
-                string group = ExtractGroup(cboCoso.SelectedItem?.ToString());
+                btnGui.Enabled = false;
+                btnGui.Text = "Đang gửi...";
 
-                OracleParameter[] parameters = new OracleParameter[]
+                var parameters = new OracleParameter[]
                 {
-            new OracleParameter { ParameterName = ":p_noidung", OracleDbType = OracleDbType.NVarchar2,  Value = txtNoiDung.Text,    Direction = ParameterDirection.Input },
-            new OracleParameter { ParameterName = ":p_ngaygio", OracleDbType = OracleDbType.TimeStamp,  Value = dtpNgayGio.Value,   Direction = ParameterDirection.Input },
-            new OracleParameter { ParameterName = ":p_diadiem", OracleDbType = OracleDbType.NVarchar2,  Value = txtDiaDiem.Text,    Direction = ParameterDirection.Input },
-            new OracleParameter { ParameterName = ":p_level",   OracleDbType = OracleDbType.Varchar2,   Value = level,              Direction = ParameterDirection.Input },
-            new OracleParameter { ParameterName = ":p_comp",    OracleDbType = OracleDbType.Varchar2,   Value = comp  ?? "",        Direction = ParameterDirection.Input },
-            new OracleParameter { ParameterName = ":p_group",   OracleDbType = OracleDbType.Varchar2,   Value = group ?? "",        Direction = ParameterDirection.Input }
+                    new OracleParameter { ParameterName = ":p_noidung",
+                        OracleDbType = OracleDbType.NVarchar2,
+                        Value = txtNoiDung.Text,      Direction = ParameterDirection.Input },
+
+                    new OracleParameter { ParameterName = ":p_ngaygio",
+                        OracleDbType = OracleDbType.TimeStamp,
+                        Value = dtpNgayGio.Value,     Direction = ParameterDirection.Input },
+
+                    new OracleParameter { ParameterName = ":p_diadiem",
+                        OracleDbType = OracleDbType.NVarchar2,
+                        Value = txtDiaDiem.Text,      Direction = ParameterDirection.Input },
+
+                    new OracleParameter { ParameterName = ":p_level",
+                        OracleDbType = OracleDbType.Varchar2,
+                        Value = selected.Level,       Direction = ParameterDirection.Input },
+
+                    new OracleParameter { ParameterName = ":p_comp",
+                        OracleDbType = OracleDbType.Varchar2,
+                        Value = selected.Comp,        Direction = ParameterDirection.Input },
+
+                    new OracleParameter { ParameterName = ":p_group",
+                        OracleDbType = OracleDbType.Varchar2,
+                        Value = selected.Group,       Direction = ParameterDirection.Input }
                 };
 
                 OracleHelper.ExecuteNonQuery(
@@ -342,23 +330,44 @@ namespace ATBM_Project.Views
                     "ADMIN.SP_INSERT_THONGBAO",
                     parameters);
 
-                MessageBox.Show("✓ Gửi thông báo thành công!", "Thành công",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    $"✓ Gửi thông báo thành công!\n\nNhãn OLS: {selected.Tag}",
+                    "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Reset form
-                txtNoiDung.Clear();
-                txtDiaDiem.Clear();
-                dtpNgayGio.Value = DateTime.Now;
-                cboCap.SelectedIndex = 0;
-                cboKhoa.SelectedIndex = 0;
-                cboCoso.SelectedIndex = 0;
-                UpdateOLSLabel();
+                ResetForm();
+            }
+            catch (OracleException ex)
+            {
+                // Lỗi -20001: nhãn chưa định nghĩa (từ SP)
+                // Lỗi -20002: CHAR_TO_LABEL trả NULL (phòng thủ thêm)
+                string msg = ex.Message.Contains("-20001") || ex.Message.Contains("-20002")
+                    ? $"Nhãn OLS không hợp lệ.\n\n{ex.Message}"
+                    : $"Lỗi Oracle: {ex.Message}";
+
+                MessageBox.Show(msg, "Lỗi gửi thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi gửi thông báo",
+                MessageBox.Show($"Lỗi không xác định: {ex.Message}", "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                btnGui.Enabled = true;
+                btnGui.Text = "✉  Gửi thông báo";
+            }
+        }
+
+        // ── Reset form về trạng thái ban đầu ────────────────────────────────
+        private void ResetForm()
+        {
+            txtNoiDung.Clear();
+            txtDiaDiem.Clear();
+            dtpNgayGio.Value = DateTime.Now;
+            cboNhanOLS.SelectedIndex = 0;
+            UpdateLabelPreview();
+            UpdateSQLPreview();
         }
     }
 }
