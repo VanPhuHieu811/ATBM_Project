@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Oracle.ManagedDataAccess.Client;
 using ATBM_Project.Data;
+using ATBM_Project.Views;
+using ATBM_Project.Views.NV;
 
 namespace ATBM_Project.Views.DPV
 {
@@ -14,6 +16,8 @@ namespace ATBM_Project.Views.DPV
         private Button btnPatients;
         private Button btnRecords;
         private Button btnServices;
+        private Button btnProfile;
+        private Button btnThongBao;
         private Button btnLogout;
         private Form currentChildForm;
 
@@ -54,6 +58,12 @@ namespace ATBM_Project.Views.DPV
             btnServices = CreateSidebarButton("Điều phối KTV", 195);
             btnServices.Click += (s, e) => OpenChildForm(new FormCoordinatorServices());
 
+            btnProfile = CreateSidebarButton("Cá nhân", 245);
+            btnProfile.Click += (s, e) => OpenChildForm(new FormNhanVienProfile());
+
+            btnThongBao = CreateSidebarButton("Thông báo", 295);
+            btnThongBao.Click += (s, e) => OpenChildForm(new FormThongBao(DBConfig.ConnectionString));
+
             btnLogout = CreateSidebarButton("Đăng xuất", 0);
             btnLogout.Dock = DockStyle.Bottom;
             btnLogout.Height = 50;
@@ -64,6 +74,8 @@ namespace ATBM_Project.Views.DPV
             pnlSidebar.Controls.Add(btnPatients);
             pnlSidebar.Controls.Add(btnRecords);
             pnlSidebar.Controls.Add(btnServices);
+            pnlSidebar.Controls.Add(btnProfile);
+            pnlSidebar.Controls.Add(btnThongBao);
             pnlSidebar.Controls.Add(btnLogout);
 
             pnlContent = new Panel

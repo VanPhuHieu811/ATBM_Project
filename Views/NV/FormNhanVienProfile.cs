@@ -25,22 +25,29 @@ namespace ATBM_Project.Views.NV
 
         private void InitializeComponent()
         {
-            this.ClientSize = new Size(800, 600);
             this.BackColor = Color.FromArgb(245, 246, 250);
+            this.AutoScroll = true;
             Font fontLabel = new Font("Segoe UI", 9F, FontStyle.Bold);
-            Font fontText = new Font("Segoe UI", 10F);
 
             Label lblTitle = new Label()
             {
                 Text = "THÔNG TIN CÁ NHÂN NHÂN VIÊN",
                 Location = new Point(20, 15),
                 AutoSize = true,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left,
                 Font = new Font("Segoe UI", 16F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(41, 53, 65)
             };
 
-            // --- 1. NHÓM THÔNG TIN HÀNH CHÍNH & CHUYÊN MÔN ---
-            grpHanhChinh = new GroupBox() { Text = "Thông tin nhân sự", Location = new Point(20, 60), Size = new Size(370, 280), Font = fontLabel, ForeColor = Color.SteelBlue };
+            grpHanhChinh = new GroupBox()
+            {
+                Text = "Thông tin nhân sự",
+                Location = new Point(20, 60),
+                Size = new Size(370, 280),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                Font = fontLabel,
+                ForeColor = Color.SteelBlue
+            };
 
             AddProfileRow(grpHanhChinh, "Mã nhân viên:", out txtManV, 30);
             AddProfileRow(grpHanhChinh, "Họ và tên:", out txtHoTen, 65);
@@ -50,8 +57,15 @@ namespace ATBM_Project.Views.NV
             AddProfileRow(grpHanhChinh, "Vai trò:", out txtVaiTro, 205);
             AddProfileRow(grpHanhChinh, "Chuyên khoa:", out txtChuyenKhoa, 240);
 
-            // --- 2. NHÓM THÔNG TIN LIÊN LẠC (ĐƯỢC SỬA) ---
-            grpLienHe = new GroupBox() { Text = "Thông tin liên lạc & Cư trú", Location = new Point(410, 60), Size = new Size(360, 150), Font = fontLabel, ForeColor = Color.DarkGreen };
+            grpLienHe = new GroupBox()
+            {
+                Text = "Thông tin liên lạc & Cư trú",
+                Location = new Point(410, 60),
+                Size = new Size(360, 150),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Font = fontLabel,
+                ForeColor = Color.DarkGreen
+            };
 
             AddProfileRow(grpLienHe, "Số điện thoại:", out txtSoDt, 35);
             AddProfileRow(grpLienHe, "Quê quán:", out txtQueQuan, 80);
@@ -64,6 +78,7 @@ namespace ATBM_Project.Views.NV
                 Text = "THAY ĐỔI THÔNG TIN",
                 Location = new Point(20, 500),
                 Size = new Size(200, 45),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                 BackColor = Color.SteelBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -77,6 +92,7 @@ namespace ATBM_Project.Views.NV
                 Text = "Làm mới",
                 Location = new Point(235, 500),
                 Size = new Size(120, 45),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                 BackColor = Color.White,
                 ForeColor = Color.SteelBlue,
                 FlatStyle = FlatStyle.Flat,

@@ -4,131 +4,105 @@ using System.Drawing;
 using System.Windows.Forms;
 using ATBM_Project.Data;
 using ATBM_Project.Presenters;
+using ATBM_Project.Views.NV;
 
 namespace ATBM_Project.Views
 {
     public class FormDoctorMain : Form
     {
         private readonly DoctorPresenter presenter = new DoctorPresenter();
-        private readonly string displayName;
 
-        private Panel pnlHeader;
+        private Panel pnlSidebar;
         private Panel pnlContent;
         private Panel pnlListPage;
         private Panel pnlDetailPage;
         private Panel pnlSearch;
+        private Panel pnlGridHost;
         private Panel pnlDetailToolbar;
         private Panel pnlDetailHost;
 
-        private Label lblTitle;
-        private Label lblUser;
-        private Label lblDoctorInfo;
         private Label lblListTitle;
         private Label lblDetailTitle;
         private TextBox txtSearch;
         private Button btnSearch;
+        private Button btnRecords;
+        private Button btnProfile;
+        private Button btnThongBao;
         private Button btnClearSearch;
         private Button btnRefresh;
         private Button btnLogout;
         private Button btnBack;
         private DataGridView dgvMedicalRecords;
         private FormDoctorRecordDetail currentDetailForm;
+        private FormThongBao currentThongBaoForm;
+        private Form currentChildForm;
 
         public FormDoctorMain(string displayName)
         {
-            this.displayName = string.IsNullOrWhiteSpace(displayName) ? DBConfig.User : displayName;
             InitializeComponent();
-            LoadDoctorProfile();
             LoadMedicalRecords();
             ShowListPage();
         }
 
         private void InitializeComponent()
         {
-            this.Text = "Bác sĩ / Y sĩ";
-            this.ClientSize = new Size(1000, 650);
+            this.Text = "Bác sĩ / Y sĩ - Quản lý hồ sơ bệnh án";
+            this.ClientSize = new Size(1100, 680);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.WhiteSmoke;
+            this.MinimumSize = new Size(900, 600);
 
-            pnlHeader = new Panel
+            pnlSidebar = new Panel
             {
-                Dock = DockStyle.Top,
-                Height = 118,
-                BackColor = Color.White
+                Dock = DockStyle.Left,
+                Width = 220,
+                BackColor = Color.FromArgb(41, 53, 65)
             };
 
-            lblTitle = new Label
+            Label lblSidebarTitle = new Label
             {
-                Text = "Bác sĩ / Y sĩ - Quản lý hồ sơ bệnh án",
-                Location = new Point(20, 18),
-                Size = new Size(560, 32),
-                Font = new Font("Segoe UI", 16F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(41, 53, 65)
+                AutoSize = false,
+                Width = 220,
+                Height = 70,
+                Location = new Point(0, 20),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 13F, FontStyle.Bold),
+                ForeColor = Color.White,
+                Text = "Bác sĩ / Y sĩ"
             };
 
-            lblUser = new Label
-            {
-                Text = $"{displayName} ({DBConfig.User?.ToUpperInvariant()})",
-                Location = new Point(20, 54),
-                Size = new Size(560, 24),
-                Font = new Font("Segoe UI", 10F),
-                ForeColor = Color.DimGray
-            };
+            btnRecords = CreateSidebarButton("Hồ sơ bệnh án", 110);
+            btnRecords.Click += (s, e) => ShowListPage();
 
-            lblDoctorInfo = new Label
-            {
-                Text = "Đang tải thông tin bác sĩ...",
-                Location = new Point(20, 80),
-                Size = new Size(720, 24),
-                Font = new Font("Segoe UI", 9F),
-                ForeColor = Color.FromArgb(90, 90, 90)
-            };
+            btnProfile = CreateSidebarButton("Cá nhân", 160);
+            btnProfile.Click += (s, e) => OpenChildForm(new FormNhanVienProfile());
 
-            btnRefresh = CreateButton("Tải lại", 760, 42, 100);
-            btnRefresh.Click += (s, e) => LoadMedicalRecords();
+            btnThongBao = CreateSidebarButton("Thông báo", 210);
+            btnThongBao.Click += (s, e) => ShowNotificationPage();
 
-            btnLogout = CreateButton("Đăng xuất", 875, 42, 100);
+            btnLogout = CreateSidebarButton("Đăng xuất", 0);
+            btnLogout.Dock = DockStyle.Bottom;
+            btnLogout.Height = 50;
+            btnLogout.BackColor = Color.FromArgb(31, 43, 55);
             btnLogout.Click += (s, e) => this.Close();
+
+            pnlSidebar.Controls.Add(lblSidebarTitle);
+            pnlSidebar.Controls.Add(btnRecords);
+            pnlSidebar.Controls.Add(btnProfile);
+            pnlSidebar.Controls.Add(btnThongBao);
+            pnlSidebar.Controls.Add(btnLogout);
 
             pnlContent = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.WhiteSmoke
+                BackColor = Color.White
             };
 
             BuildListPage();
             BuildDetailPage();
 
-            pnlHeader.Controls.Add(lblTitle);
-            pnlHeader.Controls.Add(lblUser);
-            pnlHeader.Controls.Add(lblDoctorInfo);
-            pnlHeader.Controls.Add(btnRefresh);
-            pnlHeader.Controls.Add(btnLogout);
-
             this.Controls.Add(pnlContent);
-            this.Controls.Add(pnlHeader);
-        }
-
-        private void LoadDoctorProfile()
-        {
-            try
-            {
-                DataTable data = presenter.GetCurrentDoctorProfile();
-                if (data.Rows.Count == 0)
-                {
-                    lblDoctorInfo.Text = "Không tải được thông tin bác sĩ.";
-                    return;
-                }
-
-                DataRow row = data.Rows[0];
-                lblUser.Text = $"{Value(row, "HOTEN")} ({Value(row, "MANV")})";
-                lblDoctorInfo.Text =
-                    $"Vai trò: {Value(row, "VAITRO")}   |   Chuyên khoa: {Value(row, "CHUYENKHOA")}   |   SĐT: {Value(row, "SODT")}   |   Quê quán: {Value(row, "QUEQUAN")}";
-            }
-            catch (Exception ex)
-            {
-                lblDoctorInfo.Text = "Không tải được thông tin bác sĩ: " + ex.Message;
-            }
+            this.Controls.Add(pnlSidebar);
         }
 
         private void BuildListPage()
@@ -143,10 +117,10 @@ namespace ATBM_Project.Views
             {
                 Text = "Danh sách hồ sơ bệnh án",
                 Dock = DockStyle.Top,
-                Height = 45,
+                Height = 48,
                 Padding = new Padding(20, 0, 0, 0),
                 TextAlign = ContentAlignment.MiddleLeft,
-                Font = new Font("Segoe UI", 13F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(41, 53, 65),
                 BackColor = Color.FromArgb(245, 247, 250)
             };
@@ -154,24 +128,37 @@ namespace ATBM_Project.Views
             pnlSearch = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 62,
-                BackColor = Color.White
+                Height = 58,
+                BackColor = Color.White,
+                Padding = new Padding(16, 12, 16, 8)
             };
+
+            TableLayoutPanel searchLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 5,
+                RowCount = 1
+            };
+            searchLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170F));
+            searchLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            searchLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 88F));
+            searchLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 96F));
+            searchLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 96F));
 
             Label lblSearch = new Label
             {
                 Text = "Tìm kiếm bệnh nhân / hồ sơ:",
-                Location = new Point(20, 20),
-                Size = new Size(180, 24),
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.FromArgb(41, 53, 65)
             };
 
             txtSearch = new TextBox
             {
-                Location = new Point(210, 18),
-                Size = new Size(360, 24),
-                Font = new Font("Segoe UI", 10F)
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 10F),
+                Margin = new Padding(0, 6, 8, 6)
             };
             txtSearch.KeyDown += (s, e) =>
             {
@@ -182,14 +169,31 @@ namespace ATBM_Project.Views
                 }
             };
 
-            btnSearch = CreateButton("Tìm", 590, 14, 80);
+            btnSearch = CreateActionButton("Tìm");
             btnSearch.Click += (s, e) => LoadMedicalRecords();
 
-            btnClearSearch = CreateButton("Xóa lọc", 680, 14, 90);
+            btnClearSearch = CreateActionButton("Xóa lọc");
             btnClearSearch.Click += (s, e) =>
             {
                 txtSearch.Clear();
                 LoadMedicalRecords();
+            };
+
+            btnRefresh = CreateActionButton("Tải lại");
+            btnRefresh.Click += (s, e) => LoadMedicalRecords();
+
+            searchLayout.Controls.Add(lblSearch, 0, 0);
+            searchLayout.Controls.Add(txtSearch, 1, 0);
+            searchLayout.Controls.Add(btnSearch, 2, 0);
+            searchLayout.Controls.Add(btnClearSearch, 3, 0);
+            searchLayout.Controls.Add(btnRefresh, 4, 0);
+            pnlSearch.Controls.Add(searchLayout);
+
+            pnlGridHost = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.White,
+                Padding = new Padding(16, 8, 16, 16)
             };
 
             dgvMedicalRecords = new DataGridView
@@ -197,6 +201,8 @@ namespace ATBM_Project.Views
                 Dock = DockStyle.Fill,
                 BackgroundColor = Color.White,
                 BorderStyle = BorderStyle.None,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                GridColor = Color.FromArgb(230, 235, 240),
                 RowHeadersVisible = false,
                 AllowUserToAddRows = false,
                 AllowUserToResizeRows = false,
@@ -212,6 +218,7 @@ namespace ATBM_Project.Views
             dgvMedicalRecords.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             dgvMedicalRecords.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 53, 65);
             dgvMedicalRecords.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvMedicalRecords.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             dgvMedicalRecords.EnableHeadersVisualStyles = false;
             dgvMedicalRecords.CellContentClick += DgvMedicalRecords_CellContentClick;
             dgvMedicalRecords.CellDoubleClick += (s, e) =>
@@ -223,12 +230,9 @@ namespace ATBM_Project.Views
             };
             ConfigureMedicalRecordColumns();
 
-            pnlSearch.Controls.Add(lblSearch);
-            pnlSearch.Controls.Add(txtSearch);
-            pnlSearch.Controls.Add(btnSearch);
-            pnlSearch.Controls.Add(btnClearSearch);
+            pnlGridHost.Controls.Add(dgvMedicalRecords);
 
-            pnlListPage.Controls.Add(dgvMedicalRecords);
+            pnlListPage.Controls.Add(pnlGridHost);
             pnlListPage.Controls.Add(pnlSearch);
             pnlListPage.Controls.Add(lblListTitle);
         }
@@ -245,43 +249,86 @@ namespace ATBM_Project.Views
             pnlDetailToolbar = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 58,
-                BackColor = Color.FromArgb(245, 247, 250)
+                Height = 54,
+                BackColor = Color.FromArgb(245, 247, 250),
+                Padding = new Padding(12, 8, 12, 8)
             };
 
-            btnBack = CreateButton("← Quay lại", 20, 12, 120);
+            btnBack = CreateActionButton("← Quay lại");
+            btnBack.Width = 120;
+            btnBack.Dock = DockStyle.Left;
+            btnBack.Margin = new Padding(0, 4, 0, 4);
             btnBack.Click += (s, e) => ShowListPage();
 
             lblDetailTitle = new Label
             {
                 Text = "Chi tiết hồ sơ bệnh án",
-                Location = new Point(160, 10),
-                Size = new Size(600, 35),
+                Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(12, 0, 0, 0),
                 Font = new Font("Segoe UI", 13F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(41, 53, 65)
             };
 
-            pnlDetailToolbar.Controls.Add(btnBack);
             pnlDetailToolbar.Controls.Add(lblDetailTitle);
+            pnlDetailToolbar.Controls.Add(btnBack);
 
             pnlDetailHost = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.White
+                BackColor = Color.White,
+                Padding = new Padding(8)
             };
 
             pnlDetailPage.Controls.Add(pnlDetailHost);
             pnlDetailPage.Controls.Add(pnlDetailToolbar);
         }
 
-        private Button CreateButton(string text, int x, int y, int width)
+        private void OpenChildForm(Form childForm)
+        {
+            if (currentChildForm != null)
+            {
+                currentChildForm.Close();
+                currentChildForm = null;
+            }
+
+            currentChildForm = childForm;
+            childForm.TopLevel = false;
+            childForm.FormBorderStyle = FormBorderStyle.None;
+            childForm.Dock = DockStyle.Fill;
+
+            pnlContent.Controls.Clear();
+            pnlContent.Controls.Add(childForm);
+            childForm.BringToFront();
+            childForm.Show();
+        }
+
+        private Button CreateSidebarButton(string text, int yPos)
+        {
+            Button btn = new Button
+            {
+                Text = "  " + text,
+                FlatStyle = FlatStyle.Flat,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Location = new Point(0, yPos),
+                Size = new Size(220, 48),
+                Font = new Font("Segoe UI", 11F),
+                ForeColor = Color.Gainsboro,
+                Cursor = Cursors.Hand
+            };
+            btn.FlatAppearance.BorderSize = 0;
+            btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(51, 63, 75);
+            btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(61, 73, 85);
+            return btn;
+        }
+
+        private Button CreateActionButton(string text)
         {
             Button button = new Button
             {
                 Text = text,
-                Location = new Point(x, y),
-                Size = new Size(width, 35),
+                Dock = DockStyle.Fill,
+                Margin = new Padding(4, 4, 0, 4),
                 BackColor = Color.SteelBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
@@ -368,6 +415,8 @@ namespace ATBM_Project.Views
                 currentDetailForm = null;
             }
 
+            currentChildForm = null;
+
             currentDetailForm = new FormDoctorRecordDetail(maHsba)
             {
                 TopLevel = false,
@@ -380,13 +429,16 @@ namespace ATBM_Project.Views
             pnlDetailHost.Controls.Add(currentDetailForm);
             currentDetailForm.Show();
 
-            pnlListPage.Visible = false;
+            pnlContent.Controls.Clear();
+            pnlContent.Controls.Add(pnlDetailPage);
             pnlDetailPage.Visible = true;
             pnlDetailPage.BringToFront();
         }
 
         private void ShowListPage()
         {
+            currentChildForm = null;
+
             pnlContent.Controls.Clear();
             pnlContent.Controls.Add(pnlListPage);
             pnlContent.Controls.Add(pnlDetailPage);
@@ -394,6 +446,16 @@ namespace ATBM_Project.Views
             pnlListPage.Visible = true;
             pnlListPage.BringToFront();
             LoadMedicalRecords();
+        }
+
+        private void ShowNotificationPage()
+        {
+            if (currentThongBaoForm == null || currentThongBaoForm.IsDisposed)
+            {
+                currentThongBaoForm = new FormThongBao(DBConfig.ConnectionString);
+            }
+
+            OpenChildForm(currentThongBaoForm);
         }
 
         private void AddTextColumn(string name, string headerText, int width, string format = null)
@@ -413,11 +475,6 @@ namespace ATBM_Project.Views
             }
 
             dgvMedicalRecords.Columns.Add(column);
-        }
-
-        private string Value(DataRow row, string columnName)
-        {
-            return row.Table.Columns.Contains(columnName) && row[columnName] != DBNull.Value ? row[columnName].ToString() : string.Empty;
         }
     }
 }

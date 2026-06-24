@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using ATBM_Project.Data; // Gọi thư viện này để lấy tên User đăng nhập
+using ATBM_Project.Data;
+using ATBM_Project.Views;
 
 
 namespace ATBM_Project.Views.KTV
@@ -14,6 +15,7 @@ namespace ATBM_Project.Views.KTV
         private Button btnLogout;
         private Button btnProfile;
         private Button btnViewAssigned;
+        private Button btnThongBao;
         private Form currentChildForm;
 
         public FormKTVMain()
@@ -52,11 +54,14 @@ namespace ATBM_Project.Views.KTV
             lblUsername.Text = $"{DBConfig.User?.ToUpper()}\n(Kỹ thuật viên)";
 
             // CÁC NÚT CHỨC NĂNG
-            btnProfile = CreateSidebarButton("Hồ sơ cá nhân", 90);
+            btnProfile = CreateSidebarButton("Cá nhân", 90);
             btnProfile.Click += (s, e) => OpenChildForm(new NV.FormNhanVienProfile());
 
             btnViewAssigned = CreateSidebarButton("Dịch vụ điều phối", 140);
-            btnViewAssigned.Click += (s, e) => OpenChildForm(new FormKTVServices()); // Mở form danh sách dịch vụ
+            btnViewAssigned.Click += (s, e) => OpenChildForm(new FormKTVServices());
+
+            btnThongBao = CreateSidebarButton("Thông báo", 190);
+            btnThongBao.Click += (s, e) => OpenChildForm(new FormThongBao(DBConfig.ConnectionString));
 
             btnLogout = CreateSidebarButton("Đăng xuất", 0);
             btnLogout.Dock = DockStyle.Bottom;
@@ -68,6 +73,7 @@ namespace ATBM_Project.Views.KTV
             pnlSidebar.Controls.Add(lblUsername);
             pnlSidebar.Controls.Add(btnProfile);
             pnlSidebar.Controls.Add(btnViewAssigned);
+            pnlSidebar.Controls.Add(btnThongBao);
             pnlSidebar.Controls.Add(btnLogout);
 
             // PANEL NỘI DUNG (Khung trống bên phải để nhúng form con)
@@ -99,8 +105,8 @@ namespace ATBM_Project.Views.KTV
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
+            pnlContent.Controls.Clear();
             pnlContent.Controls.Add(childForm);
-            pnlContent.Tag = childForm;
             childForm.BringToFront();
             childForm.Show();
         }

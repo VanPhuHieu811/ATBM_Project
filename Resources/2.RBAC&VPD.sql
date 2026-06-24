@@ -138,7 +138,8 @@ BEGIN
         SELECT MANV
         FROM admin.NHANVIEN
         WHERE VAITRO = N'Bác sĩ/Y sĩ'
-          AND MANV BETWEEN 'NV005' AND 'NV014'
+          AND MANV BETWEEN 'NV005' AND 'NV014' 
+          AND MANV BETWEEN 'NV021' AND 'NV028' 
     ) LOOP
         BEGIN
             v_sql := 'GRANT ROLE_BACSI TO ' || r.MANV;
