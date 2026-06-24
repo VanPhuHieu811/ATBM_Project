@@ -107,6 +107,7 @@ EXCEPTION
         IF SQLCODE != -12912 THEN RAISE; END IF; -- -12912: Policy already exists
 END;
 /
+-- Sau khi chạy script tạo chính sách thì reconnect admin rồi chạy tiếp script dưới
 
 -- Cap quyen quan tri policy cho ADMIN ngay sau khi tao policy.
 -- Neu de den cuoi file, ADMIN co the bi ORA-12446 khi apply/set labels.

@@ -13,7 +13,7 @@ namespace ATBM_Project.Views
     /// Form xem thông báo OLS cho các user (U1_BGD đến U8_NV).
     /// OLS tự động lọc dữ liệu theo session label của user.
     /// </summary>
-    public class FormThongBao : Form, ILogoutSupport
+    public class FormThongBao : Form
     {
         // ── Fields ────────────────────────────────────────────────────────────
         private readonly string connectionString;
@@ -23,10 +23,8 @@ namespace ATBM_Project.Views
         private Label lblAvatarText;
         private Label lblWelcome;
         private Button btnLamMoi;
-        private Button btnDangXuat;
         private DataGridView dgvThongBao;
         private Panel pnlEmpty;
-        public event EventHandler LogoutRequested;
         // ── Constructor ───────────────────────────────────────────────────────
         public FormThongBao(string connStr)
         {
@@ -67,9 +65,8 @@ namespace ATBM_Project.Views
             // Welcome label
             lblWelcome = new Label();
             lblWelcome.Text = "Đang tải...";
-            lblWelcome.Location = new Point(60, 0);
-            lblWelcome.AutoSize = false;
-            lblWelcome.Size = new Size(580, 54);
+            lblWelcome.Dock = DockStyle.Fill;
+            lblWelcome.Padding = new Padding(60, 0, 0, 0);
             lblWelcome.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             lblWelcome.ForeColor = Color.White;
             lblWelcome.TextAlign = ContentAlignment.MiddleLeft;
@@ -77,8 +74,9 @@ namespace ATBM_Project.Views
             // Nút Làm mới
             btnLamMoi = new Button();
             btnLamMoi.Text = "🔄  Làm mới";
-            btnLamMoi.Size = new Size(100, 32);
-            btnLamMoi.Location = new Point(648, 11);
+            btnLamMoi.Size = new Size(110, 32);
+            btnLamMoi.Dock = DockStyle.Right;
+            btnLamMoi.Margin = new Padding(0, 11, 14, 11);
             btnLamMoi.Font = new Font("Segoe UI", 9F);
             btnLamMoi.BackColor = Color.SteelBlue;
             btnLamMoi.ForeColor = Color.White;
@@ -87,23 +85,10 @@ namespace ATBM_Project.Views
             btnLamMoi.Cursor = Cursors.Hand;
             btnLamMoi.Click += BtnLamMoi_Click;
 
-            // Nút Đăng xuất
-            btnDangXuat = new Button();
-            btnDangXuat.Text = "⏻  Đăng xuất";
-            btnDangXuat.Size = new Size(110, 32);
-            btnDangXuat.Location = new Point(756, 11);
-            btnDangXuat.Font = new Font("Segoe UI", 9F);
-            btnDangXuat.BackColor = Color.FromArgb(220, 53, 69);
-            btnDangXuat.ForeColor = Color.White;
-            btnDangXuat.FlatStyle = FlatStyle.Flat;
-            btnDangXuat.FlatAppearance.BorderSize = 0;
-            btnDangXuat.Cursor = Cursors.Hand;
-            btnDangXuat.Click += BtnDangXuat_Click;
-
-            pnlHeader.Controls.AddRange(new Control[]
-            {
-                pnlAvatar, lblWelcome, btnLamMoi, btnDangXuat
-            });
+            pnlHeader.Controls.Add(lblWelcome);
+            pnlHeader.Controls.Add(btnLamMoi);
+            pnlHeader.Controls.Add(pnlAvatar);
+            pnlAvatar.BringToFront();
 
             // ── DataGridView ──────────────────────────────────────────────
             dgvThongBao = new DataGridView();
@@ -275,18 +260,6 @@ namespace ATBM_Project.Views
         private void BtnLamMoi_Click(object sender, EventArgs e)
         {
             LoadData();
-        }
-
-        private void BtnDangXuat_Click(object sender, EventArgs e)
-        {
-            var confirm = MessageBox.Show("Bạn có chắc muốn đăng xuất?", "Xác nhận",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2);
-
-            if (confirm != DialogResult.Yes) return;
-
-            this.Hide();
-            LogoutRequested?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void OnLoad(EventArgs e)
