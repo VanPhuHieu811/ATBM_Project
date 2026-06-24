@@ -471,10 +471,9 @@
     <Content Include="packages\System.ValueTuple.4.5.0\THIRD-PARTY-NOTICES.TXT" />
     <Content Include="packages\System.ValueTuple.4.5.0\useSharedDesignerContext.txt" />
     <Content Include="packages\System.ValueTuple.4.5.0\version.txt" />
-    <Content Include="Resources\4.Audit&amp;Backup.sql" />
+    <Content Include="Resources\4. Audit&amp;Backup.sql" />
     <Content Include="Resources\1.Database.sql" />
     <Content Include="Resources\2.RBAC&amp;VPD.sql" />
-    <Content Include="Resources\Audit&amp;Backup.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\FormGrantPrivileges.resx">
