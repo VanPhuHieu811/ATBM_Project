@@ -15,6 +15,7 @@ namespace ATBM_Project.Views.KTV
         private Button btnProfile;
         private Button btnViewAssigned;
         private Form currentChildForm;
+        private Button btnThongBao;
 
         public FormKTVMain()
         {
@@ -64,11 +65,15 @@ namespace ATBM_Project.Views.KTV
             btnLogout.BackColor = Color.FromArgb(31, 43, 55);
             btnLogout.Click += BtnLogout_Click;
 
+            btnThongBao = CreateSidebarButton("Thông báo", 190);
+            btnThongBao.Click += (s, e) => OpenChildForm(new FormThongBao(DBConfig.ConnectionString));
+
             // NẠP VÀO SIDEBAR
             pnlSidebar.Controls.Add(lblUsername);
             pnlSidebar.Controls.Add(btnProfile);
             pnlSidebar.Controls.Add(btnViewAssigned);
             pnlSidebar.Controls.Add(btnLogout);
+            pnlSidebar.Controls.Add(btnThongBao);
 
             // PANEL NỘI DUNG (Khung trống bên phải để nhúng form con)
             pnlContent = new Panel();
