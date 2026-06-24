@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using ATBM_Project.Data;
 using ATBM_Project.Presenters;
+using ATBM_Project.Views.NV;
 
 namespace ATBM_Project.Views
 {
@@ -25,6 +26,7 @@ namespace ATBM_Project.Views
         private TextBox txtSearch;
         private Button btnSearch;
         private Button btnRecords;
+        private Button btnProfile;
         private Button btnThongBao;
         private Button btnClearSearch;
         private Button btnRefresh;
@@ -33,6 +35,7 @@ namespace ATBM_Project.Views
         private DataGridView dgvMedicalRecords;
         private FormDoctorRecordDetail currentDetailForm;
         private FormThongBao currentThongBaoForm;
+        private FormNhanVienProfile currentProfileForm;
 
         public FormDoctorMain(string displayName)
         {
@@ -71,7 +74,10 @@ namespace ATBM_Project.Views
             btnRecords = CreateSidebarButton("Hồ sơ bệnh án", 110);
             btnRecords.Click += (s, e) => ShowListPage();
 
-            btnThongBao = CreateSidebarButton("Thông báo", 160);
+            btnProfile = CreateSidebarButton("Cá nhân", 160);
+            btnProfile.Click += (s, e) => ShowProfilePage();
+
+            btnThongBao = CreateSidebarButton("Thông báo", 210);
             btnThongBao.Click += (s, e) => ShowNotificationPage();
 
             btnLogout = CreateSidebarButton("Đăng xuất", 0);
@@ -82,6 +88,7 @@ namespace ATBM_Project.Views
 
             pnlSidebar.Controls.Add(lblSidebarTitle);
             pnlSidebar.Controls.Add(btnRecords);
+            pnlSidebar.Controls.Add(btnProfile);
             pnlSidebar.Controls.Add(btnThongBao);
             pnlSidebar.Controls.Add(btnLogout);
 
@@ -434,6 +441,24 @@ namespace ATBM_Project.Views
             pnlContent.Controls.Add(currentThongBaoForm);
             currentThongBaoForm.BringToFront();
             currentThongBaoForm.Show();
+        }
+
+        private void ShowProfilePage()
+        {
+            if (currentProfileForm == null || currentProfileForm.IsDisposed)
+            {
+                currentProfileForm = new FormNhanVienProfile
+                {
+                    TopLevel = false,
+                    FormBorderStyle = FormBorderStyle.None,
+                    Dock = DockStyle.Fill
+                };
+            }
+
+            pnlContent.Controls.Clear();
+            pnlContent.Controls.Add(currentProfileForm);
+            currentProfileForm.BringToFront();
+            currentProfileForm.Show();
         }
 
         private void AddTextColumn(string name, string headerText, int width, string format = null)

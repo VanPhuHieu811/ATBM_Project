@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using ATBM_Project.Data; // Gọi thư viện này để lấy tên User đăng nhập
+using ATBM_Project.Data;
+using ATBM_Project.Views;
 
 
 namespace ATBM_Project.Views.KTV
@@ -53,7 +54,7 @@ namespace ATBM_Project.Views.KTV
             lblUsername.Text = $"{DBConfig.User?.ToUpper()}\n(Kỹ thuật viên)";
 
             // CÁC NÚT CHỨC NĂNG
-            btnProfile = CreateSidebarButton("Hồ sơ cá nhân", 90);
+            btnProfile = CreateSidebarButton("Cá nhân", 90);
             btnProfile.Click += (s, e) => OpenChildForm(new NV.FormNhanVienProfile());
 
             btnViewAssigned = CreateSidebarButton("Dịch vụ điều phối", 140);
@@ -104,6 +105,7 @@ namespace ATBM_Project.Views.KTV
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
+            pnlContent.Controls.Clear();
             pnlContent.Controls.Add(childForm);
             pnlContent.Tag = childForm;
             childForm.BringToFront();
