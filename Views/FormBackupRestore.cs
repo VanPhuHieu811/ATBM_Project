@@ -147,13 +147,9 @@ namespace ATBM_Project.Views
                     string pass = builder["Password"].ToString();
                     return $"{user}/{pass}@//localhost:1521/XEPDB1";
                 }
-
                 return null;
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private string GetCurrentSchema()
@@ -167,13 +163,9 @@ namespace ATBM_Project.Views
                 {
                     return builder["User Id"].ToString().ToUpper();
                 }
-
                 return null;
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private async void BtnBackup_Click(object sender, EventArgs e)
@@ -189,7 +181,7 @@ namespace ATBM_Project.Views
 
             if (string.IsNullOrEmpty(dbLogon) || string.IsNullOrEmpty(schema))
             {
-                MessageBox.Show("Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, "Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -220,7 +212,7 @@ namespace ATBM_Project.Views
             {
                 if (!Directory.Exists(@"C:\ATBM_Backup"))
                 {
-                    MessageBox.Show(@"Không tìm thấy thư mục C:\ATBM_Backup. Hệ thống không có dữ liệu để phục hồi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, @"Không tìm thấy thư mục C:\ATBM_Backup. Hệ thống không có dữ liệu để phục hồi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -230,7 +222,7 @@ namespace ATBM_Project.Views
 
             if (cbMethods.SelectedIndex == 0 && (string.IsNullOrEmpty(dbLogon) || string.IsNullOrEmpty(schema)))
             {
-                MessageBox.Show("Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, "Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -242,7 +234,7 @@ namespace ATBM_Project.Views
                 string dumpFile = $@"C:\ATBM_Backup\DP_{tableName}.dmp";
                 if (!File.Exists(dumpFile))
                 {
-                    MessageBox.Show($"Không tìm thấy file sao lưu logic: {dumpFile}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, $"Không tìm thấy file sao lưu logic: {dumpFile}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     btnBackup.Enabled = true;
                     btnRestore.Enabled = true;
                     return;
@@ -264,7 +256,7 @@ namespace ATBM_Project.Views
                 File.WriteAllText(batPath, batContent);
 
                 string args = $"/C \"{batPath}\"";
-                await ExecuteExternalCommandAsync(args, "Đã hoàn tất toàn bộ tiến trình khôi phục RMAN. Cơ sở dữ liệu và các phân hệ dịch vụ đã được mở cửa tự động thành công!");
+                await ExecuteExternalCommandAsync(args, "Đã hoàn tất toàn bộ tiến trình khôi phục RMAN. Cơ sở dữ liệu đã mở cửa tự động thành công!");
                 LoadTablePreview();
             }
             else if (cbMethods.SelectedIndex == 2 && !string.IsNullOrEmpty(tableName))
@@ -272,15 +264,19 @@ namespace ATBM_Project.Views
                 string timeStr = dtpFlashback.Value.ToString("yyyy-MM-dd HH:mm:ss");
                 string errorMsg = _presenter.ExecuteFlashback(tableName, timeStr);
 
-                if (string.IsNullOrEmpty(errorMsg))
-                {
-                    MessageBox.Show($"Khôi phục Flashback bảng {tableName} thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadTablePreview();
-                }
-                else
-                {
-                    MessageBox.Show("Lỗi Flashback: " + errorMsg, "Thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                this.Invoke((MethodInvoker)delegate {
+                    this.Activate();
+                    this.BringToFront();
+                    if (string.IsNullOrEmpty(errorMsg))
+                    {
+                        MessageBox.Show(this, $"Khôi phục Flashback bảng {tableName} thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadTablePreview();
+                    }
+                    else
+                    {
+                        MessageBox.Show(this, "Lỗi Flashback: " + errorMsg, "Thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                });
             }
 
             btnBackup.Enabled = (cbMethods.SelectedIndex != 2);
@@ -311,13 +307,23 @@ namespace ATBM_Project.Views
                         return errText;
                     });
 
-                    if (!string.IsNullOrEmpty(error) && error.Contains("ORA-") && !error.Contains("ORA-01109") && !error.Contains("ORA-01081"))
-                        MessageBox.Show("Cảnh báo tiến trình: \n" + error, "Lỗi Oracle", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    else
-                        MessageBox.Show(successMsg, "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.Invoke((MethodInvoker)delegate {
+                        this.Activate();
+                        this.BringToFront();
+
+                        if (!string.IsNullOrEmpty(error) && error.Contains("ORA-") && !error.Contains("ORA-01109") && !error.Contains("ORA-01081"))
+                            MessageBox.Show(this, "Cảnh báo tiến trình: \n" + error, "Lỗi Oracle", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        else
+                            MessageBox.Show(this, successMsg, "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    });
                 }
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi hệ điều hành: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex)
+            {
+                this.Invoke((MethodInvoker)delegate {
+                    MessageBox.Show(this, "Lỗi hệ điều hành: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                });
+            }
         }
     }
 }
