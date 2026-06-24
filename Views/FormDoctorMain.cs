@@ -26,6 +26,7 @@ namespace ATBM_Project.Views
         private Label lblDetailTitle;
         private TextBox txtSearch;
         private Button btnSearch;
+        private Button btnThongBao;
         private Button btnClearSearch;
         private Button btnRefresh;
         private Button btnLogout;
@@ -79,6 +80,14 @@ namespace ATBM_Project.Views
             btnLogout = CreateButton("Đăng xuất", 875, 27, 100);
             btnLogout.Click += (s, e) => this.Close();
 
+            btnThongBao = CreateButton("Xem thông báo", 635, 27, 100);
+            btnThongBao.BackColor = Color.Orange; // Đổi màu một chút
+            btnThongBao.Click += (s, e) =>
+            {
+                FormThongBao frmThongBao = new FormThongBao(DBConfig.ConnectionString);
+                frmThongBao.ShowDialog();
+            };
+
             pnlContent = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -92,6 +101,7 @@ namespace ATBM_Project.Views
             pnlHeader.Controls.Add(lblUser);
             pnlHeader.Controls.Add(btnRefresh);
             pnlHeader.Controls.Add(btnLogout);
+            pnlHeader.Controls.Add(btnThongBao);
 
             this.Controls.Add(pnlContent);
             this.Controls.Add(pnlHeader);

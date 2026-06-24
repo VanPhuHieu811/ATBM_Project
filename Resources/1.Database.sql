@@ -1,4 +1,4 @@
-﻿ALTER SESSION SET CONTAINER = XEPDB1;
+ALTER SESSION SET CONTAINER = XEPDB1;
 
 -- Xoa tai khoan admin cu neu co
 BEGIN
@@ -40,7 +40,9 @@ CREATE TABLE NHANVIEN (
     QUEQUAN NVARCHAR2(200),
     SODT VARCHAR2(15),
     VAITRO NVARCHAR2(50) CHECK (VAITRO IN (N'Điều phối viên', N'Bác sĩ/Y sĩ', N'Kỹ thuật viên', N'Bệnh nhân')),
-    CHUYENKHOA NVARCHAR2(100)
+    CHUYENKHOA NVARCHAR2(100),
+    COSO NVARCHAR2(20) default N'TP HCM',
+    CAPBAC VARCHAR2(5) default N'NV'
 );
 
 CREATE TABLE BENHNHAN (
@@ -94,26 +96,34 @@ CREATE TABLE THONGBAO (
 );
 
 INSERT ALL
-  INTO NHANVIEN VALUES ('NV001', N'Nguyễn Văn An', N'Nam', TO_DATE('1985-05-20','YYYY-MM-DD'), '123456781', N'Hà Nội', '0912345671', N'Điều phối viên', NULL)
-  INTO NHANVIEN VALUES ('NV002', N'Trần Thị Bình', N'Nữ', TO_DATE('1990-10-12','YYYY-MM-DD'), '123456782', N'TP HCM', '0912345672', N'Điều phối viên', NULL)
-  INTO NHANVIEN VALUES ('NV003', N'Lê Văn Cường', N'Nam', TO_DATE('1988-03-15','YYYY-MM-DD'), '123456783', N'Đà Nẵng', '0912345673', N'Điều phối viên', NULL)
-  INTO NHANVIEN VALUES ('NV004', N'Phạm Minh Đức', N'Nam', TO_DATE('1982-11-25','YYYY-MM-DD'), '123456784', N'Cần Thơ', '0912345674', N'Điều phối viên', NULL)
-  INTO NHANVIEN VALUES ('NV005', N'Đặng Thu Hà', N'Nữ', TO_DATE('1975-01-30','YYYY-MM-DD'), '123456785', N'Hải Phòng', '0912345675', N'Bác sĩ/Y sĩ', N'Nội tổng quát')
-  INTO NHANVIEN VALUES ('NV006', N'Vũ Hoàng Nam', N'Nam', TO_DATE('1980-04-14','YYYY-MM-DD'), '123456786', N'Huế', '0912345676', N'Bác sĩ/Y sĩ', N'Nội tổng quát')
-  INTO NHANVIEN VALUES ('NV007', N'Ngô Thanh Vân', N'Nữ', TO_DATE('1992-07-08','YYYY-MM-DD'), '123456787', N'Quảng Ninh', '0912345677', N'Bác sĩ/Y sĩ', N'Tim mạch')
-  INTO NHANVIEN VALUES ('NV008', N'Lý Hùng', N'Nam', TO_DATE('1984-09-19','YYYY-MM-DD'), '123456788', N'Nghệ An', '0912345678', N'Bác sĩ/Y sĩ', N'Tim mạch')
-  INTO NHANVIEN VALUES ('NV009', N'Đỗ Mỹ Linh', N'Nữ', TO_DATE('1995-12-05','YYYY-MM-DD'), '123456789', N'Nam Định', '0912345679', N'Bác sĩ/Y sĩ', N'Tiêu hóa')
-  INTO NHANVIEN VALUES ('NV010', N'Bùi Tiến Dũng', N'Nam', TO_DATE('1991-02-28','YYYY-MM-DD'), '123456790', N'Thanh Hóa', '0912345680', N'Bác sĩ/Y sĩ', N'Tiêu hóa')
-  INTO NHANVIEN VALUES ('NV011', N'Trịnh Kim Chi', N'Nữ', TO_DATE('1987-06-17','YYYY-MM-DD'), '123456791', N'Vũng Tàu', '0912345681', N'Bác sĩ/Y sĩ', N'Thần kinh')
-  INTO NHANVIEN VALUES ('NV012', N'Mai Đức Chung', N'Nam', TO_DATE('1960-08-22','YYYY-MM-DD'), '123456792', N'Hà Tây', '0912345682', N'Bác sĩ/Y sĩ', N'Thần kinh')
-  INTO NHANVIEN VALUES ('NV013', N'Hồ Ngọc Hà', N'Nữ', TO_DATE('1984-11-25','YYYY-MM-DD'), '123456793', N'Quảng Bình', '0912345683', N'Bác sĩ/Y sĩ', N'Nhi')
-  INTO NHANVIEN VALUES ('NV014', N'Sơn Tùng', N'Nam', TO_DATE('1994-07-05','YYYY-MM-DD'), '123456794', N'Thái Bình', '0912345684', N'Bác sĩ/Y sĩ', N'Nhi')
-  INTO NHANVIEN VALUES ('NV015', N'Nguyễn Tử Quảng', N'Nam', TO_DATE('1977-03-12','YYYY-MM-DD'), '123456795', N'Hà Nội', '0912345685', N'Kỹ thuật viên', N'Chẩn đoán hình ảnh')
-  INTO NHANVIEN VALUES ('NV016', N'Trương Gia Bình', N'Nam', TO_DATE('1956-05-19','YYYY-MM-DD'), '123456796', N'Bình Định', '0912345686', N'Kỹ thuật viên', N'Xét nghiệm')
-  INTO NHANVIEN VALUES ('NV017', N'Phạm Nhật Vượng', N'Nam', TO_DATE('1968-08-05','YYYY-MM-DD'), '123456797', N'Hà Tĩnh', '0912345687', N'Kỹ thuật viên', N'Chẩn đoán hình ảnh')
-  INTO NHANVIEN VALUES ('NV018', N'Nguyễn Thị Phương Thảo', N'Nữ', TO_DATE('1970-06-07','YYYY-MM-DD'), '123456798', N'Hà Nội', '0912345688', N'Kỹ thuật viên', N'Xét nghiệm')
-  INTO NHANVIEN VALUES ('NV019', N'Trần Đình Long', N'Nam', TO_DATE('1961-02-22','YYYY-MM-DD'), '123456799', N'Hải Dương', '0912345689', N'Kỹ thuật viên', N'Siêu âm')
-  INTO NHANVIEN VALUES ('NV020', N'Hồ Hùng Anh', N'Nam', TO_DATE('1970-09-28','YYYY-MM-DD'), '123456800', N'Thừa Thiên Huế', '0912345690', N'Kỹ thuật viên', N'X-Quang')
+  INTO NHANVIEN VALUES ('NV001', N'Nguyễn Văn An', N'Nam', TO_DATE('1985-05-20','YYYY-MM-DD'), '123456781', N'Hà Nội', '0912345671', N'Điều phối viên', NULL, DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV002', N'Trần Thị Bình', N'Nữ', TO_DATE('1990-10-12','YYYY-MM-DD'), '123456782', N'TP HCM', '0912345672', N'Điều phối viên', NULL, DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV003', N'Lê Văn Cường', N'Nam', TO_DATE('1988-03-15','YYYY-MM-DD'), '123456783', N'Đà Nẵng', '0912345673', N'Điều phối viên', NULL, DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV004', N'Phạm Minh Đức', N'Nam', TO_DATE('1982-11-25','YYYY-MM-DD'), '123456784', N'Cần Thơ', '0912345674', N'Điều phối viên', NULL, DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV005', N'Đặng Thu Hà', N'Nữ', TO_DATE('1975-01-30','YYYY-MM-DD'), '123456785', N'Hải Phòng', '0912345675', N'Bác sĩ/Y sĩ', N'Nội tổng quát', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV006', N'Vũ Hoàng Nam', N'Nam', TO_DATE('1980-04-14','YYYY-MM-DD'), '123456786', N'Huế', '0912345676', N'Bác sĩ/Y sĩ', N'Nội tổng quát', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV007', N'Ngô Thanh Vân', N'Nữ', TO_DATE('1992-07-08','YYYY-MM-DD'), '123456787', N'Quảng Ninh', '0912345677', N'Bác sĩ/Y sĩ', N'Tim mạch', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV008', N'Lý Hùng', N'Nam', TO_DATE('1984-09-19','YYYY-MM-DD'), '123456788', N'Nghệ An', '0912345678', N'Bác sĩ/Y sĩ', N'Tim mạch', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV009', N'Đỗ Mỹ Linh', N'Nữ', TO_DATE('1995-12-05','YYYY-MM-DD'), '123456789', N'Nam Định', '0912345679', N'Bác sĩ/Y sĩ', N'Tiêu hóa', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV010', N'Bùi Tiến Dũng', N'Nam', TO_DATE('1991-02-28','YYYY-MM-DD'), '123456790', N'Thanh Hóa', '0912345680', N'Bác sĩ/Y sĩ', N'Tiêu hóa', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV011', N'Trịnh Kim Chi', N'Nữ', TO_DATE('1987-06-17','YYYY-MM-DD'), '123456791', N'Vũng Tàu', '0912345681', N'Bác sĩ/Y sĩ', N'Thần kinh', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV012', N'Mai Đức Chung', N'Nam', TO_DATE('1960-08-22','YYYY-MM-DD'), '123456792', N'Hà Tây', '0912345682', N'Bác sĩ/Y sĩ', N'Thần kinh', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV013', N'Hồ Ngọc Hà', N'Nữ', TO_DATE('1984-11-25','YYYY-MM-DD'), '123456793', N'Quảng Bình', '0912345683', N'Bác sĩ/Y sĩ', N'Nhi', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV014', N'Sơn Tùng', N'Nam', TO_DATE('1994-07-05','YYYY-MM-DD'), '123456794', N'Thái Bình', '0912345684', N'Bác sĩ/Y sĩ', N'Nhi', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV015', N'Nguyễn Tử Quảng', N'Nam', TO_DATE('1977-03-12','YYYY-MM-DD'), '123456795', N'Hà Nội', '0912345685', N'Kỹ thuật viên', N'Chẩn đoán hình ảnh', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV016', N'Trương Gia Bình', N'Nam', TO_DATE('1956-05-19','YYYY-MM-DD'), '123456796', N'Bình Định', '0912345686', N'Kỹ thuật viên', N'Xét nghiệm', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV017', N'Phạm Nhật Vượng', N'Nam', TO_DATE('1968-08-05','YYYY-MM-DD'), '123456797', N'Hà Tĩnh', '0912345687', N'Kỹ thuật viên', N'Chẩn đoán hình ảnh', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV018', N'Nguyễn Thị Phương Thảo', N'Nữ', TO_DATE('1970-06-07','YYYY-MM-DD'), '123456798', N'Hà Nội', '0912345688', N'Kỹ thuật viên', N'Xét nghiệm', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV019', N'Trần Đình Long', N'Nam', TO_DATE('1961-02-22','YYYY-MM-DD'), '123456799', N'Hải Dương', '0912345689', N'Kỹ thuật viên', N'Siêu âm', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV020', N'Hồ Hùng Anh', N'Nam', TO_DATE('1970-09-28','YYYY-MM-DD'), '123456800', N'Thừa Thiên Huế', '0912345690', N'Kỹ thuật viên', N'X-Quang', DEFAULT, DEFAULT)
+  INTO NHANVIEN VALUES ('NV021',N'Trần Minh Quân',N'Nam',TO_DATE('1975-01-01','YYYY-MM-DD'),'OLS000001',N'TP HCM','0900000001',N'Bác sĩ/Y sĩ',NULL,'TP HCM','BGD')
+  INTO NHANVIEN VALUES ('NV022',N'Lê Thị Lan',    N'Nữ', TO_DATE('1980-03-15','YYYY-MM-DD'),'OLS000002',N'TP HCM','0900000002',N'Bác sĩ/Y sĩ',N'Tim mạch','TP HCM','LDK')
+  INTO NHANVIEN VALUES ('NV023',N'Nguyễn Hữu Đức',N'Nam',TO_DATE('1982-06-20','YYYY-MM-DD'),'OLS000003',N'Hà Nội','0900000003',N'Bác sĩ/Y sĩ',N'Thần kinh','Hà Nội','LDK')
+  INTO NHANVIEN VALUES ('NV024',N'Phạm Thị Mai',  N'Nữ', TO_DATE('1990-09-10','YYYY-MM-DD'),'OLS000004',N'TP HCM','0900000004',N'Bác sĩ/Y sĩ',N'Thần kinh','TP HCM','NV')
+  INTO NHANVIEN VALUES ('NV025',N'Đỗ Văn Hải',    N'Nam',TO_DATE('1992-11-05','YYYY-MM-DD'),'OLS000005',N'TP HCM','0900000005',N'Bác sĩ/Y sĩ',N'Tim mạch','TP HCM','NV')
+  INTO NHANVIEN VALUES ('NV026',N'Vũ Thị Hồng',   N'Nữ', TO_DATE('1985-04-25','YYYY-MM-DD'),'OLS000006',N'TP HCM','0900000006',N'Bác sĩ/Y sĩ',N'Tim mạch','TP HCM','LDK')
+  INTO NHANVIEN VALUES ('NV027',N'Hoàng Văn Long', N'Nam',TO_DATE('1978-07-18','YYYY-MM-DD'),'OLS000007',NULL,     '0900000007',N'Bác sĩ/Y sĩ',NULL,NULL,'LDK')
+  INTO NHANVIEN VALUES ('NV028',N'Ngô Thị Thúy',  N'Nữ', TO_DATE('1993-02-14','YYYY-MM-DD'),'OLS000008',N'Hà Nội','0900000008',N'Bác sĩ/Y sĩ',N'Tiêu hóa','Hà Nội','NV')
 SELECT * FROM dual;
 
 INSERT ALL

@@ -93,13 +93,6 @@
             private Form ResolveNextForm()
 
             {
-            string normalizedUser = txtUser.Text.Trim().ToUpperInvariant();
-            if (normalizedUser == "U1_BGD" || normalizedUser == "U2_LDK" || normalizedUser == "U3_LDK" ||
-                 normalizedUser == "U4_NV" || normalizedUser == "U5_NV" || normalizedUser == "U6_LDK" ||
-                 normalizedUser == "U7_LDK" || normalizedUser == "U8_NV")
-            {
-                return new FormThongBao(DBConfig.ConnectionString);
-            }
                 SessionPresenter sessionPresenter = new SessionPresenter();
                 string role = (sessionPresenter.GetCurrentRole() ?? string.Empty).Trim();
                 string normalizedRole = role.ToUpperInvariant();
