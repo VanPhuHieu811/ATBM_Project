@@ -16,7 +16,6 @@ namespace ATBM_Project.Views.DPV
         private Button btnServices;
         private Button btnLogout;
         private Form currentChildForm;
-        private Button btnThongBao;
 
         public FormCoordinatorMain()
         {
@@ -61,16 +60,11 @@ namespace ATBM_Project.Views.DPV
             btnLogout.BackColor = Color.FromArgb(31, 43, 55);
             btnLogout.Click += BtnLogout_Click;
 
-            btnThongBao = CreateSidebarButton("Thông báo", 245);
-            btnThongBao.Click += (s, e) => OpenChildForm(new FormThongBao(DBConfig.ConnectionString));
-
-
             pnlSidebar.Controls.Add(lblUsername);
             pnlSidebar.Controls.Add(btnPatients);
             pnlSidebar.Controls.Add(btnRecords);
             pnlSidebar.Controls.Add(btnServices);
             pnlSidebar.Controls.Add(btnLogout);
-            pnlSidebar.Controls.Add(btnThongBao);
 
             pnlContent = new Panel
             {
