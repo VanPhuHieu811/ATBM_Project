@@ -312,6 +312,7 @@
   <ItemGroup>
     <Content Include=".gitattributes" />
     <Content Include=".gitignore" />
+    <Content Include="Resources\2.5.GrantFastForDoctorAndCoordinator.sql" />
     <Content Include="Resources\3.OLS_Setup.sql" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\Icon.png" />
     <Content Include="packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll" />
@@ -472,7 +473,7 @@
     <Content Include="packages\System.ValueTuple.4.5.0\version.txt" />
     <Content Include="Resources\1.Database.sql" />
     <Content Include="Resources\2.RBAC&amp;VPD.sql" />
-    <Content Include="Resources\Audit&amp;Backup.sql" />
+    <Content Include="Resources\4.Audit&amp;Backup.sql" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\FormGrantPrivileges.resx">
