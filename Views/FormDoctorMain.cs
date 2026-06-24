@@ -22,6 +22,7 @@ namespace ATBM_Project.Views
 
         private Label lblTitle;
         private Label lblUser;
+        private Label lblDoctorInfo;
         private Label lblListTitle;
         private Label lblDetailTitle;
         private TextBox txtSearch;
@@ -37,6 +38,7 @@ namespace ATBM_Project.Views
         {
             this.displayName = string.IsNullOrWhiteSpace(displayName) ? DBConfig.User : displayName;
             InitializeComponent();
+            LoadDoctorProfile();
             LoadMedicalRecords();
             ShowListPage();
         }
@@ -51,7 +53,7 @@ namespace ATBM_Project.Views
             pnlHeader = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 86,
+                Height = 118,
                 BackColor = Color.White
             };
 
@@ -73,10 +75,19 @@ namespace ATBM_Project.Views
                 ForeColor = Color.DimGray
             };
 
-            btnRefresh = CreateButton("Tải lại", 760, 27, 100);
+            lblDoctorInfo = new Label
+            {
+                Text = "Đang tải thông tin bác sĩ...",
+                Location = new Point(20, 80),
+                Size = new Size(720, 24),
+                Font = new Font("Segoe UI", 9F),
+                ForeColor = Color.FromArgb(90, 90, 90)
+            };
+
+            btnRefresh = CreateButton("Tải lại", 760, 42, 100);
             btnRefresh.Click += (s, e) => LoadMedicalRecords();
 
-            btnLogout = CreateButton("Đăng xuất", 875, 27, 100);
+            btnLogout = CreateButton("Đăng xuất", 875, 42, 100);
             btnLogout.Click += (s, e) => this.Close();
 
             pnlContent = new Panel
@@ -90,11 +101,34 @@ namespace ATBM_Project.Views
 
             pnlHeader.Controls.Add(lblTitle);
             pnlHeader.Controls.Add(lblUser);
+            pnlHeader.Controls.Add(lblDoctorInfo);
             pnlHeader.Controls.Add(btnRefresh);
             pnlHeader.Controls.Add(btnLogout);
 
             this.Controls.Add(pnlContent);
             this.Controls.Add(pnlHeader);
+        }
+
+        private void LoadDoctorProfile()
+        {
+            try
+            {
+                DataTable data = presenter.GetCurrentDoctorProfile();
+                if (data.Rows.Count == 0)
+                {
+                    lblDoctorInfo.Text = "Không tải được thông tin bác sĩ.";
+                    return;
+                }
+
+                DataRow row = data.Rows[0];
+                lblUser.Text = $"{Value(row, "HOTEN")} ({Value(row, "MANV")})";
+                lblDoctorInfo.Text =
+                    $"Vai trò: {Value(row, "VAITRO")}   |   Chuyên khoa: {Value(row, "CHUYENKHOA")}   |   SĐT: {Value(row, "SODT")}   |   Quê quán: {Value(row, "QUEQUAN")}";
+            }
+            catch (Exception ex)
+            {
+                lblDoctorInfo.Text = "Không tải được thông tin bác sĩ: " + ex.Message;
+            }
         }
 
         private void BuildListPage()
@@ -379,6 +413,11 @@ namespace ATBM_Project.Views
             }
 
             dgvMedicalRecords.Columns.Add(column);
+        }
+
+        private string Value(DataRow row, string columnName)
+        {
+            return row.Table.Columns.Contains(columnName) && row[columnName] != DBNull.Value ? row[columnName].ToString() : string.Empty;
         }
     }
 }

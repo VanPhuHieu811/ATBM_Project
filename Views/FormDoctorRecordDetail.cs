@@ -70,7 +70,7 @@ namespace ATBM_Project.Views
             txtDieuTri = AddTextArea(page, "Điều trị", 420, 155, false);
             txtKetLuan = AddTextArea(page, "Kết luận", 420, 280, false);
 
-            btnSaveRecord = CreateButton("Lưu hồ sơ", 420, 455);
+            btnSaveRecord = CreateButton("Lưu hồ sơ", 420, 420);
             btnSaveRecord.Click += BtnSaveRecord_Click;
             page.Controls.Add(btnSaveRecord);
 
@@ -137,12 +137,13 @@ namespace ATBM_Project.Views
             txtBnNgaySinh = AddTextField(page, "Ngày sinh", 30, 165, true);
             txtBnCccd = AddTextField(page, "CCCD", 30, 210, true);
             txtBnDiaChi = AddTextArea(page, "Địa chỉ", 30, 255, true);
+            txtBnDiaChi.Size = new Size(340, 76);
 
             txtTienSuBenh = AddTextArea(page, "Tiền sử bệnh", 420, 30, false);
             txtTienSuBenhGd = AddTextArea(page, "Tiền sử bệnh GĐ", 420, 155, false);
-            txtDiUngThuoc = AddTextArea(page, "Dị ứng thuốc", 420, 280, false);
+            txtDiUngThuoc = AddTextArea(page, "Dị ứng thuốc", 420, 270, false);
 
-            btnSavePatient = CreateButton("Lưu bệnh nhân", 420, 455);
+            btnSavePatient = CreateButton("Lưu bệnh nhân", 420, 390);
             btnSavePatient.Click += BtnSavePatient_Click;
             page.Controls.Add(btnSavePatient);
 
