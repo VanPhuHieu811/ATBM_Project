@@ -1,8 +1,11 @@
 ﻿ALTER SESSION SET CONTAINER = XEPDB1;
 
--- xoa cac policy cu truoc do
+-- xoa cac policy audit cu truoc do (chi xoa cac policy bat dau bang 'FGA_')
 BEGIN
-    FOR rec IN (SELECT object_schema, object_name, policy_name FROM dba_audit_policies WHERE object_schema = 'ADMIN') LOOP
+    FOR rec IN (SELECT object_schema, object_name, policy_name 
+                FROM dba_audit_policies 
+                WHERE object_schema = 'ADMIN' 
+                  AND policy_name LIKE 'FGA_%') LOOP
         DBMS_FGA.DROP_POLICY(rec.object_schema, rec.object_name, rec.policy_name);
     END LOOP;
 END;
@@ -15,7 +18,7 @@ NOAUDIT ALL; -- tat cac audit mac dinh
 AUDIT SESSION WHENEVER NOT SUCCESSFUL;
 
 -- giam sat lenh select tren bang benhnhan (lay thong tin)
-AUDIT ALL ON admin.BENHNHAN BY ACCESS;
+AUDIT SELECT ON admin.BENHNHAN BY ACCESS;
 
 -- giam sat toan ven cau truc du lieu (them, xoa bang, them, xoa cot)
 AUDIT TABLE BY ACCESS;
