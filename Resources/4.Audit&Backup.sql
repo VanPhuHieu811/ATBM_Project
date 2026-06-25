@@ -14,7 +14,7 @@ NOAUDIT ALL; -- tat cac audit mac dinh
 -- giam sat dang nhap khong thanh cong (chong brute-force)
 AUDIT SESSION WHENEVER NOT SUCCESSFUL;
 
--- giam sat bang benhnhan (chu y la lenh select de lay thong tin)
+-- giam sat lenh select tren bang benhnhan (lay thong tin)
 AUDIT ALL ON admin.BENHNHAN BY ACCESS;
 
 -- giam sat toan ven cau truc du lieu (them, xoa bang, them, xoa cot)

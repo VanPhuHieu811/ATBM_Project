@@ -10,6 +10,8 @@
         public string Cmnd { get; set; }
         public string VaiTro { get; set; }
         public string ChuyenKhoa { get; set; }
+        public string CoSo { get; set; }
+        public string CapBac { get; set; }
 
         // Thông tin liên lạc (Cho phép sửa)
         public string QueQuan { get; set; }
