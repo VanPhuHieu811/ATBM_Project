@@ -62,12 +62,7 @@ namespace ATBM_Project.Views.DPV
             btnLogout.Click += BtnLogout_Click;
 
             btnThongBao = CreateSidebarButton("Thông báo", 245);
-            btnThongBao.BackColor = Color.Orange; // Đổi màu một chút
-            btnThongBao.Click += (s, e) =>
-            {
-                FormThongBao frmThongBao = new FormThongBao(DBConfig.ConnectionString);
-                frmThongBao.ShowDialog();
-            };
+            btnThongBao.Click += (s, e) => OpenChildForm(new FormThongBao(DBConfig.ConnectionString));
 
 
             pnlSidebar.Controls.Add(lblUsername);

@@ -38,14 +38,13 @@ namespace ATBM_Project.Views
         private void InitializeComponent()
         {
             this.Text = $"Chi tiết HSBA - {maHsba}";
-            this.ClientSize = new Size(1000, 560);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.BackColor = Color.WhiteSmoke;
+            this.BackColor = Color.White;
 
             tabControl = new TabControl
             {
                 Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 10F)
+                Font = new Font("Segoe UI", 10F),
+                Padding = new Point(12, 6)
             };
 
             tabControl.TabPages.Add(BuildRecordTab());
@@ -58,95 +57,332 @@ namespace ATBM_Project.Views
 
         private TabPage BuildRecordTab()
         {
-            TabPage page = new TabPage("Hồ sơ");
+            TabPage page = new TabPage("Hồ sơ")
+            {
+                BackColor = Color.White,
+                Padding = new Padding(12)
+            };
 
-            txtMaHsba = AddTextField(page, "Mã HSBA", 30, 30, true);
-            txtMaBn = AddTextField(page, "Mã bệnh nhân", 30, 75, true);
-            txtNgay = AddTextField(page, "Ngày", 30, 120, true);
-            txtMaBs = AddTextField(page, "Mã bác sĩ", 30, 165, true);
-            txtMaKhoa = AddTextField(page, "Mã khoa", 30, 210, true);
+            TableLayoutPanel layout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1
+            };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
 
-            txtChanDoan = AddTextArea(page, "Chẩn đoán", 420, 30, false);
-            txtDieuTri = AddTextArea(page, "Điều trị", 420, 155, false);
-            txtKetLuan = AddTextArea(page, "Kết luận", 420, 280, false);
+            Panel pnlLeft = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 4, 12, 0) };
+            txtMaHsba = AddStackedField(pnlLeft, "Mã HSBA", true, 0);
+            txtMaBn = AddStackedField(pnlLeft, "Mã bệnh nhân", true, 1);
+            txtNgay = AddStackedField(pnlLeft, "Ngày", true, 2);
+            txtMaBs = AddStackedField(pnlLeft, "Mã bác sĩ", true, 3);
+            txtMaKhoa = AddStackedField(pnlLeft, "Mã khoa", true, 4);
 
-            btnSaveRecord = CreateButton("Lưu hồ sơ", 420, 455);
+            Panel pnlRight = new Panel { Dock = DockStyle.Fill, Padding = new Padding(4, 0, 0, 0) };
+            TableLayoutPanel rightLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 4
+            };
+            rightLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+            rightLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+            rightLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.34F));
+            rightLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44F));
+
+            txtChanDoan = AddDockedTextArea(rightLayout, "Chẩn đoán", false, 0);
+            txtDieuTri = AddDockedTextArea(rightLayout, "Điều trị", false, 1);
+            txtKetLuan = AddDockedTextArea(rightLayout, "Kết luận", false, 2);
+
+            Panel pnlSave = new Panel { Dock = DockStyle.Fill };
+            btnSaveRecord = CreateButton("Lưu hồ sơ");
+            btnSaveRecord.Dock = DockStyle.Right;
+            btnSaveRecord.Width = 130;
             btnSaveRecord.Click += BtnSaveRecord_Click;
-            page.Controls.Add(btnSaveRecord);
+            pnlSave.Controls.Add(btnSaveRecord);
+            rightLayout.Controls.Add(pnlSave, 0, 3);
+
+            pnlRight.Controls.Add(rightLayout);
+
+            layout.Controls.Add(pnlLeft, 0, 0);
+            layout.Controls.Add(pnlRight, 1, 0);
+            page.Controls.Add(layout);
 
             return page;
         }
 
         private TabPage BuildServiceTab()
         {
-            TabPage page = new TabPage("Dịch vụ");
+            TabPage page = new TabPage("Dịch vụ")
+            {
+                BackColor = Color.White,
+                Padding = new Padding(12)
+            };
 
-            txtServiceType = AddInlineTextBox(page, "Loại dịch vụ", 20, 20, 230);
-            txtServiceTech = AddInlineTextBox(page, "Mã KTV", 270, 20, 130);
-            txtServiceResult = AddInlineTextBox(page, "Kết quả", 420, 20, 280);
+            Panel pnlTop = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 88,
+                Padding = new Padding(0, 0, 0, 8)
+            };
 
-            btnAddService = CreateButton("Thêm", 725, 20);
+            TableLayoutPanel topLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 4,
+                RowCount = 2
+            };
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 240F));
+            topLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
+            topLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            AddInlineField(topLayout, "Loại dịch vụ", out txtServiceType, 0, 0);
+            AddInlineField(topLayout, "Mã KTV", out txtServiceTech, 1, 0);
+            AddInlineField(topLayout, "Kết quả", out txtServiceResult, 2, 0);
+
+            Panel pnlButtons = new Panel { Dock = DockStyle.Fill };
+            btnAddService = CreateButton("Thêm");
+            btnAddService.Location = new Point(0, 4);
+            btnAddService.Width = 110;
             btnAddService.Click += BtnAddService_Click;
 
-            btnDeleteService = CreateButton("Xóa dòng", 855, 20);
+            btnDeleteService = CreateButton("Xóa dòng");
+            btnDeleteService.Location = new Point(118, 4);
+            btnDeleteService.Width = 110;
             btnDeleteService.Click += BtnDeleteService_Click;
 
-            dgvServices = CreateGrid(20, 92, 940, 400);
+            pnlButtons.Controls.Add(btnAddService);
+            pnlButtons.Controls.Add(btnDeleteService);
+            topLayout.Controls.Add(pnlButtons, 3, 0);
+            topLayout.SetRowSpan(pnlButtons, 2);
 
-            page.Controls.Add(btnAddService);
-            page.Controls.Add(btnDeleteService);
+            pnlTop.Controls.Add(topLayout);
+
+            dgvServices = CreateGrid();
+            dgvServices.Dock = DockStyle.Fill;
+
             page.Controls.Add(dgvServices);
+            page.Controls.Add(pnlTop);
 
             return page;
         }
 
         private TabPage BuildPrescriptionTab()
         {
-            TabPage page = new TabPage("Đơn thuốc");
+            TabPage page = new TabPage("Đơn thuốc")
+            {
+                BackColor = Color.White,
+                Padding = new Padding(12)
+            };
 
-            txtPrescriptionName = AddInlineTextBox(page, "Tên thuốc", 20, 20, 240);
-            txtPrescriptionDose = AddInlineTextBox(page, "Liều dùng", 280, 20, 300);
+            Panel pnlTop = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 88,
+                Padding = new Padding(0, 0, 0, 8)
+            };
 
-            btnAddPrescription = CreateButton("Thêm", 610, 45);
+            TableLayoutPanel topLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 3,
+                RowCount = 2
+            };
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F));
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F));
+            topLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 360F));
+            topLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
+            topLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            AddInlineField(topLayout, "Tên thuốc", out txtPrescriptionName, 0, 0);
+            AddInlineField(topLayout, "Liều dùng", out txtPrescriptionDose, 1, 0);
+
+            Panel pnlButtons = new Panel { Dock = DockStyle.Fill };
+            btnAddPrescription = CreateButton("Thêm");
+            btnAddPrescription.Location = new Point(0, 4);
+            btnAddPrescription.Width = 100;
             btnAddPrescription.Click += BtnAddPrescription_Click;
 
-            btnUpdatePrescription = CreateButton("Sửa liều", 740, 45);
+            btnUpdatePrescription = CreateButton("Sửa liều");
+            btnUpdatePrescription.Location = new Point(108, 4);
+            btnUpdatePrescription.Width = 110;
             btnUpdatePrescription.Click += BtnUpdatePrescription_Click;
 
-            btnDeletePrescription = CreateButton("Xóa", 870, 45);
+            btnDeletePrescription = CreateButton("Xóa");
+            btnDeletePrescription.Location = new Point(226, 4);
+            btnDeletePrescription.Width = 100;
             btnDeletePrescription.Click += BtnDeletePrescription_Click;
 
-            dgvPrescriptions = CreateGrid(20, 100, 940, 392);
+            pnlButtons.Controls.Add(btnAddPrescription);
+            pnlButtons.Controls.Add(btnUpdatePrescription);
+            pnlButtons.Controls.Add(btnDeletePrescription);
+            topLayout.Controls.Add(pnlButtons, 2, 0);
+            topLayout.SetRowSpan(pnlButtons, 2);
+
+            pnlTop.Controls.Add(topLayout);
+
+            dgvPrescriptions = CreateGrid();
+            dgvPrescriptions.Dock = DockStyle.Fill;
             dgvPrescriptions.SelectionChanged += (s, e) => FillPrescriptionInputsFromSelection();
 
-            page.Controls.Add(btnAddPrescription);
-            page.Controls.Add(btnUpdatePrescription);
-            page.Controls.Add(btnDeletePrescription);
             page.Controls.Add(dgvPrescriptions);
+            page.Controls.Add(pnlTop);
 
             return page;
         }
 
         private TabPage BuildPatientTab()
         {
-            TabPage page = new TabPage("Bệnh nhân");
+            TabPage page = new TabPage("Bệnh nhân")
+            {
+                BackColor = Color.White,
+                Padding = new Padding(12)
+            };
 
-            txtBnMa = AddTextField(page, "Mã BN", 30, 30, true);
-            txtBnTen = AddTextField(page, "Tên BN", 30, 75, true);
-            txtBnPhai = AddTextField(page, "Phái", 30, 120, true);
-            txtBnNgaySinh = AddTextField(page, "Ngày sinh", 30, 165, true);
-            txtBnCccd = AddTextField(page, "CCCD", 30, 210, true);
-            txtBnDiaChi = AddTextArea(page, "Địa chỉ", 30, 255, true);
+            TableLayoutPanel layout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1
+            };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 320F));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
 
-            txtTienSuBenh = AddTextArea(page, "Tiền sử bệnh", 420, 30, false);
-            txtTienSuBenhGd = AddTextArea(page, "Tiền sử bệnh GĐ", 420, 155, false);
-            txtDiUngThuoc = AddTextArea(page, "Dị ứng thuốc", 420, 280, false);
+            Panel pnlLeft = new Panel { Dock = DockStyle.Fill, Padding = new Padding(0, 4, 12, 0) };
+            txtBnMa = AddStackedField(pnlLeft, "Mã BN", true, 0);
+            txtBnTen = AddStackedField(pnlLeft, "Tên BN", true, 1);
+            txtBnPhai = AddStackedField(pnlLeft, "Phái", true, 2);
+            txtBnNgaySinh = AddStackedField(pnlLeft, "Ngày sinh", true, 3);
+            txtBnCccd = AddStackedField(pnlLeft, "CCCD", true, 4);
+            txtBnDiaChi = AddStackedField(pnlLeft, "Địa chỉ", true, 5, multiline: true, height: 72);
 
-            btnSavePatient = CreateButton("Lưu bệnh nhân", 420, 455);
+            Panel pnlRight = new Panel { Dock = DockStyle.Fill, Padding = new Padding(4, 0, 0, 0) };
+            TableLayoutPanel rightLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 4
+            };
+            rightLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+            rightLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+            rightLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.34F));
+            rightLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 44F));
+
+            txtTienSuBenh = AddDockedTextArea(rightLayout, "Tiền sử bệnh", false, 0);
+            txtTienSuBenhGd = AddDockedTextArea(rightLayout, "Tiền sử bệnh GĐ", false, 1);
+            txtDiUngThuoc = AddDockedTextArea(rightLayout, "Dị ứng thuốc", false, 2);
+
+            Panel pnlSave = new Panel { Dock = DockStyle.Fill };
+            btnSavePatient = CreateButton("Lưu bệnh nhân");
+            btnSavePatient.Dock = DockStyle.Right;
+            btnSavePatient.Width = 140;
             btnSavePatient.Click += BtnSavePatient_Click;
-            page.Controls.Add(btnSavePatient);
+            pnlSave.Controls.Add(btnSavePatient);
+            rightLayout.Controls.Add(pnlSave, 0, 3);
+
+            pnlRight.Controls.Add(rightLayout);
+
+            layout.Controls.Add(pnlLeft, 0, 0);
+            layout.Controls.Add(pnlRight, 1, 0);
+            page.Controls.Add(layout);
 
             return page;
+        }
+
+        private TextBox AddStackedField(Panel parent, string labelText, bool readOnly, int index, bool multiline = false, int height = 28)
+        {
+            int top = 4 + index * (multiline ? height + 34 : 52);
+
+            Label label = new Label
+            {
+                Text = labelText,
+                Location = new Point(0, top),
+                Size = new Size(120, 22),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(41, 53, 65)
+            };
+
+            TextBox textBox = new TextBox
+            {
+                Location = new Point(0, top + 24),
+                Size = new Size(parent.ClientSize.Width > 0 ? parent.ClientSize.Width - 4 : 280, height),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                ReadOnly = readOnly,
+                Multiline = multiline,
+                ScrollBars = multiline ? ScrollBars.Vertical : ScrollBars.None,
+                BackColor = readOnly ? Color.FromArgb(245, 247, 250) : Color.White,
+                Font = new Font("Segoe UI", 10F)
+            };
+
+            parent.Controls.Add(label);
+            parent.Controls.Add(textBox);
+            return textBox;
+        }
+
+        private TextBox AddDockedTextArea(TableLayoutPanel parent, string labelText, bool readOnly, int row)
+        {
+            Panel wrapper = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 0, 0, 8)
+            };
+
+            Label label = new Label
+            {
+                Text = labelText,
+                Dock = DockStyle.Top,
+                Height = 24,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(41, 53, 65)
+            };
+
+            TextBox textBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Multiline = true,
+                ScrollBars = ScrollBars.Vertical,
+                ReadOnly = readOnly,
+                BackColor = readOnly ? Color.FromArgb(245, 247, 250) : Color.White,
+                Font = new Font("Segoe UI", 10F)
+            };
+
+            wrapper.Controls.Add(textBox);
+            wrapper.Controls.Add(label);
+            parent.Controls.Add(wrapper, 0, row);
+            return textBox;
+        }
+
+        private void AddInlineField(TableLayoutPanel parent, string labelText, out TextBox textBox, int column, int row)
+        {
+            Panel wrapper = new Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 0, 8, 0)
+            };
+
+            Label label = new Label
+            {
+                Text = labelText,
+                Dock = DockStyle.Top,
+                Height = 22,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(41, 53, 65)
+            };
+
+            textBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 10F)
+            };
+
+            wrapper.Controls.Add(textBox);
+            wrapper.Controls.Add(label);
+            parent.Controls.Add(wrapper, column, row);
+            parent.SetRowSpan(wrapper, 2);
         }
 
         private void LoadAllData()
@@ -357,49 +593,12 @@ namespace ATBM_Project.Views
             }
         }
 
-        private TextBox AddTextField(Control parent, string labelText, int x, int y, bool readOnly)
-        {
-            Label label = new Label { Text = labelText, Location = new Point(x, y), Size = new Size(120, 24), Font = new Font("Segoe UI", 9F) };
-            TextBox textBox = new TextBox { Location = new Point(x + 130, y), Size = new Size(210, 24), ReadOnly = readOnly, Font = new Font("Segoe UI", 9F) };
-            parent.Controls.Add(label);
-            parent.Controls.Add(textBox);
-            return textBox;
-        }
-
-        private TextBox AddTextArea(Control parent, string labelText, int x, int y, bool readOnly)
-        {
-            Label label = new Label { Text = labelText, Location = new Point(x, y), Size = new Size(150, 24), Font = new Font("Segoe UI", 9F) };
-            TextBox textBox = new TextBox
-            {
-                Location = new Point(x, y + 28),
-                Size = new Size(520, 76),
-                Multiline = true,
-                ScrollBars = ScrollBars.Vertical,
-                ReadOnly = readOnly,
-                Font = new Font("Segoe UI", 9F)
-            };
-            parent.Controls.Add(label);
-            parent.Controls.Add(textBox);
-            return textBox;
-        }
-
-        private TextBox AddInlineTextBox(Control parent, string labelText, int x, int y, int width)
-        {
-            Label label = new Label { Text = labelText, Location = new Point(x, y), Size = new Size(width, 22), Font = new Font("Segoe UI", 9F) };
-            TextBox textBox = new TextBox { Location = new Point(x, y + 25), Size = new Size(width, 24), Font = new Font("Segoe UI", 9F) };
-            parent.Controls.Add(label);
-            parent.Controls.Add(textBox);
-            return textBox;
-        }
-
-        private DataGridView CreateGrid(int x, int y, int width, int height)
+        private DataGridView CreateGrid()
         {
             DataGridView grid = new DataGridView
             {
-                Location = new Point(x, y),
-                Size = new Size(width, height),
                 BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
+                BorderStyle = BorderStyle.FixedSingle,
                 RowHeadersVisible = false,
                 AllowUserToAddRows = false,
                 ReadOnly = true,
@@ -409,16 +608,18 @@ namespace ATBM_Project.Views
             };
             grid.DefaultCellStyle.Font = new Font("Segoe UI", 9F);
             grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(41, 53, 65);
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            grid.EnableHeadersVisualStyles = false;
             return grid;
         }
 
-        private Button CreateButton(string text, int x, int y)
+        private Button CreateButton(string text)
         {
             Button button = new Button
             {
                 Text = text,
-                Location = new Point(x, y),
-                Size = new Size(120, 34),
+                Height = 34,
                 BackColor = Color.SteelBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,

@@ -65,13 +65,8 @@ namespace ATBM_Project.Views.KTV
             btnLogout.BackColor = Color.FromArgb(31, 43, 55);
             btnLogout.Click += BtnLogout_Click;
 
-            btnThongBao = CreateSidebarButton("Xem thông báo", 190);
-            btnThongBao.BackColor = Color.Orange; // Đổi màu một chút
-            btnThongBao.Click += (s, e) =>
-            {
-                FormThongBao frmThongBao = new FormThongBao(DBConfig.ConnectionString);
-                frmThongBao.ShowDialog();
-            };
+            btnThongBao = CreateSidebarButton("Thông báo", 190);
+            btnThongBao.Click += (s, e) => OpenChildForm(new FormThongBao(DBConfig.ConnectionString));
 
             // NẠP VÀO SIDEBAR
             pnlSidebar.Controls.Add(lblUsername);

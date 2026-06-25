@@ -5,6 +5,7 @@ BEGIN
     EXECUTE IMMEDIATE 'DROP ROLE ROLE_KYTHUATVIEN';
     EXECUTE IMMEDIATE 'DROP ROLE ROLE_NHANVIEN';
     EXECUTE IMMEDIATE 'DROP ROLE ROLE_DIEUPHOIVIEN';
+    EXECUTE IMMEDIATE 'DROP ROLE ROLE_BACSI';
     EXCEPTION WHEN OTHERS THEN NULL;
 END;
 /
@@ -126,6 +127,32 @@ BEGIN
 END;
 /
 
+-- tao role ROLE_BACSI
+CREATE ROLE ROLE_BACSI;
+
+-- Cap ROLE_BACSI cho cac nhan vien bac si/y si demo NV005 - NV014
+DECLARE
+    v_sql VARCHAR2(200);
+BEGIN
+    FOR r IN (
+        SELECT MANV
+        FROM admin.NHANVIEN
+        WHERE VAITRO = N'Bác sĩ/Y sĩ'
+          AND MANV BETWEEN 'NV005' AND 'NV014'
+    ) LOOP
+        BEGIN
+            v_sql := 'GRANT ROLE_BACSI TO ' || r.MANV;
+            EXECUTE IMMEDIATE v_sql;
+        EXCEPTION
+            WHEN OTHERS THEN
+                IF SQLCODE != -1917 THEN
+                    RAISE;
+                END IF;
+        END;
+    END LOOP;
+END;
+/
+
 
 -- HSBA - Bác sĩ chỉ thấy/cập nhật HSBA mình phụ trách
 CREATE OR REPLACE FUNCTION FN_VPD_HSBA_BACSI (
@@ -135,7 +162,12 @@ CREATE OR REPLACE FUNCTION FN_VPD_HSBA_BACSI (
 RETURN VARCHAR2
 AS
 BEGIN
-    RETURN 'MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')';
+    RETURN 'USER IN (
+                SELECT MANV
+                FROM ADMIN.NHANVIEN
+                WHERE VAITRO = N''Điều phối viên''
+            )
+            OR MABS = USER';
 END;
 /
 
@@ -148,17 +180,21 @@ CREATE OR REPLACE FUNCTION FN_VPD_BENHNHAN_BACSI (
 RETURN VARCHAR2
 AS
 BEGIN
-    RETURN 'MABN = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
-         OR MABN IN (
+    RETURN 'USER IN (
+                SELECT MANV
+                FROM ADMIN.NHANVIEN
+                WHERE VAITRO = N''Điều phối viên''
+            )
+            OR MABN IN (
             SELECT MABN
             FROM ADMIN.HSBA
-            WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+            WHERE MABS = USER
          )';
 END;
 /
 
-   
--- HSBA_DV - Bác sĩ chỉ thêm/xóa dịch vụ mà mình phụ trách
+
+-- HSBA_DV - Bác sĩ chỉ xem/thêm/xóa dịch vụ mà mình phụ trách
 CREATE OR REPLACE FUNCTION FN_VPD_HSBA_DV_BACSI (
     p_schema IN VARCHAR2,
     p_object IN VARCHAR2
@@ -166,10 +202,15 @@ CREATE OR REPLACE FUNCTION FN_VPD_HSBA_DV_BACSI (
 RETURN VARCHAR2
 AS
 BEGIN
-    RETURN 'MAHSBA IN (
+    RETURN 'USER IN (
+                SELECT MANV
+                FROM ADMIN.NHANVIEN
+                WHERE VAITRO = N''Điều phối viên''
+            )
+            OR MAHSBA IN (
         SELECT MAHSBA
         FROM ADMIN.HSBA
-        WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+        WHERE MABS = USER
     )';
 END;
 /
@@ -182,10 +223,15 @@ CREATE OR REPLACE FUNCTION FN_VPD_DONTHUOC_BACSI (
 RETURN VARCHAR2
 AS
 BEGIN
-    RETURN 'MAHSBA IN (
+    RETURN 'USER IN (
+                SELECT MANV
+                FROM ADMIN.NHANVIEN
+                WHERE VAITRO = N''Điều phối viên''
+            )
+            OR MAHSBA IN (
         SELECT MAHSBA
         FROM ADMIN.HSBA
-        WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+        WHERE MABS = USER
     )';
 END;
 /
@@ -221,7 +267,7 @@ BEGIN
 END;
 /
 
--- 3. Bác sĩ chỉ thêm/xóa dịch vụ hỗ trợ chẩn đoán thuộc HSBA mà mình phụ trách
+-- 3. Bác sĩ chỉ xem/thêm/xóa dịch vụ hỗ trợ chẩn đoán thuộc HSBA mà mình phụ trách
 BEGIN
     DBMS_RLS.ADD_POLICY(
         object_schema   => 'ADMIN',
@@ -229,7 +275,7 @@ BEGIN
         policy_name     => 'POL_HSBA_DV_BACSI',
         function_schema => 'ADMIN',
         policy_function => 'FN_VPD_HSBA_DV_BACSI',
-        statement_types => 'INSERT, DELETE',
+        statement_types => 'SELECT, INSERT, DELETE',
         update_check    => TRUE
     );
 END;
