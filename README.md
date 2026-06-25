@@ -2,7 +2,7 @@
 
 Đồ án môn **CSC12001 — An toàn và Bảo mật dữ liệu trong HTTT**.
 
-Ứng dụng WinForms kết nối Oracle XE, gồm phân hệ quản trị CSDL (user/role/grant/revoke), RBAC theo vai trò y tế, và Oracle Label Security (OLS) cho bảng thông báo.
+Ứng dụng WinForms kết nối Oracle XE, gồm phân hệ quản trị CSDL (user/role/grant/revoke), RBAC theo vai trò y tế, Oracle Label Security (OLS) cho bảng thông báo cùng hệ thống Kiểm toán và Sao lưu/Phục hồi.
 
 ---
 
@@ -48,8 +48,10 @@ Chạy các script trong `Resources/` **theo đúng thứ tự**:
 |------|------|-----------|-------|
 | 1 | `1.Database.sql` | **SYS as SYSDBA** | Tạo schema `ADMIN`, bảng, dữ liệu mẫu, tài khoản NV/BN |
 | 2 | `2.RBAC&VPD.sql` | **ADMIN** | RBAC: role, view bảo mật cho BN/KTV/NV/Điều phối viên |
-| 3a | `3.OLS_Setup.sql` — **PHẦN A** | **SYS as SYSDBA** | Tạo policy OLS, cấp FULL cho ADMIN, tạo user U1–U8 |
-| 3b | `3.OLS_Setup.sql` — **PHẦN B** | **ADMIN** | Level, label, dữ liệu mẫu, stored procedure OLS |
+| 3 | `2.5.GrantFastForDoctorAndCoordinator.sql` | **ADMIN** | Cấp quyền nhanh cho phân hệ Bác sĩ và Điều phối viên |
+| 4a | `3.OLS_Setup.sql` — **PHẦN A** | **SYS as SYSDBA** | Tạo policy OLS, cấp FULL cho ADMIN, tạo user U1–U8 |
+| 4b | `3.OLS_Setup.sql` — **PHẦN B** | **ADMIN** | Level, label, dữ liệu mẫu, stored procedure OLS |
+| 5 | `4.Audit&Backup.sql` | **SYS as SYSDBA** | Cài đặt Standard Audit, Fine-Grained Audit và Backup |
 
 ### 2.1. Script `1.Database.sql`
 
@@ -127,6 +129,14 @@ Thực hiện qua giao diện ADMIN sau khi đăng nhập:
 3. Gán role cho nhân viên có vai trò Điều phối viên (ví dụ `NV001`)
 4. Đăng nhập lại bằng `NV001` để dùng phân hệ điều phối
 
+### 2.5. Script `4.Audit&Backup.sql`
+
+```text
+SYS as SYSDBA → chạy toàn bộ file
+```
+
+Cài đặt các chính sách Standard Audit, FGA, cấu hình cho chức năng Backup và cấp quyền cho admin.
+
 ---
 
 ## 3. Chạy ứng dụng
@@ -143,7 +153,7 @@ Luồng giao diện:
 Program → FormLogin → (theo vai trò) → Form tương ứng
 ```
 
-- `ADMIN` / `SYS` → `FormMain` (quản trị CSDL + quản lý thông báo OLS)
+- `ADMIN` / `SYS` → `FormMain` (quản trị CSDL + quản lý thông báo OLS + Kiểm toán + Sao lưu/Phục hồi)
 - Điều phối viên → `FormCoordinatorMain`
 - Bác sĩ → `FormDoctorMain`
 - Kỹ thuật viên → `FormKTVMain`
@@ -157,7 +167,7 @@ Program → FormLogin → (theo vai trò) → Form tương ứng
 
 | Username | Password | Ghi chú |
 |----------|----------|---------|
-| `ADMIN` | `1234` | DBA, quản lý thông báo OLS |
+| `ADMIN` | `1234` | DBA, quản lý thông báo OLS, Audit, Backup|
 | `SYS` | *(mật khẩu SYS của bạn)* | Quản trị CSDL (tùy chọn) |
 
 ### Nhân viên / Bệnh nhân (RBAC)
@@ -190,6 +200,8 @@ Program → FormLogin → (theo vai trò) → Form tương ứng
 - Cấp/thu hồi quyền object và role
 - Xem quyền user/role (kể cả quyền theo cột)
 - **Quản lý thông báo OLS** (`FormThongBaoManagement`)
+- Xem nhật ký kiểm toán
+- Thực hiện sao lưu và phục hồi dữ liệu hệ thống
 
 ### Điều phối viên
 
@@ -305,30 +317,37 @@ ORDER  BY MATB;
 1. `ADMIN` → tạo thông báo trong app
 2. So sánh số lượng thông báo khi query bằng `U1_BGD` vs `U8_NV` trong SQL Developer
 
+### 7.5. Kiểm toán
+1. Đăng nhập ADMIN và thực hiện thao tác vi phạm chính sách
+2. Sau đó mở 'Nhật ký kiểm toán' để kiểm tra hệ thống có ghi log hay không
+
+### 7.6. Sao lưu và phục hồi
+1. Đăng nhập ADMIN và thực hiện sao lưu dữ liệu trên giao diện
+2. Kiểm tra xuất file .dmp thành công chưa và việc phục hồi diễn ra thành công hay không
 ---
 
 ## 8. Cấu trúc mã nguồn
 
 ```text
 ATBM_Project/
-├── Config/DBConfig.cs          # Kết nối Oracle
+├── Config/                       # Kết nối Oracle
 ├── Models/                       # Model dữ liệu
 ├── Presenters/                   # Logic SQL & nghiệp vụ
-├── Utilities/
-│   ├── OracleHelper.cs           # Helper OLS / stored procedure
-│   └── Prompt.cs
-├── Views/
-│   ├── FormLogin.cs              # Đăng nhập & điều hướng vai trò
-│   ├── FormMain.cs               # Shell ADMIN/DBA
-│   ├── FormThongBao*.cs          # OLS thông báo
-│   ├── BN/                       # Bệnh nhân
-│   ├── KTV/                      # Kỹ thuật viên
-│   ├── DPV/                      # Điều phối viên
-│   └── NV/                       # Nhân viên
-└── Resources/
-    ├── 1.Database.sql
-    ├── 2.RBAC&VPD.sql
-    └── 3.OLS_Setup.sql
+├── Resources/                    # 
+│   ├── 1.Database.sql
+│   ├── 2.5.GrantFastForDoctorAndCoordinator.sql
+│   ├── 2.RBAC&VPD.sql
+│   ├── 3.OLS_Setup.sql
+│   └── 4.Audit&Backup.sql
+├── Utilities/OracleHelper.cs, Prompt.cs
+└── Views/                        
+    ├── BN/ , DPV/ , KTV/ , NV/   # Thư mục giao diện theo Role
+    ├── FormAuditLog.cs           # Quản lý kiểm toán
+    ├── FormBackupRestore.cs      # Quản lý sao lưu và phục hồi 
+    ├── FormThongBaoManagement.cs # Quản lý thông báo
+    ├── FormLogin.cs              # Đăng nhập & điều hướng vai trò
+    └── FormMain.cs               # Shell ADMIN/DBA
+
 ```
 
 **Quy ước lớp:**
