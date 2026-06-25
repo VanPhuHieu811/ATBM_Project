@@ -165,12 +165,20 @@ CREATE OR REPLACE FUNCTION ADMIN.FN_VPD_HSBA_BACSI (
 )
 RETURN VARCHAR2
 AS
+    v_user   VARCHAR2(128);
     v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    -- ADMIN thấy toàn bộ dữ liệu
+    IF v_user = 'ADMIN' THEN
+        RETURN '1=1';
+    END IF;
+
     SELECT VAITRO
     INTO v_vaitro
     FROM ADMIN.NHANVIEN
-    WHERE MANV = SYS_CONTEXT('USERENV', 'SESSION_USER');
+    WHERE MANV = v_user;
 
     IF v_vaitro = N'Điều phối viên' THEN
         RETURN '1=1';
@@ -179,6 +187,7 @@ BEGIN
     END IF;
 
     RETURN '1=0';
+
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN '1=0';
@@ -191,15 +200,24 @@ CREATE OR REPLACE FUNCTION ADMIN.FN_VPD_BENHNHAN_BACSI (
 )
 RETURN VARCHAR2
 AS
+    v_user   VARCHAR2(128);
     v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    -- ADMIN thấy toàn bộ dữ liệu
+    IF v_user = 'ADMIN' THEN
+        RETURN '1=1';
+    END IF;
+
     SELECT VAITRO
     INTO v_vaitro
     FROM ADMIN.NHANVIEN
-    WHERE MANV = SYS_CONTEXT('USERENV', 'SESSION_USER');
+    WHERE MANV = v_user;
 
     IF v_vaitro = N'Điều phối viên' THEN
         RETURN '1=1';
+
     ELSIF v_vaitro = N'Bác sĩ/Y sĩ' THEN
         RETURN 'MABN IN (
             SELECT MABN
@@ -209,8 +227,10 @@ BEGIN
     END IF;
 
     RETURN '1=0';
+
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
+        -- Bệnh nhân
         RETURN 'MABN = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')';
 END;
 /
@@ -221,26 +241,37 @@ CREATE OR REPLACE FUNCTION ADMIN.FN_VPD_HSBA_DV_BACSI (
 )
 RETURN VARCHAR2
 AS
+    v_user   VARCHAR2(128);
     v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    -- ADMIN thấy toàn bộ dữ liệu
+    IF v_user = 'ADMIN' THEN
+        RETURN '1=1';
+    END IF;
+
     SELECT VAITRO
     INTO v_vaitro
     FROM ADMIN.NHANVIEN
-    WHERE MANV = SYS_CONTEXT('USERENV', 'SESSION_USER');
+    WHERE MANV = v_user;
 
     IF v_vaitro = N'Điều phối viên' THEN
         RETURN '1=1';
+
     ELSIF v_vaitro = N'Bác sĩ/Y sĩ' THEN
         RETURN 'MAHSBA IN (
             SELECT MAHSBA
             FROM ADMIN.HSBA
             WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
         )';
+
     ELSIF v_vaitro = N'Kỹ thuật viên' THEN
         RETURN 'MAKTV = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')';
     END IF;
 
     RETURN '1=0';
+
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN '1=0';
@@ -253,12 +284,20 @@ CREATE OR REPLACE FUNCTION ADMIN.FN_VPD_DONTHUOC_BACSI (
 )
 RETURN VARCHAR2
 AS
+    v_user   VARCHAR2(128);
     v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    -- ADMIN thấy toàn bộ dữ liệu
+    IF v_user = 'ADMIN' THEN
+        RETURN '1=1';
+    END IF;
+
     SELECT VAITRO
     INTO v_vaitro
     FROM ADMIN.NHANVIEN
-    WHERE MANV = SYS_CONTEXT('USERENV', 'SESSION_USER');
+    WHERE MANV = v_user;
 
     IF v_vaitro = N'Bác sĩ/Y sĩ' THEN
         RETURN 'MAHSBA IN (
@@ -269,6 +308,7 @@ BEGIN
     END IF;
 
     RETURN '1=0';
+
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         RETURN '1=0';

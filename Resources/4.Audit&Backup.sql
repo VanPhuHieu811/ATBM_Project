@@ -35,7 +35,7 @@ BEGIN
         object_name     => 'DONTHUOC',
         policy_name     => 'FGA_A_BS_UPDATE_DONTHUOC',
         audit_column    => 'MAHSBA, NGAYDT, TENTHUOC, LIEUDUNG',
-        audit_condition => 'SYS_CONTEXT(''USERENV'', ''SESSION_USER'') = (SELECT h.MABS FROM ADMIN.HSBA h WHERE h.MAHSBA = MAHSBA)',
+        audit_condition => 'SYS_CONTEXT(''USERENV'', ''SESSION_USER'') <> ''ADMIN''',
         statement_types => 'UPDATE',
         audit_trail     => DBMS_FGA.DB + DBMS_FGA.EXTENDED
     );
