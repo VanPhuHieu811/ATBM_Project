@@ -12,7 +12,7 @@ namespace ATBM_Project.Views.NV
         private NhanVienModel currentProfile;
 
         private GroupBox grpHanhChinh, grpLienHe;
-        private TextBox txtManV, txtHoTen, txtPhai, txtNgaySinh, txtCmnd, txtVaiTro, txtChuyenKhoa;
+        private TextBox txtManV, txtHoTen, txtPhai, txtNgaySinh, txtCmnd, txtVaiTro, txtChuyenKhoa, txtCoSo, txtCapBac;
         private TextBox txtQueQuan, txtSoDt;
         private Button btnEdit, btnRefresh;
 
@@ -43,7 +43,7 @@ namespace ATBM_Project.Views.NV
             {
                 Text = "Thông tin nhân sự",
                 Location = new Point(20, 60),
-                Size = new Size(370, 280),
+                Size = new Size(370, 350),
                 Anchor = AnchorStyles.Top | AnchorStyles.Left,
                 Font = fontLabel,
                 ForeColor = Color.SteelBlue
@@ -56,6 +56,8 @@ namespace ATBM_Project.Views.NV
             AddProfileRow(grpHanhChinh, "Số CMND/CCCD:", out txtCmnd, 170);
             AddProfileRow(grpHanhChinh, "Vai trò:", out txtVaiTro, 205);
             AddProfileRow(grpHanhChinh, "Chuyên khoa:", out txtChuyenKhoa, 240);
+            AddProfileRow(grpHanhChinh, "Cơ sở:", out txtCoSo, 275);
+            AddProfileRow(grpHanhChinh, "Cấp bậc:", out txtCapBac, 310);
 
             grpLienHe = new GroupBox()
             {
@@ -76,7 +78,7 @@ namespace ATBM_Project.Views.NV
             btnEdit = new Button()
             {
                 Text = "THAY ĐỔI THÔNG TIN",
-                Location = new Point(20, 500),
+                Location = new Point(20, 430),
                 Size = new Size(200, 45),
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                 BackColor = Color.SteelBlue,
@@ -90,7 +92,7 @@ namespace ATBM_Project.Views.NV
             btnRefresh = new Button()
             {
                 Text = "Làm mới",
-                Location = new Point(235, 500),
+                Location = new Point(235, 430),
                 Size = new Size(120, 45),
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                 BackColor = Color.White,
@@ -135,6 +137,8 @@ namespace ATBM_Project.Views.NV
                     txtCmnd.Text = currentProfile.Cmnd;
                     txtVaiTro.Text = currentProfile.VaiTro;
                     txtChuyenKhoa.Text = string.IsNullOrEmpty(currentProfile.ChuyenKhoa) ? "Không có" : currentProfile.ChuyenKhoa;
+                    txtCoSo.Text = string.IsNullOrEmpty(currentProfile.CoSo) ? "Chưa có dữ liệu" : currentProfile.CoSo;
+                    txtCapBac.Text = string.IsNullOrEmpty(currentProfile.CapBac) ? "Chưa có dữ liệu" : currentProfile.CapBac;
                     txtSoDt.Text = currentProfile.SoDt;
                     txtQueQuan.Text = currentProfile.QueQuan;
                 }

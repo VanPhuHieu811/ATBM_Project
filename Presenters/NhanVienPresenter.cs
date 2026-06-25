@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using Oracle.ManagedDataAccess.Client;
 using ATBM_Project.Data;
 using ATBM_Project.Models;
@@ -30,12 +31,26 @@ namespace ATBM_Project.Presenters
                             QueQuan = reader["QUEQUAN"]?.ToString(),
                             SoDt = reader["SODT"]?.ToString(),
                             VaiTro = reader["VAITRO"].ToString(),
-                            ChuyenKhoa = reader["CHUYENKHOA"]?.ToString()
+                            ChuyenKhoa = reader["CHUYENKHOA"]?.ToString(),
+                            CoSo = HasColumn(reader, "COSO") ? reader["COSO"]?.ToString() : string.Empty,
+                            CapBac = HasColumn(reader, "CAPBAC") ? reader["CAPBAC"]?.ToString() : string.Empty
                         };
                     }
                 }
             }
             return model;
+        }
+
+        private static bool HasColumn(OracleDataReader reader, string columnName)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (string.Equals(reader.GetName(i), columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // Cập nhật thông tin liên lạc (Chỉ truyền đúng 2 tham số cần update để tránh ORA-01006)
