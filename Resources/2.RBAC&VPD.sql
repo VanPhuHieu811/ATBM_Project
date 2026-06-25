@@ -108,6 +108,7 @@ END;
 
 -- tao role ROLE_DIEUPHOIVIEN
 CREATE ROLE ROLE_DIEUPHOIVIEN;
+GRANT ROLE_NHANVIEN TO ROLE_DIEUPHOIVIEN;
 
 -- Cấp ROLE_DIEUPHOIVIEN cho từng nhân viên điều phối viên
 DECLARE
@@ -129,8 +130,9 @@ END;
 
 -- tao role ROLE_BACSI
 CREATE ROLE ROLE_BACSI;
+GRANT ROLE_NHANVIEN TO ROLE_BACSI;
 
--- Cap ROLE_BACSI cho cac nhan vien bac si/y si demo NV005 - NV014
+-- Cap ROLE_BACSI cho cac nhan vien bac si/y si NV005 - NV014, NV021 - NV028
 DECLARE
     v_sql VARCHAR2(200);
 BEGIN
@@ -138,7 +140,10 @@ BEGIN
         SELECT MANV
         FROM admin.NHANVIEN
         WHERE VAITRO = N'Bác sĩ/Y sĩ'
-          AND MANV BETWEEN 'NV005' AND 'NV014'
+          AND (
+              MANV BETWEEN 'NV005' AND 'NV014'
+              OR MANV BETWEEN 'NV021' AND 'NV028'
+          )
     ) LOOP
         BEGIN
             v_sql := 'GRANT ROLE_BACSI TO ' || r.MANV;
@@ -153,65 +158,96 @@ BEGIN
 END;
 /
 
-
--- HSBA - Bác sĩ chỉ thấy/cập nhật HSBA mình phụ trách
+-- HSBA - Dieu phoi vien thay full; Bac si chi thay/cap nhat HSBA minh phu trach
 CREATE OR REPLACE FUNCTION FN_VPD_HSBA_BACSI (
     p_schema IN VARCHAR2,
     p_object IN VARCHAR2
 )
 RETURN VARCHAR2
 AS
+    v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
-    RETURN 'USER IN (
-                SELECT MANV
-                FROM ADMIN.NHANVIEN
-                WHERE VAITRO = N''Điều phối viên''
-            )
-            OR MABS = USER';
+    SELECT VAITRO
+    INTO v_vaitro
+    FROM ADMIN.NHANVIEN
+    WHERE MANV = USER;
+
+    IF v_vaitro = N'Điều phối viên' THEN
+        RETURN '1=1';
+    ELSIF v_vaitro = N'Bác sĩ/Y sĩ' THEN
+        RETURN 'MABS = USER';
+    END IF;
+
+    RETURN '1=0';
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN '1=0';
 END;
 /
 
 
--- BENHNHAN - Bac si thay benh nhan minh phu trach; benh nhan thay chinh ho so cua minh
+-- BENHNHAN - Dieu phoi vien thay full; Bac si thay benh nhan minh phu trach
 CREATE OR REPLACE FUNCTION FN_VPD_BENHNHAN_BACSI (
     p_schema IN VARCHAR2,
     p_object IN VARCHAR2
 )
 RETURN VARCHAR2
 AS
+    v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
-    RETURN 'USER IN (
-                SELECT MANV
-                FROM ADMIN.NHANVIEN
-                WHERE VAITRO = N''Điều phối viên''
-            )
-            OR MABN IN (
+    SELECT VAITRO
+    INTO v_vaitro
+    FROM ADMIN.NHANVIEN
+    WHERE MANV = USER;
+
+    IF v_vaitro = N'Điều phối viên' THEN
+        RETURN '1=1';
+    ELSIF v_vaitro = N'Bác sĩ/Y sĩ' THEN
+        RETURN 'MABN IN (
             SELECT MABN
             FROM ADMIN.HSBA
             WHERE MABS = USER
          )';
+    END IF;
+
+    RETURN '1=0';
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'MABN = USER';
 END;
 /
 
 
--- HSBA_DV - Bác sĩ chỉ xem/thêm/xóa dịch vụ mà mình phụ trách
+-- HSBA_DV - Dieu phoi vien thay full; Bac si chi thao tac dich vu thuoc HSBA minh phu trach
 CREATE OR REPLACE FUNCTION FN_VPD_HSBA_DV_BACSI (
     p_schema IN VARCHAR2,
     p_object IN VARCHAR2
 )
 RETURN VARCHAR2
 AS
+    v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
-    RETURN 'USER IN (
-                SELECT MANV
-                FROM ADMIN.NHANVIEN
-                WHERE VAITRO = N''Điều phối viên''
-            )
-            OR MAHSBA IN (
-        SELECT MAHSBA
-        FROM ADMIN.HSBA
-        WHERE MABS = USER
-    )';
+    SELECT VAITRO
+    INTO v_vaitro
+    FROM ADMIN.NHANVIEN
+    WHERE MANV = USER;
+
+    IF v_vaitro = N'Điều phối viên' THEN
+        RETURN '1=1';
+    ELSIF v_vaitro = N'Bác sĩ/Y sĩ' THEN
+        RETURN 'MAHSBA IN (
+            SELECT MAHSBA
+            FROM ADMIN.HSBA
+            WHERE MABS = USER
+        )';
+    ELSIF v_vaitro = N'Kỹ thuật viên' THEN
+        RETURN 'MAKTV = USER';
+    END IF;
+
+    RETURN '1=0';
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN '1=0';
 END;
 /
 
@@ -222,23 +258,103 @@ CREATE OR REPLACE FUNCTION FN_VPD_DONTHUOC_BACSI (
 )
 RETURN VARCHAR2
 AS
+    v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
-    RETURN 'USER IN (
-                SELECT MANV
-                FROM ADMIN.NHANVIEN
-                WHERE VAITRO = N''Điều phối viên''
-            )
-            OR MAHSBA IN (
-        SELECT MAHSBA
-        FROM ADMIN.HSBA
-        WHERE MABS = USER
-    )';
+    SELECT VAITRO
+    INTO v_vaitro
+    FROM ADMIN.NHANVIEN
+    WHERE MANV = USER;
+
+    IF v_vaitro = N'Bác sĩ/Y sĩ' THEN
+        RETURN 'MAHSBA IN (
+            SELECT MAHSBA
+            FROM ADMIN.HSBA
+            WHERE MABS = USER
+        )';
+    END IF;
+
+    RETURN '1=0';
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN '1=0';
 END;
 /
 
-
-
 --- POLICY
+-- Drop cac policy cu dang gan truc tiep tren bang goc (neu co), de tranh anh huong role khac.
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'HSBA', 'POL_HSBA_SELECT_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'HSBA', 'POL_HSBA_UPDATE_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'HSBA_DV', 'POL_HSBA_DV_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'BENHNHAN', 'POL_BENHNHAN_SELECT_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'BENHNHAN', 'POL_BENHNHAN_UPDATE_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'DONTHUOC', 'POL_DONTHUOC_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+-- Drop cac policy tren view bac si (neu da chay script truoc do).
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'V_BACSI_HSBA', 'POL_HSBA_SELECT_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'V_BACSI_HSBA', 'POL_HSBA_UPDATE_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'V_BACSI_HSBA_DV', 'POL_HSBA_DV_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'V_BACSI_BENHNHAN', 'POL_BENHNHAN_SELECT_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'V_BACSI_BENHNHAN', 'POL_BENHNHAN_UPDATE_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN
+    DBMS_RLS.DROP_POLICY('ADMIN', 'V_BACSI_DONTHUOC', 'POL_DONTHUOC_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
 -- 1. Bác sĩ chỉ xem các hồ sơ bệnh án mà mình phụ trách
 BEGIN
     DBMS_RLS.ADD_POLICY(
