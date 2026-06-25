@@ -97,11 +97,22 @@ namespace ATBM_Project.Views
             this.gbPreview.Controls.Add(dgvPreview);
 
             this.Load += (s, e) => {
-                foreach (DataRow row in _presenter.GetTables().Rows)
+                try
                 {
-                    cbTables.Items.Add(row["TABLE_NAME"].ToString());
+                    DataTable tables = _presenter.GetTables();
+                    if (tables != null)
+                    {
+                        foreach (DataRow row in tables.Rows)
+                        {
+                            cbTables.Items.Add(row["TABLE_NAME"].ToString());
+                        }
+                        if (cbTables.Items.Count > 0) cbTables.SelectedIndex = 0;
+                    }
                 }
-                if (cbTables.Items.Count > 0) cbTables.SelectedIndex = 0;
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, "Lỗi kết nối CSDL khi tải danh sách bảng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             };
 
             this.cbTables.SelectedIndexChanged += (s, e) => { LoadTablePreview(); };
@@ -147,13 +158,9 @@ namespace ATBM_Project.Views
                     string pass = builder["Password"].ToString();
                     return $"{user}/{pass}@//localhost:1521/XEPDB1";
                 }
-
                 return null;
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private string GetCurrentSchema()
@@ -163,17 +170,10 @@ namespace ATBM_Project.Views
                 var builder = new System.Data.Common.DbConnectionStringBuilder();
                 builder.ConnectionString = ATBM_Project.Data.DBConfig.ConnectionString;
 
-                if (builder.ContainsKey("User Id"))
-                {
-                    return builder["User Id"].ToString().ToUpper();
-                }
-
+                if (builder.ContainsKey("User Id")) return builder["User Id"].ToString().ToUpper();
                 return null;
             }
-            catch
-            {
-                return null;
-            }
+            catch { return null; }
         }
 
         private async void BtnBackup_Click(object sender, EventArgs e)
@@ -189,7 +189,7 @@ namespace ATBM_Project.Views
 
             if (string.IsNullOrEmpty(dbLogon) || string.IsNullOrEmpty(schema))
             {
-                MessageBox.Show("Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, "Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -198,14 +198,34 @@ namespace ATBM_Project.Views
 
             if (cbMethods.SelectedIndex == 0 && !string.IsNullOrEmpty(tableName))
             {
-                string args = $"/C expdp {dbLogon} tables={schema}.{tableName} directory=ATBM_DIR dumpfile=DP_{tableName}.dmp logfile=DP_exp_{tableName}.log reuse_dumpfiles=y";
-                await ExecuteExternalCommandAsync(args, $"Đã hoàn tất Data Pump Export cho bảng {tableName}.");
+                string args = $"/C title Data Pump Export - {tableName} & expdp {dbLogon} tables={schema}.{tableName} directory=ATBM_DIR dumpfile=DP_{tableName}.dmp logfile=DP_exp_{tableName}.log reuse_dumpfiles=y & pause";
+                await ExecuteCommandInConsoleAsync(args);
+
+                this.Activate();
+                MessageBox.Show(this, $"Đã hoàn tất Data Pump Export cho bảng {tableName}.", "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Form topForm = this.FindForm();
+                if (topForm != null)
+                {
+                    topForm.WindowState = FormWindowState.Normal;
+                    topForm.Activate();
+                }
             }
             else if (cbMethods.SelectedIndex == 1)
             {
-                File.WriteAllText(@"C:\ATBM_Backup\rman_backup.txt", "backup database plus archivelog;");
-                string args = $"/C rman target / cmdfile='C:\\ATBM_Backup\\rman_backup.txt' log='C:\\ATBM_Backup\\rman.log'";
-                await ExecuteExternalCommandAsync(args, "Đã hoàn tất sao lưu vật lý RMAN toàn hệ thống.");
+                File.WriteAllText(@"C:\ATBM_Backup\rman_backup.txt", "backup tablespace XEPDB1:USERS;\nexit;");
+                string args = $"/C title RMAN Physical Backup & rman target / cmdfile=\"C:\\ATBM_Backup\\rman_backup.txt\" log=\"C:\\ATBM_Backup\\rman.log\" & echo XONG! & pause";
+                await ExecuteCommandInConsoleAsync(args);
+
+                this.Activate();
+                MessageBox.Show(this, "Đã hoàn tất sao lưu vật lý RMAN cho hệ thống.", "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Form topForm = this.FindForm();
+                if (topForm != null)
+                {
+                    topForm.WindowState = FormWindowState.Normal;
+                    topForm.Activate();
+                }
             }
 
             btnBackup.Enabled = true;
@@ -220,7 +240,7 @@ namespace ATBM_Project.Views
             {
                 if (!Directory.Exists(@"C:\ATBM_Backup"))
                 {
-                    MessageBox.Show(@"Không tìm thấy thư mục C:\ATBM_Backup. Hệ thống không có dữ liệu để phục hồi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, @"Không tìm thấy thư mục C:\ATBM_Backup. Hệ thống không có dữ liệu để phục hồi!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -230,7 +250,7 @@ namespace ATBM_Project.Views
 
             if (cbMethods.SelectedIndex == 0 && (string.IsNullOrEmpty(dbLogon) || string.IsNullOrEmpty(schema)))
             {
-                MessageBox.Show("Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, "Không thể trích xuất thông tin đăng nhập từ chuỗi kết nối.", "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -242,44 +262,78 @@ namespace ATBM_Project.Views
                 string dumpFile = $@"C:\ATBM_Backup\DP_{tableName}.dmp";
                 if (!File.Exists(dumpFile))
                 {
-                    MessageBox.Show($"Không tìm thấy file sao lưu logic: {dumpFile}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(this, $"Không tìm thấy file sao lưu logic: {dumpFile}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     btnBackup.Enabled = true;
                     btnRestore.Enabled = true;
                     return;
                 }
 
-                string args = $"/C impdp {dbLogon} tables={schema}.{tableName} directory=ATBM_DIR dumpfile=DP_{tableName}.dmp logfile=DP_imp_{tableName}.log table_exists_action=replace";
-                await ExecuteExternalCommandAsync(args, $"Đã hoàn tất Data Pump Import cho bảng {tableName}.");
+                string args = $"/C title Data Pump Import - {tableName} & impdp {dbLogon} tables={schema}.{tableName} directory=ATBM_DIR dumpfile=DP_{tableName}.dmp logfile=DP_imp_{tableName}.log table_exists_action=replace & pause";
+                await ExecuteCommandInConsoleAsync(args);
+
+                this.Activate();
+                MessageBox.Show(this, $"Đã hoàn tất Data Pump Import phục hồi bảng {tableName}.", "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Form topForm = this.FindForm();
+                if (topForm != null)
+                {
+                    topForm.WindowState = FormWindowState.Normal;
+                    topForm.Activate();
+                }
                 LoadTablePreview();
             }
             else if (cbMethods.SelectedIndex == 1)
             {
-                File.WriteAllText(@"C:\ATBM_Backup\rman_restore.txt", "startup force mount;\nrestore database;\nrecover database;");
-                File.WriteAllText(@"C:\ATBM_Backup\open_db.sql", "ALTER DATABASE OPEN RESETLOGS;\nALTER PLUGGABLE DATABASE ALL OPEN;\nEXIT;");
+                string rmanScript = "SQL 'ALTER PLUGGABLE DATABASE XEPDB1 CLOSE IMMEDIATE';\n" +
+                                    "RESTORE TABLESPACE XEPDB1:USERS;\n" +
+                                    "RECOVER TABLESPACE XEPDB1:USERS;\n" +
+                                    "SQL 'ALTER PLUGGABLE DATABASE XEPDB1 OPEN';\n" +
+                                    "EXIT;";
+                File.WriteAllText(@"C:\ATBM_Backup\rman_restore.txt", rmanScript);
 
-                string batPath = @"C:\ATBM_Backup\execute_rman_recovery.bat";
-                string batContent = "@echo off\n" +
-                                    "rman target / cmdfile=\"C:\\ATBM_Backup\\rman_restore.txt\" log=\"C:\\ATBM_Backup\\rman_restore.log\"\n" +
-                                    "sqlplus / as sysdba @\"C:\\ATBM_Backup\\open_db.sql\" > \"C:\\ATBM_Backup\\open_db.log\"";
-                File.WriteAllText(batPath, batContent);
+                string sqlOnlineScript = "ALTER SESSION SET CONTAINER = XEPDB1;\n" +
+                                         "ALTER TABLESPACE USERS ONLINE;\n" +
+                                         "EXIT;";
+                File.WriteAllText(@"C:\ATBM_Backup\rman_online.sql", sqlOnlineScript);
 
-                string args = $"/C \"{batPath}\"";
-                await ExecuteExternalCommandAsync(args, "Đã hoàn tất toàn bộ tiến trình khôi phục RMAN. Cơ sở dữ liệu và các phân hệ dịch vụ đã được mở cửa tự động thành công!");
-                LoadTablePreview();
+                string args = $"/C title RMAN Disaster Recovery & rman target / cmdfile=\"C:\\ATBM_Backup\\rman_restore.txt\" log=\"C:\\ATBM_Backup\\rman_restore.log\" & sqlplus -s / as sysdba @\"C:\\ATBM_Backup\\rman_online.sql\" & echo TIEN TRINH PHUC HOI HOAN TAT! & pause";
+                await ExecuteCommandInConsoleAsync(args);
+
+                try
+                {
+                    Oracle.ManagedDataAccess.Client.OracleConnection.ClearAllPools();
+                }
+                catch { }
+
+                this.Activate();
+                MessageBox.Show(this, "Đã hoàn tất khôi phục RMAN. Hệ thống đã Online và dữ liệu đã được hồi sinh!", "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                Form topForm = this.FindForm();
+                if (topForm != null)
+                {
+                    topForm.WindowState = FormWindowState.Normal;
+                    topForm.Activate();
+                }
+
+                if (cbTables.Items.Count > 0)
+                {
+                    LoadTablePreview();
+                }
             }
             else if (cbMethods.SelectedIndex == 2 && !string.IsNullOrEmpty(tableName))
             {
                 string timeStr = dtpFlashback.Value.ToString("yyyy-MM-dd HH:mm:ss");
                 string errorMsg = _presenter.ExecuteFlashback(tableName, timeStr);
 
+                this.Activate();
                 if (string.IsNullOrEmpty(errorMsg))
                 {
-                    MessageBox.Show($"Khôi phục Flashback bảng {tableName} thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(this, $"Khôi phục Flashback bảng {tableName} thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadTablePreview();
                 }
                 else
                 {
-                    MessageBox.Show("Lỗi Flashback: " + errorMsg, "Thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, "Lỗi Flashback: " + errorMsg, "Thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
 
@@ -287,37 +341,24 @@ namespace ATBM_Project.Views
             btnRestore.Enabled = true;
         }
 
-        private async Task ExecuteExternalCommandAsync(string arguments, string successMsg)
+        private async Task ExecuteCommandInConsoleAsync(string arguments)
         {
-            try
+            await Task.Run(() =>
             {
                 ProcessStartInfo procInfo = new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
                     Arguments = arguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    StandardOutputEncoding = Encoding.UTF8
+                    UseShellExecute = true,
+                    CreateNoWindow = false,
+                    WindowStyle = ProcessWindowStyle.Normal
                 };
 
                 using (Process process = Process.Start(procInfo))
                 {
-                    string error = await Task.Run(() =>
-                    {
-                        string errText = process.StandardError.ReadToEnd();
-                        process.WaitForExit();
-                        return errText;
-                    });
-
-                    if (!string.IsNullOrEmpty(error) && error.Contains("ORA-") && !error.Contains("ORA-01109") && !error.Contains("ORA-01081"))
-                        MessageBox.Show("Cảnh báo tiến trình: \n" + error, "Lỗi Oracle", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    else
-                        MessageBox.Show(successMsg, "Hoàn tất", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    process.WaitForExit();
                 }
-            }
-            catch (Exception ex) { MessageBox.Show("Lỗi hệ điều hành: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            });
         }
     }
 }
