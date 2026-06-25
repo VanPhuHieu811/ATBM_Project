@@ -57,7 +57,7 @@ BEGIN
         object_name     => 'HSBA',
         policy_name     => 'FGA_C_ILLEGAL_UPDATE_HSBA',
         audit_column    => 'CHANDOAN, DIEUTRI, KETLUAN',
-        audit_condition => 'SYS_CONTEXT(''USERENV'', ''SESSION_USER'') != MABS OR MABS IS NULL',
+        audit_condition => 'MABS != SYS_CONTEXT(''USERENV'', ''SESSION_USER'')',
         statement_types => 'UPDATE',
         audit_trail     => DBMS_FGA.DB + DBMS_FGA.EXTENDED
     );
@@ -67,8 +67,7 @@ BEGIN
         object_schema   => 'ADMIN',
         object_name     => 'HSBA_DV',
         policy_name     => 'FGA_D_ILLEGAL_DML_HSBADV',
-        audit_column    => 'KETQUA',
-        audit_condition => 'SYS_CONTEXT(''USERENV'', ''SESSION_USER'') != MAKTV OR MAKTV IS NULL',
+        audit_condition => 'MAKTV != SYS_CONTEXT(''USERENV'', ''SESSION_USER'')',
         statement_types => 'INSERT, UPDATE, DELETE',
         audit_trail     => DBMS_FGA.DB + DBMS_FGA.EXTENDED
     );
