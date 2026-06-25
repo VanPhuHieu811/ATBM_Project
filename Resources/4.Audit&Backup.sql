@@ -15,7 +15,7 @@ NOAUDIT ALL; -- tat cac audit mac dinh
 AUDIT SESSION WHENEVER NOT SUCCESSFUL;
 
 -- giam sat lenh select tren bang benhnhan (lay thong tin)
-AUDIT ALL ON admin.BENHNHAN BY ACCESS;
+AUDIT SELECT ON admin.BENHNHAN BY ACCESS;
 
 -- giam sat toan ven cau truc du lieu (them, xoa bang, them, xoa cot)
 AUDIT TABLE BY ACCESS;
