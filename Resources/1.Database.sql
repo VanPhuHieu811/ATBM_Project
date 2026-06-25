@@ -31,6 +31,28 @@ GRANT DBA TO admin;
 
 ALTER SESSION SET CURRENT_SCHEMA = admin;
 
+-- Xoa cac bang cu neu chay lai rieng phan database.
+BEGIN
+    FOR t IN (
+        SELECT 'DONTHUOC' AS table_name FROM dual UNION ALL
+        SELECT 'HSBA_DV' FROM dual UNION ALL
+        SELECT 'HSBA' FROM dual UNION ALL
+        SELECT 'BENHNHAN' FROM dual UNION ALL
+        SELECT 'THONGBAO' FROM dual UNION ALL
+        SELECT 'NHANVIEN' FROM dual
+    ) LOOP
+        BEGIN
+            EXECUTE IMMEDIATE 'DROP TABLE ' || t.table_name || ' CASCADE CONSTRAINTS PURGE';
+        EXCEPTION
+            WHEN OTHERS THEN
+                IF SQLCODE != -942 THEN
+                    RAISE;
+                END IF;
+        END;
+    END LOOP;
+END;
+/
+
 CREATE TABLE NHANVIEN (
     MANV VARCHAR2(10) PRIMARY KEY,
     HOTEN NVARCHAR2(100) NOT NULL,
@@ -240,8 +262,8 @@ DECLARE
         WHERE NOT EXISTS (SELECT 1 FROM BENHNHAN WHERE MABN = v_mabn);
     END;
 BEGIN
-    -- Bo sung Dieu phoi vien: NV021 - NV036 de tong cong 20 nguoi.
-    FOR i IN 21..36 LOOP
+    -- Bo sung Dieu phoi vien: NV029 - NV044 de tong cong 20 nguoi.
+    FOR i IN 29..44 LOOP
         insert_nhanvien(
             'NV' || LPAD(i, 3, '0'),
             N'Điều phối viên ' || TO_NCHAR(i),
@@ -255,8 +277,8 @@ BEGIN
         );
     END LOOP;
 
-    -- Bo sung Bac si/Y si: NV037 - NV126 de tong cong 100 nguoi.
-    FOR i IN 37..126 LOOP
+    -- Bo sung Bac si/Y si: NV037 - NV118 de tong cong 100 nguoi.
+    FOR i IN 37..118 LOOP
         insert_nhanvien(
             'NV' || LPAD(i, 3, '0'),
             N'Bác sĩ/Y sĩ ' || TO_NCHAR(i),
@@ -310,7 +332,6 @@ BEGIN
        END LOOP;
     END IF;
     
-
     COMMIT;
 
     -- Tao account cho toan bo nhan vien.

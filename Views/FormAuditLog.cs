@@ -84,6 +84,7 @@ namespace ATBM_Project.Views
             };
 
             this.dgvLogs.CellFormatting += DgvLogs_CellFormatting;
+            this.dgvLogs.CellDoubleClick += DgvLogs_CellDoubleClick;
 
             this.Load += (s, e) => {
                 cbTables.Items.Add("--- TẤT CẢ ---");
@@ -157,6 +158,21 @@ namespace ATBM_Project.Views
                         e.CellStyle.ForeColor = Color.Red;
                     }
                     e.FormattingApplied = true;
+                }
+            }
+        }
+
+        private void DgvLogs_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && cbAuditType.SelectedIndex == 1)
+            {
+                if (dgvLogs.Columns[e.ColumnIndex].Name == "SQL_TEXT")
+                {
+                    string sqlText = dgvLogs.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
+                    if (!string.IsNullOrEmpty(sqlText))
+                    {
+                        MessageBox.Show(this, sqlText, "Chi tiết câu lệnh SQL", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
             }
         }

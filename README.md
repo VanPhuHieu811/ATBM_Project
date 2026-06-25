@@ -183,11 +183,11 @@ Program → FormLogin → (theo vai trò) → Form tương ứng
 
 | Username | Password | Nhãn session (tóm tắt) |
 |----------|----------|------------------------|
-| `U1_BGD` | `OLS123` | Ban giám đốc — toàn quyền |
-| `U2_LDK`–`U7_LDK` | `OLS123` | Lãnh đạo khoa (theo khoa/cơ sở) |
-| `U4_NV`, `U5_NV`, `U8_NV` | `OLS123` | Nhân viên (theo khoa/cơ sở) |
+| `NV021` | `123` | Ban giám đốc — toàn quyền |
+| `NV022`,`NV023`,`NV026`,`NV027` | `123` | Lãnh đạo khoa (theo khoa/cơ sở) |
+| `NV024`, `NV025`, `NV028` | `123` | Nhân viên (theo khoa/cơ sở) |
 
-> User `U1_BGD`–`U8_NV` dùng để **test OLS trực tiếp trên Oracle** (mục 6.4). App WinForms hiện điều hướng theo bảng `NHANVIEN`/`BENHNHAN`, chưa mở form thông báo cho các user U*.
+> User `NV021`–`NV028` dùng để **test OLS trực tiếp trên Oracle** (mục 6.4). App WinForms hiện điều hướng theo bảng `NHANVIEN`/`BENHNHAN`, chưa mở form thông báo cho các user U*.
 
 ---
 
@@ -234,30 +234,83 @@ Program → FormLogin → (theo vai trò) → Form tương ứng
 
 ### 6.2. Ai chạy lệnh gì
 
+## 6.2. Ai chạy lệnh gì
+
+Toàn bộ script chia thành **Phần A** (chạy bằng `SYS AS SYSDBA`) và **Phần B** (chạy bằng `ADMIN`).
+
+---
+
+### Phần A — Kết nối `SYS AS SYSDBA`
+
+| Bước | Thao tác | Lệnh / Package |
+|------|----------|----------------|
+| Tiền đề | Bật OLS (nếu chưa), shutdown & restart | `LBACSYS.CONFIGURE_OLS`, `LBACSYS.OLS_ENFORCEMENT.ENABLE_OLS` |
+| Reset | Xóa policy cũ nếu có | `SA_POLICY_ADMIN.REMOVE_TABLE_POLICY`, `SA_SYSDBA.DROP_POLICY` |
+| Bước 0 | Cấp `INHERIT PRIVILEGES` cho ADMIN | `GRANT INHERIT PRIVILEGES ON USER ADMIN TO LBACSYS` |
+| Bước 1 | Cấp quyền OLS cho ADMIN (CONNECT, RESOURCE, LBAC_DBA, EXECUTE các package OLS) | `GRANT ... TO ADMIN` |
+
+> `SYS` **không** tạo user demo. Việc tạo user NV021–NV028 do `ADMIN` thực hiện ở Bước 8.
+
+---
+
+### Phần B — Kết nối `ADMIN`
+
+| Bước | Thao tác | Lệnh / Package |
+|------|----------|----------------|
+| Bước 2 | Tạo chính sách `HOSPITAL_TB_POL` (NO_CONTROL) | `SA_SYSDBA.CREATE_POLICY` |
+| Bước 2 | Cấp quyền `FULL` cho ADMIN trên policy | `SA_USER_ADMIN.SET_USER_PRIVS(..., 'FULL')` |
+| Bước 2 | Enable policy | `SA_SYSDBA.ENABLE_POLICY` |
+| Bước 3 | Tạo Level: NV / LDK / BGD | `SA_COMPONENTS.CREATE_LEVEL` |
+| Bước 4 | Tạo Compartment: C_TH / C_TK / C_TM | `SA_COMPONENTS.CREATE_COMPARTMENT` |
+| Bước 5 | Tạo Group: G_HCM / G_HP / G_HN | `SA_COMPONENTS.CREATE_GROUP` |
+| Bước 6 | Tạo Data Labels (1001–1013) | `SA_LABEL_ADMIN.CREATE_LABEL` |
+| Bước 7 | Apply policy lên bảng `THONGBAO` với `NO_CONTROL` | `SA_POLICY_ADMIN.APPLY_TABLE_POLICY` |
+| Bước 8 | Tạo 8 Oracle user demo (NV021–NV028), cấp SELECT / EXECUTE | `CREATE USER`, `GRANT SELECT`, `GRANT EXECUTE` |
+| Bước 9 | INSERT 7 thông báo mẫu, UPDATE `OLS_LABEL` thủ công | `INSERT INTO THONGBAO`, `UPDATE ... CHAR_TO_LABEL` |
+| Bước 10 | Đổi policy sang `READ_CONTROL` (remove rồi apply lại) | `SA_POLICY_ADMIN.REMOVE_TABLE_POLICY`, `SA_POLICY_ADMIN.APPLY_TABLE_POLICY` |
+| Bước 11 | Touch toàn bộ hàng để OLS nhận lại label | `UPDATE THONGBAO SET NOIDUNG = NOIDUNG` |
+| Bước 12 | Gán session label cho 8 user demo | `SA_USER_ADMIN.SET_USER_LABELS` |
+| Bước 13 | Tạo hàm `FN_BUILD_LABEL` | `CREATE OR REPLACE FUNCTION` |
+| Bước 14 | Gán label BGD toàn cục cho ADMIN, tạo `SP_INSERT_THONGBAO` | `SA_USER_ADMIN.SET_USER_LABELS` + `CREATE OR REPLACE PROCEDURE` |
+| Bước 15 | Tạo `SP_GET_THONGBAO`, cấp EXECUTE cho 8 user demo | `CREATE OR REPLACE PROCEDURE` + `GRANT EXECUTE` |
+| Bổ sung | Gán nhãn `NV` cho toàn bộ nhân viên còn lại trong bảng `NHANVIEN` | Loop `SA_USER_ADMIN.SET_USER_LABELS(..., 'NV')` |
+
+---
+
+### Tóm tắt phân quyền theo thao tác
+
 | Thao tác | SYS | ADMIN |
 |----------|:---:|:-----:|
-| `CREATE_POLICY`, `DROP_POLICY`, `ENABLE_POLICY` | ✓ | ✗ |
-| `SET_USER_PRIVS` (cấp FULL lần đầu) | ✓ | ✗ |
-| `CREATE USER` U1–U8 | ✓ | ✗ |
-| `CREATE_LEVEL`, `CREATE_LABEL` | ✗ | ✓ |
-| `APPLY_TABLE_POLICY` | ✗ | ✓ (sau khi có FULL) |
-| `SET_USER_LABELS` | ✗ | ✓ |
-| `SP_INSERT_THONGBAO`, `SP_GET_THONGBAO` | ✗ | ✓ |
+| Bật OLS, SHUTDOWN / STARTUP | ✓ | ✗ |
+| `CREATE_POLICY`, `DROP_POLICY`, `ENABLE_POLICY` | ✗ | ✓ |
+| `SET_USER_PRIVS` – cấp FULL cho ADMIN | ✗ | ✓ |
+| `GRANT` quyền hệ thống cho ADMIN | ✓ | ✗ |
+| `CREATE USER` NV021–NV028 | ✗ | ✓ |
+| `CREATE_LEVEL`, `CREATE_COMPARTMENT`, `CREATE_GROUP` | ✗ | ✓ |
+| `CREATE_LABEL` | ✗ | ✓ |
+| `APPLY_TABLE_POLICY` / `REMOVE_TABLE_POLICY` | ✗ | ✓ |
+| `SET_USER_LABELS` (8 user demo + ADMIN + bổ sung) | ✗ | ✓ |
+| Tạo `SP_INSERT_THONGBAO`, `SP_GET_THONGBAO` | ✗ | ✓ |
+
+> **Lưu ý quan trọng:** `SYS` **không** trực tiếp gọi `SET_USER_PRIVS`.
+> Lệnh này do `ADMIN` tự chạy ngay sau `CREATE_POLICY` (Bước 2),
+> nhờ được cấp `EXECUTE ON LBACSYS.SA_USER_ADMIN WITH GRANT OPTION` từ Bước 1.
+> `SYS` chỉ có vai trò cấp quyền hệ thống ban đầu và bật OLS.
 
 ### 6.3. Test OLS trên app
 
 1. Đăng nhập `ADMIN` / `1234`
 2. Sidebar → **Quản lý thông báo**
-3. Tạo thông báo mới (chọn cấp bậc, khoa, cơ sở)
+3. Tạo thông báo mới (theo các nhãn thông báo từ t1-t7)
 4. Kiểm tra dữ liệu trong DB
 
 ### 6.4. Test OLS bằng SQL (user U*)
 
 ```sql
--- Đăng nhập U1_BGD / OLS123
+-- Đăng nhập NV021 / 123
 SELECT COUNT(*) FROM ADMIN.THONGBAO;
 
--- Đăng nhập U8_NV / OLS123
+-- Đăng nhập NV028 / 123
 SELECT COUNT(*) FROM ADMIN.THONGBAO;
 ```
 

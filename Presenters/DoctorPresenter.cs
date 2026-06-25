@@ -173,7 +173,7 @@ namespace ATBM_Project.Presenters
                     INSERT INTO admin.DONTHUOC (MAHSBA, NGAYDT, TENTHUOC, LIEUDUNG)
                     VALUES (:mahsba, :ngaydt, :tenthuoc, :lieudung)";
                 cmd.Parameters.Add("mahsba", OracleDbType.Varchar2).Value = NormalizeKey(maHsba);
-                cmd.Parameters.Add("ngaydt", OracleDbType.Date).Value = ngayDt.Date;
+                cmd.Parameters.Add("ngaydt", OracleDbType.Date).Value = ngayDt;
                 cmd.Parameters.Add("tenthuoc", OracleDbType.NVarchar2).Value = ToDbValue(tenThuoc);
                 cmd.Parameters.Add("lieudung", OracleDbType.NVarchar2).Value = ToDbValue(lieuDung);
                 cmd.ExecuteNonQuery();
@@ -195,7 +195,7 @@ namespace ATBM_Project.Presenters
                       AND TENTHUOC = :tenthuoc";
                 cmd.Parameters.Add("lieudung", OracleDbType.NVarchar2).Value = ToDbValue(lieuDung);
                 cmd.Parameters.Add("mahsba", OracleDbType.Varchar2).Value = NormalizeKey(maHsba);
-                cmd.Parameters.Add("ngaydt", OracleDbType.Date).Value = ngayDt.Date;
+                cmd.Parameters.Add("ngaydt", OracleDbType.Date).Value = ngayDt;
                 cmd.Parameters.Add("tenthuoc", OracleDbType.NVarchar2).Value = tenThuoc;
                 ExecuteExpectingRow(cmd);
             }
@@ -214,7 +214,7 @@ namespace ATBM_Project.Presenters
                       AND NGAYDT = :ngaydt
                       AND TENTHUOC = :tenthuoc";
                 cmd.Parameters.Add("mahsba", OracleDbType.Varchar2).Value = NormalizeKey(maHsba);
-                cmd.Parameters.Add("ngaydt", OracleDbType.Date).Value = ngayDt.Date;
+                cmd.Parameters.Add("ngaydt", OracleDbType.Date).Value = ngayDt;
                 cmd.Parameters.Add("tenthuoc", OracleDbType.NVarchar2).Value = tenThuoc;
                 ExecuteExpectingRow(cmd);
             }

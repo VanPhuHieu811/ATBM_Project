@@ -515,7 +515,7 @@ namespace ATBM_Project.Views
 
             try
             {
-                presenter.AddPrescription(maHsba, DateTime.Today, tenThuoc, txtPrescriptionDose.Text);
+                presenter.AddPrescription(maHsba, DateTime.Now, tenThuoc, txtPrescriptionDose.Text);
                 txtPrescriptionName.Clear();
                 txtPrescriptionDose.Clear();
                 LoadPrescriptions();
@@ -670,6 +670,10 @@ namespace ATBM_Project.Views
         private void FormatGrid(DataGridView grid)
         {
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            if (grid.Columns.Contains("NGAYDT"))
+            {
+                grid.Columns["NGAYDT"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
+            }
         }
 
         private void ShowError(Exception ex)

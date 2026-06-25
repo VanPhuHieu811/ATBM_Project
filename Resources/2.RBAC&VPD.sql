@@ -108,6 +108,7 @@ END;
 
 -- tao role ROLE_DIEUPHOIVIEN
 CREATE ROLE ROLE_DIEUPHOIVIEN;
+GRANT ROLE_NHANVIEN TO ROLE_DIEUPHOIVIEN;
 
 -- Cấp ROLE_DIEUPHOIVIEN cho từng nhân viên điều phối viên
 DECLARE
@@ -129,8 +130,9 @@ END;
 
 -- tao role ROLE_BACSI
 CREATE ROLE ROLE_BACSI;
+GRANT ROLE_NHANVIEN TO ROLE_BACSI;
 
--- Cap ROLE_BACSI cho cac nhan vien bac si/y si demo NV005 - NV014
+-- Cap ROLE_BACSI cho cac nhan vien bac si/y si NV005 - NV014, NV021 - NV028
 DECLARE
     v_sql VARCHAR2(200);
 BEGIN
@@ -138,7 +140,10 @@ BEGIN
         SELECT MANV
         FROM admin.NHANVIEN
         WHERE VAITRO = N'Bác sĩ/Y sĩ'
-          AND MANV BETWEEN 'NV005' AND 'NV014'
+          AND (
+              MANV BETWEEN 'NV005' AND 'NV014'
+              OR MANV BETWEEN 'NV021' AND 'NV028'
+          )
     ) LOOP
         BEGIN
             v_sql := 'GRANT ROLE_BACSI TO ' || r.MANV;
@@ -153,93 +158,198 @@ BEGIN
 END;
 /
 
-
--- HSBA - Bác sĩ chỉ thấy/cập nhật HSBA mình phụ trách
-CREATE OR REPLACE FUNCTION FN_VPD_HSBA_BACSI (
+-- VPD FUNCTIONS
+CREATE OR REPLACE FUNCTION ADMIN.FN_VPD_HSBA_BACSI (
     p_schema IN VARCHAR2,
     p_object IN VARCHAR2
 )
 RETURN VARCHAR2
 AS
+    v_user   VARCHAR2(128);
+    v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
-    RETURN 'USER IN (
-                SELECT MANV
-                FROM ADMIN.NHANVIEN
-                WHERE VAITRO = N''Điều phối viên''
-            )
-            OR MABS = USER';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    -- ADMIN thấy toàn bộ dữ liệu
+    IF v_user = 'ADMIN' THEN
+        RETURN '1=1';
+    END IF;
+
+    SELECT VAITRO
+    INTO v_vaitro
+    FROM ADMIN.NHANVIEN
+    WHERE MANV = v_user;
+
+    IF v_vaitro = N'Điều phối viên' THEN
+        RETURN '1=1';
+    ELSIF v_vaitro = N'Bác sĩ/Y sĩ' THEN
+        RETURN 'MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')';
+    END IF;
+
+    RETURN '1=0';
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN '1=0';
 END;
 /
 
-
--- BENHNHAN - Bac si thay benh nhan minh phu trach; benh nhan thay chinh ho so cua minh
-CREATE OR REPLACE FUNCTION FN_VPD_BENHNHAN_BACSI (
+CREATE OR REPLACE FUNCTION ADMIN.FN_VPD_BENHNHAN_BACSI (
     p_schema IN VARCHAR2,
     p_object IN VARCHAR2
 )
 RETURN VARCHAR2
 AS
+    v_user   VARCHAR2(128);
+    v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
-    RETURN 'USER IN (
-                SELECT MANV
-                FROM ADMIN.NHANVIEN
-                WHERE VAITRO = N''Điều phối viên''
-            )
-            OR MABN IN (
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    -- ADMIN thấy toàn bộ dữ liệu
+    IF v_user = 'ADMIN' THEN
+        RETURN '1=1';
+    END IF;
+
+    SELECT VAITRO
+    INTO v_vaitro
+    FROM ADMIN.NHANVIEN
+    WHERE MANV = v_user;
+
+    IF v_vaitro = N'Điều phối viên' THEN
+        RETURN '1=1';
+
+    ELSIF v_vaitro = N'Bác sĩ/Y sĩ' THEN
+        RETURN 'MABN IN (
             SELECT MABN
             FROM ADMIN.HSBA
-            WHERE MABS = USER
-         )';
+            WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+        )';
+    END IF;
+
+    RETURN '1=0';
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        -- Bệnh nhân
+        RETURN 'MABN = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')';
 END;
 /
 
-
--- HSBA_DV - Bác sĩ chỉ xem/thêm/xóa dịch vụ mà mình phụ trách
-CREATE OR REPLACE FUNCTION FN_VPD_HSBA_DV_BACSI (
+CREATE OR REPLACE FUNCTION ADMIN.FN_VPD_HSBA_DV_BACSI (
     p_schema IN VARCHAR2,
     p_object IN VARCHAR2
 )
 RETURN VARCHAR2
 AS
+    v_user   VARCHAR2(128);
+    v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
-    RETURN 'USER IN (
-                SELECT MANV
-                FROM ADMIN.NHANVIEN
-                WHERE VAITRO = N''Điều phối viên''
-            )
-            OR MAHSBA IN (
-        SELECT MAHSBA
-        FROM ADMIN.HSBA
-        WHERE MABS = USER
-    )';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    -- ADMIN thấy toàn bộ dữ liệu
+    IF v_user = 'ADMIN' THEN
+        RETURN '1=1';
+    END IF;
+
+    SELECT VAITRO
+    INTO v_vaitro
+    FROM ADMIN.NHANVIEN
+    WHERE MANV = v_user;
+
+    IF v_vaitro = N'Điều phối viên' THEN
+        RETURN '1=1';
+
+    ELSIF v_vaitro = N'Bác sĩ/Y sĩ' THEN
+        RETURN 'MAHSBA IN (
+            SELECT MAHSBA
+            FROM ADMIN.HSBA
+            WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+        )';
+
+    ELSIF v_vaitro = N'Kỹ thuật viên' THEN
+        RETURN 'MAKTV = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')';
+    END IF;
+
+    RETURN '1=0';
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN '1=0';
 END;
 /
 
--- DONTHUOC - Bác sĩ chỉ thao tác đơn thuốc thuộc HSBA mà mình phụ trách
-CREATE OR REPLACE FUNCTION FN_VPD_DONTHUOC_BACSI (
+CREATE OR REPLACE FUNCTION ADMIN.FN_VPD_DONTHUOC_BACSI (
     p_schema IN VARCHAR2,
     p_object IN VARCHAR2
 )
 RETURN VARCHAR2
 AS
+    v_user   VARCHAR2(128);
+    v_vaitro ADMIN.NHANVIEN.VAITRO%TYPE;
 BEGIN
-    RETURN 'USER IN (
-                SELECT MANV
-                FROM ADMIN.NHANVIEN
-                WHERE VAITRO = N''Điều phối viên''
-            )
-            OR MAHSBA IN (
-        SELECT MAHSBA
-        FROM ADMIN.HSBA
-        WHERE MABS = USER
-    )';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    -- ADMIN thấy toàn bộ dữ liệu
+    IF v_user = 'ADMIN' THEN
+        RETURN '1=1';
+    END IF;
+
+    SELECT VAITRO
+    INTO v_vaitro
+    FROM ADMIN.NHANVIEN
+    WHERE MANV = v_user;
+
+    IF v_vaitro = N'Bác sĩ/Y sĩ' THEN
+        RETURN 'MAHSBA IN (
+            SELECT MAHSBA
+            FROM ADMIN.HSBA
+            WHERE MABS = SYS_CONTEXT(''USERENV'', ''SESSION_USER'')
+        )';
+    END IF;
+
+    RETURN '1=0';
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN '1=0';
 END;
 /
 
 
+-- DROP OLD POLICIES
+BEGIN DBMS_RLS.DROP_POLICY('ADMIN', 'HSBA', 'POL_HSBA_SELECT_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
 
---- POLICY
--- 1. Bác sĩ chỉ xem các hồ sơ bệnh án mà mình phụ trách
+BEGIN DBMS_RLS.DROP_POLICY('ADMIN', 'HSBA', 'POL_HSBA_UPDATE_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN DBMS_RLS.DROP_POLICY('ADMIN', 'HSBA_DV', 'POL_HSBA_DV_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN DBMS_RLS.DROP_POLICY('ADMIN', 'BENHNHAN', 'POL_BENHNHAN_SELECT_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN DBMS_RLS.DROP_POLICY('ADMIN', 'BENHNHAN', 'POL_BENHNHAN_UPDATE_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+BEGIN DBMS_RLS.DROP_POLICY('ADMIN', 'DONTHUOC', 'POL_DONTHUOC_BACSI');
+EXCEPTION WHEN OTHERS THEN IF SQLCODE != -28102 THEN RAISE; END IF;
+END;
+/
+
+
+-- ADD POLICY
+
 BEGIN
     DBMS_RLS.ADD_POLICY(
         object_schema   => 'ADMIN',
@@ -252,8 +362,6 @@ BEGIN
 END;
 /
 
-
--- 2. Bác sĩ chỉ cập nhật CHANDOAN, DIEUTRI, KETLUAN trên HSBA mà mình phụ trách
 BEGIN
     DBMS_RLS.ADD_POLICY(
         object_schema   => 'ADMIN',
@@ -267,7 +375,6 @@ BEGIN
 END;
 /
 
--- 3. Bác sĩ chỉ xem/thêm/xóa dịch vụ hỗ trợ chẩn đoán thuộc HSBA mà mình phụ trách
 BEGIN
     DBMS_RLS.ADD_POLICY(
         object_schema   => 'ADMIN',
@@ -281,7 +388,6 @@ BEGIN
 END;
 /
 
--- 4. Bác sĩ chỉ xem bệnh nhân thuộc HSBA mà mình phụ trách
 BEGIN
     DBMS_RLS.ADD_POLICY(
         object_schema   => 'ADMIN',
@@ -294,7 +400,6 @@ BEGIN
 END;
 /
 
--- 5. Bác sĩ chỉ cập nhật TIENSUBENH, TIENSUBENHGD, DIUNGTHUOC của bệnh nhân mình điều trị
 BEGIN
     DBMS_RLS.ADD_POLICY(
         object_schema   => 'ADMIN',
@@ -308,8 +413,6 @@ BEGIN
 END;
 /
 
-
--- 6. Bác sĩ chỉ thao tác đơn thuốc thuộc HSBA mà mình phụ trách
 BEGIN
     DBMS_RLS.ADD_POLICY(
         object_schema   => 'ADMIN',
