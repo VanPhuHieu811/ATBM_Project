@@ -18,6 +18,7 @@ namespace ATBM_Project.Views
         private DataGridView dgvPatients;
         private TextBox txtPassword;
         private Button btnCreate;
+        private Button btnAddEmployee;
         private Button btnRefresh;
         private Button btnClose;
         private Label lblPassword;
@@ -84,13 +85,17 @@ namespace ATBM_Project.Views
                 Text = "123"
             };
 
-            btnCreate = CreateActionButton("Tạo tài khoản", 360, 402, 150);
+            btnCreate = CreateActionButton("Tạo tài khoản", 360, 402, 130);
             btnCreate.Click += BtnCreate_Click;
 
-            btnRefresh = CreateActionButton("Làm mới", 520, 402, 100);
+            btnAddEmployee = CreateActionButton("Thêm nhân viên mới", 500, 402, 150);
+            btnAddEmployee.BackColor = Color.FromArgb(46, 125, 50);
+            btnAddEmployee.Click += BtnAddEmployee_Click;
+
+            btnRefresh = CreateActionButton("Làm mới", 660, 402, 70);
             btnRefresh.Click += (s, e) => LoadPendingAccounts();
 
-            btnClose = CreateActionButton("Đóng", 630, 402, 100);
+            btnClose = CreateActionButton("Đóng", 740, 402, 60);
             btnClose.BackColor = Color.Gray;
             btnClose.Click += (s, e) => this.Close();
 
@@ -99,6 +104,7 @@ namespace ATBM_Project.Views
             this.Controls.Add(lblPassword);
             this.Controls.Add(txtPassword);
             this.Controls.Add(btnCreate);
+            this.Controls.Add(btnAddEmployee);
             this.Controls.Add(btnRefresh);
             this.Controls.Add(btnClose);
         }
@@ -194,6 +200,18 @@ namespace ATBM_Project.Views
             });
 
             grid.DataSource = items;
+        }
+
+        private void BtnAddEmployee_Click(object sender, EventArgs e)
+        {
+            using (FormUserCreateEmployee createEmployeeForm = new FormUserCreateEmployee())
+            {
+                if (createEmployeeForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    this.DialogResult = DialogResult.OK;
+                    LoadPendingAccounts();
+                }
+            }
         }
 
         private void BtnCreate_Click(object sender, EventArgs e)

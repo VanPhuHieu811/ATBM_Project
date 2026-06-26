@@ -69,6 +69,57 @@ namespace ATBM_Project.Presenters
             return ReadPendingItems(sql, isEmployee: false, idColumn: "MABN", nameColumn: "TENBN");
         }
 
+        public string SuggestNextEmployeeId()
+        {
+            using (OracleConnection conn = DBConfig.GetConnection())
+            {
+                conn.Open();
+                const string sql = @"
+                    SELECT NVL(MAX(TO_NUMBER(REGEXP_SUBSTR(MANV, '[0-9]+'))), 0) + 1
+                    FROM ADMIN.NHANVIEN
+                    WHERE REGEXP_LIKE(MANV, '^NV[0-9]+$')";
+
+                using (OracleCommand cmd = new OracleCommand(sql, conn))
+                {
+                    object value = cmd.ExecuteScalar();
+                    int nextNumber = Convert.ToInt32(value);
+                    return "NV" + nextNumber.ToString("D3");
+                }
+            }
+        }
+
+        public void CreateEmployeeWithDataAndAccount(NhanVienModel model, string password)
+        {
+            if (model == null)
+            {
+                throw new Exception("Thông tin nhân viên không hợp lệ.");
+            }
+
+            string manv = NormalizeIdentifier(model.ManV);
+
+            if (EmployeeExists(manv))
+            {
+                throw new Exception($"Mã nhân viên {manv} đã tồn tại trong bảng NHANVIEN.");
+            }
+
+            if (OracleUserExists(manv))
+            {
+                throw new Exception($"Tài khoản Oracle {manv} đã tồn tại.");
+            }
+
+            InsertEmployee(model, manv);
+
+            try
+            {
+                CreateEmployeeAccount(manv, password);
+            }
+            catch
+            {
+                TryDeleteEmployee(manv);
+                throw;
+            }
+        }
+
         public void CreateEmployeeAccount(string manv, string password)
         {
             string username = NormalizeIdentifier(manv);
@@ -159,6 +210,86 @@ namespace ATBM_Project.Presenters
                 }
             }
             return list;
+        }
+
+        private void InsertEmployee(NhanVienModel model, string manv)
+        {
+            using (OracleConnection conn = DBConfig.GetConnection())
+            {
+                conn.Open();
+                const string sql = @"
+                    INSERT INTO ADMIN.NHANVIEN
+                        (MANV, HOTEN, PHAI, NGAYSINH, CMND, QUEQUAN, SODT, VAITRO, CHUYENKHOA)
+                    VALUES
+                        (:manv, :hoten, :phai, TO_DATE(:ngaysinh, 'DD/MM/YYYY'), :cmnd,
+                         :quequan, :sodt, :vaitro, :chuyenkhoa)";
+
+                using (OracleCommand cmd = new OracleCommand(sql, conn))
+                {
+                    cmd.BindByName = true;
+                    cmd.Parameters.Add("manv", OracleDbType.Varchar2).Value = manv;
+                    cmd.Parameters.Add("hoten", OracleDbType.NVarchar2).Value = model.HoTen.Trim();
+                    cmd.Parameters.Add("phai", OracleDbType.NVarchar2).Value = model.Phai;
+                    cmd.Parameters.Add("ngaysinh", OracleDbType.Varchar2).Value = model.NgaySinh.Trim();
+                    cmd.Parameters.Add("cmnd", OracleDbType.Varchar2).Value = model.Cmnd.Trim();
+                    cmd.Parameters.Add("quequan", OracleDbType.NVarchar2).Value =
+                        string.IsNullOrWhiteSpace(model.QueQuan) ? (object)DBNull.Value : model.QueQuan.Trim();
+                    cmd.Parameters.Add("sodt", OracleDbType.Varchar2).Value =
+                        string.IsNullOrWhiteSpace(model.SoDt) ? (object)DBNull.Value : model.SoDt.Trim();
+                    cmd.Parameters.Add("vaitro", OracleDbType.NVarchar2).Value = model.VaiTro;
+                    cmd.Parameters.Add("chuyenkhoa", OracleDbType.NVarchar2).Value =
+                        string.IsNullOrWhiteSpace(model.ChuyenKhoa) ? (object)DBNull.Value : model.ChuyenKhoa.Trim();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private bool EmployeeExists(string manv)
+        {
+            using (OracleConnection conn = DBConfig.GetConnection())
+            {
+                conn.Open();
+                using (OracleCommand cmd = new OracleCommand(
+                    "SELECT COUNT(*) FROM ADMIN.NHANVIEN WHERE MANV = :manv", conn))
+                {
+                    cmd.Parameters.Add("manv", OracleDbType.Varchar2).Value = manv;
+                    return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                }
+            }
+        }
+
+        private bool OracleUserExists(string username)
+        {
+            using (OracleConnection conn = DBConfig.GetConnection())
+            {
+                conn.Open();
+                using (OracleCommand cmd = new OracleCommand(
+                    "SELECT COUNT(*) FROM DBA_USERS WHERE USERNAME = :username", conn))
+                {
+                    cmd.Parameters.Add("username", OracleDbType.Varchar2).Value = username;
+                    return Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                }
+            }
+        }
+
+        private void TryDeleteEmployee(string manv)
+        {
+            try
+            {
+                using (OracleConnection conn = DBConfig.GetConnection())
+                {
+                    conn.Open();
+                    using (OracleCommand cmd = new OracleCommand(
+                        "DELETE FROM ADMIN.NHANVIEN WHERE MANV = :manv", conn))
+                    {
+                        cmd.Parameters.Add("manv", OracleDbType.Varchar2).Value = manv;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (OracleException)
+            {
+            }
         }
 
         private string GetEmployeeRole(string manv)
