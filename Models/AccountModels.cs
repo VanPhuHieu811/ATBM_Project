@@ -7,6 +7,16 @@
         public string Status { get; set; }
     }
 
+    public class PendingAccountItem
+    {
+        public string AccountId { get; set; }
+        public string DisplayName { get; set; }
+        public string RoleOrType { get; set; }
+        public string Gender { get; set; }
+        public string BirthDate { get; set; }
+        public bool IsEmployee { get; set; }
+    }
+
     public class RoleAccount
     {
         public string RoleName { get; set; }

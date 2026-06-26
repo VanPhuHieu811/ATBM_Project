@@ -114,20 +114,12 @@ namespace ATBM_Project.Views
 
         private void BtnUserCreate_Click(object sender, EventArgs e)
         {
-            string username = Prompt.ShowDialog("Username:", "Create User");
-            if (string.IsNullOrEmpty(username)) return;
-            string password = Prompt.ShowDialog("Password:", "Create User");
-            if (string.IsNullOrEmpty(password)) return;
-
-            try
+            using (FormUserCreateAccount createForm = new FormUserCreateAccount())
             {
-                new UserPresenter().CreateUser(username, password);
-                MessageBox.Show("Success");
-                LoadData();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
+                if (createForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    LoadData();
+                }
             }
         }
 
